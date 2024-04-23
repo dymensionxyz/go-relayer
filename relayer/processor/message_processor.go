@@ -584,6 +584,7 @@ func (mp *messageProcessor) sendSingleMessage(
 		callbacks = append(callbacks, testCallback)
 	}
 
+	mp.log.Debug("pre send messages to mempool", zap.String("dst chain id", dst.info.ChainID))
 	err := dst.chainProvider.SendMessagesToMempool(broadcastCtx, msgs, mp.memo, ctx, callbacks)
 	if err != nil {
 		errFields := []zapcore.Field{
