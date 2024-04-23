@@ -1216,7 +1216,6 @@ func (pp *PathProcessor) queuePendingRecvAndAcks(
 	srcMu sync.Locker,
 	dstMu sync.Locker,
 ) (*skippedPackets, error) {
-
 	if len(seqs) == 0 {
 		src.log.Debug("Nothing to flush", zap.String("channel", k.ChannelID), zap.String("port", k.PortID))
 		return nil, nil
@@ -1297,6 +1296,7 @@ func (pp *PathProcessor) queuePendingRecvAndAcks(
 			}
 			sendPacket.ChannelOrder = order.String()
 			srcMu.Lock()
+			pp.log.Debug("caching send packet", zap.String("channel", k.ChannelID), zap.String("port", k.PortID), zap.Uint64("sequence", seq))
 			srcCache.Cache(chantypes.EventTypeSendPacket, k, seq, sendPacket)
 			srcMu.Unlock()
 

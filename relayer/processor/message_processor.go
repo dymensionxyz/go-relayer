@@ -91,7 +91,7 @@ func (mp *messageProcessor) processMessages(
 	messages pathEndMessages,
 	src, dst *pathEndRuntime,
 ) error {
-	mp.log.Debug("process messages")
+	mp.log.Debug("process messages", zap.String("src", src.info.ChainID), zap.String("dst", dst.info.ChainID), zap.String("messages", messages.Nums()))
 	var needsClientUpdate bool
 
 	// Localhost IBC does not permit client updates
@@ -108,6 +108,8 @@ func (mp *messageProcessor) processMessages(
 	}
 
 	mp.assembleMessages(ctx, messages, src, dst)
+
+	mp.log.Debug("track and send", zap.String("src", src.info.ChainID), zap.String("dst", dst.info.ChainID), zap.Bool("need update", needsClientUpdate))
 
 	return mp.trackAndSendMessages(ctx, src, dst, needsClientUpdate)
 }
