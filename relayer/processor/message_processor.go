@@ -99,17 +99,21 @@ func (mp *messageProcessor) processMessages(
 		var err error
 		needsClientUpdate, err = mp.shouldUpdateClientNow(ctx, src, dst)
 		if err != nil {
-			return err
+			mp.log.Debug("err should update client now", zap.String("src", src.info.ChainID), zap.String("dst", dst.info.ChainID), zap.Error(err))
+			return fmt.Errorf("should update client now: %w", err)
 		}
 
 		if err := mp.assembleMsgUpdateClient(ctx, src, dst); err != nil {
-			return err
+			mp.log.Debug("err assemble msg update client", zap.String("src", src.info.ChainID), zap.String("dst", dst.info.ChainID), zap.Error(err))
+			return fmt.Errorf("assemble msg update client: %w", err)
 		}
 	}
 
+	mp.log.Debug("pre assemble messages", zap.String("src", src.info.ChainID), zap.String("dst", dst.info.ChainID), zap.Bool("need update", needsClientUpdate))
+
 	mp.assembleMessages(ctx, messages, src, dst)
 
-	mp.log.Debug("track and send", zap.String("src", src.info.ChainID), zap.String("dst", dst.info.ChainID), zap.Bool("need update", needsClientUpdate))
+	mp.log.Debug("pre track and send", zap.String("src", src.info.ChainID), zap.String("dst", dst.info.ChainID), zap.Bool("need update", needsClientUpdate))
 
 	return mp.trackAndSendMessages(ctx, src, dst, needsClientUpdate)
 }
@@ -309,12 +313,12 @@ func (mp *messageProcessor) assembleMsgUpdateClient(ctx context.Context, src, ds
 		dst.clientTrustedState.IBCHeader,
 	)
 	if err != nil {
-		return fmt.Errorf("error assembling new client header: %w", err)
+		return fmt.Errorf("chain provider msg update client header: %w", err)
 	}
 
 	msgUpdateClient, err := dst.chainProvider.MsgUpdateClient(clientID, msgUpdateClientHeader)
 	if err != nil {
-		return fmt.Errorf("error assembling MsgUpdateClient: %w", err)
+		return fmt.Errorf("chain provider msg update client: %w", err)
 	}
 
 	mp.msgUpdateClient = msgUpdateClient

@@ -1078,11 +1078,19 @@ func (pp *PathProcessor) processLatestMessages(ctx context.Context, cancel func(
 	var eg errgroup.Group
 	eg.Go(func() error {
 		mp := newMessageProcessor(pp.log, pp.metrics, pp.memo, pp.clientUpdateThresholdTime, pp.isLocalhost)
-		return mp.processMessages(ctx, pathEnd1Messages, pp.pathEnd2, pp.pathEnd1)
+		err := mp.processMessages(ctx, pathEnd1Messages, pp.pathEnd2, pp.pathEnd1)
+		if err != nil {
+			return fmt.Errorf("process messages: pathend1messages: %w", err)
+		}
+		return nil
 	})
 	eg.Go(func() error {
 		mp := newMessageProcessor(pp.log, pp.metrics, pp.memo, pp.clientUpdateThresholdTime, pp.isLocalhost)
-		return mp.processMessages(ctx, pathEnd2Messages, pp.pathEnd1, pp.pathEnd2)
+		err := mp.processMessages(ctx, pathEnd2Messages, pp.pathEnd1, pp.pathEnd2)
+		if err != nil {
+			return fmt.Errorf("process messages: pathend2messages: %w", err)
+		}
+		return nil
 	})
 	return eg.Wait()
 }
