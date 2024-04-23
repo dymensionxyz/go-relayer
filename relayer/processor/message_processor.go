@@ -91,7 +91,9 @@ func (mp *messageProcessor) processMessages(
 	messages pathEndMessages,
 	src, dst *pathEndRuntime,
 ) error {
-	mp.log.Debug("process messages", zap.String("src", src.info.ChainID), zap.String("dst", dst.info.ChainID), zap.String("messages", messages.Nums()))
+	log := mp.log.With(zap.String("src", src.info.ChainID), zap.String("dst", dst.info.ChainID))
+
+	log.Debug("process messages", zap.String("messages", messages.Nums()))
 	var needsClientUpdate bool
 
 	// Localhost IBC does not permit client updates
@@ -99,21 +101,21 @@ func (mp *messageProcessor) processMessages(
 		var err error
 		needsClientUpdate, err = mp.shouldUpdateClientNow(ctx, src, dst)
 		if err != nil {
-			mp.log.Debug("err should update client now", zap.String("src", src.info.ChainID), zap.String("dst", dst.info.ChainID), zap.Error(err))
+			log.Error("should update client now", zap.Error(err))
 			return fmt.Errorf("should update client now: %w", err)
 		}
 
 		if err := mp.assembleMsgUpdateClient(ctx, src, dst); err != nil {
-			mp.log.Debug("err assemble msg update client", zap.String("src", src.info.ChainID), zap.String("dst", dst.info.ChainID), zap.Error(err))
+			log.Error("assemble msg update client", zap.Error(err))
 			return fmt.Errorf("assemble msg update client: %w", err)
 		}
 	}
 
-	mp.log.Debug("pre assemble messages", zap.String("src", src.info.ChainID), zap.String("dst", dst.info.ChainID), zap.Bool("need update", needsClientUpdate))
+	log.Debug("pre assemble messages", zap.Bool("need update", needsClientUpdate))
 
 	mp.assembleMessages(ctx, messages, src, dst)
 
-	mp.log.Debug("pre track and send", zap.String("src", src.info.ChainID), zap.String("dst", dst.info.ChainID), zap.Bool("need update", needsClientUpdate))
+	log.Debug("pre track and send", zap.Bool("need update", needsClientUpdate))
 
 	return mp.trackAndSendMessages(ctx, src, dst, needsClientUpdate)
 }
