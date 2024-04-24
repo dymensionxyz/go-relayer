@@ -263,14 +263,13 @@ func (ccp *CosmosChainProcessor) Run(ctx context.Context, initialBlockHistory ui
 	}
 
 	// this will make initial QueryLoop iteration look back initialBlockHistory blocks in history
-	// TODO(danwt): I'm assuming initial block history is always zero right now
 	latestQueriedBlock := persistence.latestHeight - int64(initialBlockHistory)
 
 	if latestQueriedBlock < 0 {
 		latestQueriedBlock = 0
 	}
 
-	if stuckPacket != nil && ccp.chainProvider.ChainId() == stuckPacket.ChainID { // TODO(danwt): check if can use stuck packet
+	if stuckPacket != nil && ccp.chainProvider.ChainId() == stuckPacket.ChainID {
 		latestQueriedBlock = int64(stuckPacket.StartHeight)
 	}
 
