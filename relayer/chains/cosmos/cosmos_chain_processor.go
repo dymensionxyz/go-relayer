@@ -57,7 +57,6 @@ type CosmosChainProcessor struct {
 
 	inSyncNumBlocksThreshold int
 
-	// firstEverQueryIsAlreadyDone bool
 	firstEverSyncIsAlreadyDone bool
 }
 
@@ -562,8 +561,6 @@ func (ccp *CosmosChainProcessor) queryCycle(ctx context.Context, persistence *qu
 	if ccp.inSync {
 		ccp.firstEverSyncIsAlreadyDone = true
 	}
-
-	// ccp.firstEverQueryIsAlreadyDone = true
 
 	return nil
 }
