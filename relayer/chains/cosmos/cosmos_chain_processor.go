@@ -54,41 +54,23 @@ type CosmosChainProcessor struct {
 
 	// parsed gas prices accepted by the chain (only used for metrics)
 	parsedGasPrices *sdk.DecCoins
-
-	inSyncNumBlocksThreshold int
-
-	firstEverSyncIsAlreadyDone bool
-}
-
-type Option func(*CosmosChainProcessor)
-
-func WithInSyncNumBlocksThreshold(inSyncNumBlocksThreshold int) Option {
-	return func(ccp *CosmosChainProcessor) {
-		ccp.inSyncNumBlocksThreshold = inSyncNumBlocksThreshold
-	}
 }
 
 func NewCosmosChainProcessor(
 	log *zap.Logger,
 	provider *CosmosProvider,
 	metrics *processor.PrometheusMetrics,
-	opts ...Option,
 ) *CosmosChainProcessor {
-	ret := &CosmosChainProcessor{
-		log:                      log.With(zap.String("chain_name", provider.ChainName()), zap.String("chain_id", provider.ChainId())),
-		chainProvider:            provider,
-		latestClientState:        make(latestClientState),
-		connectionStateCache:     make(processor.ConnectionStateCache),
-		channelStateCache:        make(processor.ChannelStateCache),
-		connectionClients:        make(map[string]string),
-		channelConnections:       make(map[string]string),
-		metrics:                  metrics,
-		inSyncNumBlocksThreshold: defaultInSyncNumBlocksThreshold,
+	return &CosmosChainProcessor{
+		log:                  log.With(zap.String("chain_name", provider.ChainName()), zap.String("chain_id", provider.ChainId())),
+		chainProvider:        provider,
+		latestClientState:    make(latestClientState),
+		connectionStateCache: make(processor.ConnectionStateCache),
+		channelStateCache:    make(processor.ChannelStateCache),
+		connectionClients:    make(map[string]string),
+		channelConnections:   make(map[string]string),
+		metrics:              metrics,
 	}
-	for _, opt := range opts {
-		opt(ret)
-	}
-	return ret
 }
 
 const (
@@ -385,7 +367,7 @@ func (ccp *CosmosChainProcessor) queryCycle(ctx context.Context, persistence *qu
 	firstTimeInSync := false
 
 	if !ccp.inSync {
-		if (persistence.latestHeight - persistence.latestQueriedBlock) < int64(ccp.inSyncNumBlocksThreshold) {
+		if (persistence.latestHeight - persistence.latestQueriedBlock) < int64(defaultInSyncNumBlocksThreshold) {
 			ccp.inSync = true
 			firstTimeInSync = true
 			ccp.log.Info("Chain is in sync")
@@ -412,7 +394,7 @@ func (ccp *CosmosChainProcessor) queryCycle(ctx context.Context, persistence *qu
 	firstHeightToQuery := persistence.latestQueriedBlock
 	// On the first ever update, we want to make sure we propagate the block info to the path processor
 	// Afterward, we only want to query new blocks
-	if ccp.firstEverSyncIsAlreadyDone {
+	if ccp.inSync && !firstTimeInSync {
 		firstHeightToQuery++
 	}
 
@@ -517,7 +499,7 @@ func (ccp *CosmosChainProcessor) queryCycle(ctx context.Context, persistence *qu
 		}
 	}
 
-	if ccp.firstEverSyncIsAlreadyDone && newLatestQueriedBlock == persistence.latestQueriedBlock {
+	if (ccp.inSync && !firstTimeInSync) && newLatestQueriedBlock == persistence.latestQueriedBlock {
 		return nil
 	}
 
@@ -557,10 +539,6 @@ func (ccp *CosmosChainProcessor) queryCycle(ctx context.Context, persistence *qu
 	}
 
 	persistence.latestQueriedBlock = newLatestQueriedBlock
-
-	if ccp.inSync {
-		ccp.firstEverSyncIsAlreadyDone = true
-	}
 
 	return nil
 }

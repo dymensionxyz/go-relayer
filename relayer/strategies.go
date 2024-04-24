@@ -58,16 +58,8 @@ func StartRelayer(
 	case ProcessorEvents:
 		chainProcessors := make([]processor.ChainProcessor, 0, len(chains))
 
-		for chainID, chain := range chains {
-			var p processor.ChainProcessor
-			if 0 < len(paths) && chainID == paths[0].Path.Src.ChainID {
-				// Rollapp
-				threshold := 2 // same as default, TODO(danwt): configure if necessary
-				p = chain.chainProcessor(log, metrics, cosmos.WithInSyncNumBlocksThreshold(threshold))
-			} else {
-				p = chain.chainProcessor(log, metrics)
-			}
-			chainProcessors = append(chainProcessors, p)
+		for _, chain := range chains {
+			chainProcessors = append(chainProcessors, chain.chainProcessor(log, metrics))
 		}
 
 		ePaths := make([]path, len(paths))
@@ -146,14 +138,13 @@ type path struct {
 func (c *Chain) chainProcessor(
 	log *zap.Logger,
 	metrics *processor.PrometheusMetrics,
-	cosmosOpts ...cosmos.Option,
 ) processor.ChainProcessor {
 	// Handle new ChainProcessor implementations as cases here
 	switch p := c.ChainProvider.(type) {
 	case *penumbraprocessor.PenumbraProvider:
 		return penumbraprocessor.NewPenumbraChainProcessor(log, p)
 	case *cosmos.CosmosProvider:
-		return cosmos.NewCosmosChainProcessor(log, p, metrics, cosmosOpts...)
+		return cosmos.NewCosmosChainProcessor(log, p, metrics)
 	default:
 		panic(fmt.Errorf("unsupported chain provider type: %T", c.ChainProvider))
 	}
