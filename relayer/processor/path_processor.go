@@ -391,7 +391,7 @@ func (pp *PathProcessor) processAvailableSignals(ctx context.Context, cancel fun
 func (pp *PathProcessor) Run(ctx context.Context, cancel func()) {
 	var retryTimer *time.Timer
 
-	pp.flushTimer = time.NewTimer(time.Hour)
+	pp.flushTimer = time.NewTimer(pp.flushInterval)
 
 	for {
 		// block until we have any signals to process
