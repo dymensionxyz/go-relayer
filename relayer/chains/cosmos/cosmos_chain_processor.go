@@ -57,8 +57,8 @@ type CosmosChainProcessor struct {
 
 	inSyncNumBlocksThreshold int
 
-	firstEverQueryIsAlreadyDone bool
-	firstEverSyncIsAlreadyDone  bool
+	// firstEverQueryIsAlreadyDone bool
+	firstEverSyncIsAlreadyDone bool
 }
 
 type Option func(*CosmosChainProcessor)
@@ -413,7 +413,7 @@ func (ccp *CosmosChainProcessor) queryCycle(ctx context.Context, persistence *qu
 	firstHeightToQuery := persistence.latestQueriedBlock
 	// On the first ever update, we want to make sure we propagate the block info to the path processor
 	// Afterward, we only want to query new blocks
-	if ccp.firstEverQueryIsAlreadyDone {
+	if ccp.firstEverSyncIsAlreadyDone {
 		firstHeightToQuery++
 	}
 
@@ -563,7 +563,7 @@ func (ccp *CosmosChainProcessor) queryCycle(ctx context.Context, persistence *qu
 		ccp.firstEverSyncIsAlreadyDone = true
 	}
 
-	ccp.firstEverQueryIsAlreadyDone = true
+	// ccp.firstEverQueryIsAlreadyDone = true
 
 	return nil
 }
