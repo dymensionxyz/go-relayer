@@ -518,7 +518,6 @@ func (ccp *CosmosChainProcessor) queryCycle(ctx context.Context, persistence *qu
 	}
 
 	if ccp.firstEverUpdateIsAlreadyDone && newLatestQueriedBlock == persistence.latestQueriedBlock {
-		ccp.log.Debug("didnt query anything new, not sending data to path processors")
 		return nil
 	}
 
