@@ -3,6 +3,7 @@ package cosmos
 import (
 	"encoding/json"
 	"os"
+	"strings"
 
 	"github.com/cosmos/gogoproto/sortkeys"
 
@@ -13,12 +14,12 @@ func getStuckPackets(sp *processor.StuckPacket) ([]*processor.StuckPacket, error
 	if sp == nil {
 		return nil, nil
 	}
-	//parts := strings.Split(j, "#")
-	//if len(parts) != 2 {
-	//	return []*processor.StuckPacket{sp}, nil
-	//}
-	//return getStuckPacketsFromFile(parts[0], parts[1])
-	return getStuckPacketsFromFile(sp.ChainID, "/Users/danwt/Documents/dym/aaa-dym-notes/tasks/202405_fix_relayer_stuck_packets_mainnet/heights.json")
+	j := sp.ChainID
+	parts := strings.Split(j, "#")
+	if len(parts) != 2 {
+		return []*processor.StuckPacket{sp}, nil
+	}
+	return getStuckPacketsFromFile(parts[0], parts[1])
 }
 
 func getStuckPacketsFromFile(chainID string, fn string) ([]*processor.StuckPacket, error) {
