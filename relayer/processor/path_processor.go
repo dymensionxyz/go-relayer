@@ -419,23 +419,18 @@ func (pp *PathProcessor) Run(ctx context.Context, cancel func()) {
 			return
 		}
 
-		pp.log.Info("SYNCED EXIT")
-		_ = retryTimer
-		/*
-
-			// process latest message cache state from both pathEnds
-			if err := pp.processLatestMessages(ctx, cancel); err != nil {
-				pp.log.Debug("error process latest messages", zap.Error(err))
-				// in case of IBC message send errors, schedule retry after durationErrorRetry
-				if retryTimer != nil {
-					retryTimer.Stop()
-				}
-				if ctx.Err() == nil {
-					retryTimer = time.AfterFunc(durationErrorRetry, pp.ProcessBacklogIfReady)
-				}
+		// process latest message cache state from both pathEnds
+		if err := pp.processLatestMessages(ctx, cancel); err != nil {
+			pp.log.Debug("error process latest messages", zap.Error(err))
+			// in case of IBC message send errors, schedule retry after durationErrorRetry
+			if retryTimer != nil {
+				retryTimer.Stop()
 			}
+			if ctx.Err() == nil {
+				retryTimer = time.AfterFunc(durationErrorRetry, pp.ProcessBacklogIfReady)
+			}
+		}
 
-		*/
 	}
 }
 
