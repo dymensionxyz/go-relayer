@@ -274,10 +274,11 @@ func (ccp *CosmosChainProcessor) Run(ctx context.Context, initialBlockHistory ui
 	ticker := time.NewTicker(persistence.minQueryLoopDuration)
 	defer ticker.Stop()
 
+	stuckPackets, err := getStuckPackets(stuckPacket)
+	if err != nil {
+		return err
+	}
 	stuckPacketsIx := 0
-
-	var stuckPackets []*processor.StuckPacket
-	stuckPackets = append(stuckPackets, stuckPacket)
 
 	for {
 		var stuckPacket *processor.StuckPacket
