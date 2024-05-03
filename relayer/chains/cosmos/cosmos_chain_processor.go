@@ -292,7 +292,6 @@ func (ccp *CosmosChainProcessor) Run(ctx context.Context, initialBlockHistory ui
 		}
 		if unstuck {
 			stuckPacketsIx++
-			ccp.log.Info("Unstuck block, moving to next", zap.Any("height", stuckPacket.StartHeight))
 		}
 		select {
 		case <-ctx.Done():
@@ -363,6 +362,10 @@ func (ccp *CosmosChainProcessor) queryCycle(
 	stuckPacket *processor.StuckPacket,
 	afterUnstuck int64,
 ) (didGetUnstuck bool, err error) {
+	if stuckPacket != nil {
+		ccp.log.Info("Trying to handle blocked height", zap.Any("stuck packet", stuckPacket.EndHeight))
+	}
+
 	status, err := ccp.nodeStatusWithRetry(ctx)
 	if err != nil {
 		// don't want to cause CosmosChainProcessor to quit here, can retry again next cycle.
