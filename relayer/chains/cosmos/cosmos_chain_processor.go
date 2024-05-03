@@ -506,7 +506,6 @@ func (ccp *CosmosChainProcessor) queryCycle(
 			i = persistence.latestHeight
 
 			newLatestQueriedBlock = afterUnstuck
-			// newLatestQueriedBlock = persistence.latestHeight // this line fixes it, but why?
 			ccp.log.Info("Parsed stuck packet height, skipping to current", zap.Any("new latest queried block", persistence.latestHeight))
 		}
 
