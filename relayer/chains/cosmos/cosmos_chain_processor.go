@@ -292,6 +292,7 @@ func (ccp *CosmosChainProcessor) Run(ctx context.Context, initialBlockHistory ui
 		}
 		if unstuck {
 			stuckPacketsIx++
+			ccp.log.Info("Unstuck block, moving to next", zap.Any("height", stuckPacket.StartHeight))
 		}
 		select {
 		case <-ctx.Done():
