@@ -53,10 +53,10 @@ func (ccp *CosmosChainProcessor) handlePacketMessage(eventType string, pi provid
 		return
 	}
 
-	ccp.log.Info("Retaining packet message",
+	ccp.log.Debug("Retaining packet message",
 		zap.String("event_type", eventType),
 		zap.Uint64("sequence", pi.Sequence),
-		zap.Uint64("sequence", pi.Height),
+		zap.Uint64("height", pi.Height),
 		zap.Inline(k),
 	)
 
