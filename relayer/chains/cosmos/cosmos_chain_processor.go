@@ -274,9 +274,23 @@ func (ccp *CosmosChainProcessor) Run(ctx context.Context, initialBlockHistory ui
 	ticker := time.NewTicker(persistence.minQueryLoopDuration)
 	defer ticker.Stop()
 
+	stuckPacketsIx := 0
+
+	var stuckPackets []*processor.StuckPacket
+	stuckPackets = append(stuckPackets, stuckPacket)
+
 	for {
-		if err := ccp.queryCycle(ctx, &persistence, stuckPacket, afterUnstuck); err != nil {
+		var stuckPacket *processor.StuckPacket
+		if stuckPacketsIx < len(stuckPackets) {
+			stuckPacket = stuckPackets[stuckPacketsIx]
+		}
+
+		unstuck, err := ccp.queryCycle(ctx, &persistence, stuckPacket, afterUnstuck)
+		if err != nil {
 			return err
+		}
+		if unstuck {
+			stuckPacketsIx++
 		}
 		select {
 		case <-ctx.Done():
@@ -346,7 +360,7 @@ func (ccp *CosmosChainProcessor) queryCycle(
 	persistence *queryCyclePersistence,
 	stuckPacket *processor.StuckPacket,
 	afterUnstuck int64,
-) error {
+) (didGetUnstuck bool, err error) {
 	status, err := ccp.nodeStatusWithRetry(ctx)
 	if err != nil {
 		// don't want to cause CosmosChainProcessor to quit here, can retry again next cycle.
@@ -355,7 +369,7 @@ func (ccp *CosmosChainProcessor) queryCycle(
 			zap.Uint("attempts", latestHeightQueryRetries),
 			zap.Error(err),
 		)
-		return nil
+		return
 	}
 
 	persistence.latestHeight = status.SyncInfo.LatestBlockHeight
@@ -506,6 +520,7 @@ func (ccp *CosmosChainProcessor) queryCycle(
 			i = persistence.latestHeight
 
 			newLatestQueriedBlock = afterUnstuck
+			didGetUnstuck = true
 			ccp.log.Info("Parsed stuck packet height, skipping to current", zap.Any("new latest queried block", persistence.latestHeight))
 		}
 
@@ -516,7 +531,7 @@ func (ccp *CosmosChainProcessor) queryCycle(
 	}
 
 	if (ccp.inSync && !firstTimeInSync) && newLatestQueriedBlock == persistence.latestQueriedBlock {
-		return nil
+		return
 	}
 
 	if !ppChanged {
@@ -526,7 +541,7 @@ func (ccp *CosmosChainProcessor) queryCycle(
 			}
 		}
 
-		return nil
+		return
 	}
 
 	for _, pp := range ccp.pathProcessors {
@@ -558,7 +573,7 @@ func (ccp *CosmosChainProcessor) queryCycle(
 
 	persistence.latestQueriedBlock = newLatestQueriedBlock
 
-	return nil
+	return
 }
 
 func (ccp *CosmosChainProcessor) CollectMetrics(ctx context.Context, persistence *queryCyclePersistence) {
