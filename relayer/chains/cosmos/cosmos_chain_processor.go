@@ -398,6 +398,8 @@ func (ccp *CosmosChainProcessor) queryCycle(ctx context.Context, persistence *qu
 		firstHeightToQuery++
 	}
 
+	startTime := time.Now()
+
 	for i := firstHeightToQuery; i <= persistence.latestHeight; i++ {
 		var (
 			eg        errgroup.Group
@@ -500,6 +502,11 @@ func (ccp *CosmosChainProcessor) queryCycle(ctx context.Context, persistence *qu
 
 			ccp.log.Info("Parsed stuck packet height, skipping to current", zap.Any("new latest queried block", persistence.latestHeight))
 		}
+
+		if i%100 == 0 {
+			elapsed := time.Since(startTime)
+			ccp.log.Info("Processed block", zap.Int64("height", i), zap.Duration("elapsed", elapsed), zap.Int64("latest", persistence.latestHeight))
+		}
 	}
 
 	if (ccp.inSync && !firstTimeInSync) && newLatestQueriedBlock == persistence.latestQueriedBlock {
@@ -527,7 +534,9 @@ func (ccp *CosmosChainProcessor) queryCycle(ctx context.Context, persistence *qu
 			continue
 		}
 
-		ccp.log.Debug("sending new data to the path processor", zap.Bool("inSync", ccp.inSync))
+		if stuckPacket != nil && ccp.chainProvider.ChainId() == stuckPacket.ChainID {
+			ccp.log.Info("sending new data to the path processor", zap.Bool("inSync", ccp.inSync))
+		}
 
 		pp.HandleNewData(chainID, processor.ChainProcessorCacheData{
 			LatestBlock:          ccp.latestBlock,
