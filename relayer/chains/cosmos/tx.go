@@ -173,7 +173,7 @@ func (cc *CosmosProvider) SendMessagesToMempool(
 
 	txSignerKey, feegranterKeyOrAddr, err := cc.buildSignerConfig(msgs)
 	if err != nil {
-		return fmt.Errorf("build signer config: %w", err)
+		return err
 	}
 
 	sequenceGuard := ensureSequenceGuard(cc, txSignerKey)
@@ -187,7 +187,7 @@ func (cc *CosmosProvider) SendMessagesToMempool(
 			cc.handleAccountSequenceMismatchError(sequenceGuard, err)
 		}
 
-		return fmt.Errorf("build messages: %w", err)
+		return err
 	}
 
 	if err := cc.broadcastTx(ctx, txBytes, msgs, fees, asyncCtx, defaultBroadcastWaitTimeout, asyncCallbacks); err != nil {
@@ -195,7 +195,7 @@ func (cc *CosmosProvider) SendMessagesToMempool(
 			cc.handleAccountSequenceMismatchError(sequenceGuard, err)
 		}
 
-		return fmt.Errorf("broadcast tx: %w", err)
+		return err
 	}
 
 	cc.log.Debug("Transaction successfully sent to mempool", zap.String("chain", cc.PCfg.ChainID))
@@ -375,7 +375,7 @@ func (cc *CosmosProvider) broadcastTx(
 		if isErr && res == nil {
 			// There are some cases where BroadcastTxSync will return an error but the associated
 			// ResultBroadcastTx will be nil.
-			return fmt.Errorf("broadcast tx sync: %w", err)
+			return err
 		}
 		rlyResp := &provider.RelayerTxResponse{
 			TxHash:    res.Hash.String(),
@@ -616,7 +616,7 @@ func (cc *CosmosProvider) buildMessages(
 
 	txf, err := cc.PrepareFactory(cc.TxFactory(), txSignerKey)
 	if err != nil {
-		return nil, 0, sdk.Coins{}, fmt.Errorf("prepare factory: %w", err)
+		return nil, 0, sdk.Coins{}, err
 	}
 
 	if memo != "" {
@@ -663,11 +663,11 @@ func (cc *CosmosProvider) buildMessages(
 	// Build the transaction builder
 	txb, err := txf.BuildUnsignedTx(cMsgs...)
 	if err != nil {
-		return nil, 0, sdk.Coins{}, fmt.Errorf("build unsigned tx: %w", err)
+		return nil, 0, sdk.Coins{}, err
 	}
 
 	if err = tx.Sign(ctx, txf, txSignerKey, txb, false); err != nil {
-		return nil, 0, sdk.Coins{}, fmt.Errorf("sign tx: %w", err)
+		return nil, 0, sdk.Coins{}, err
 	}
 
 	tx := txb.GetTx()
@@ -676,7 +676,7 @@ func (cc *CosmosProvider) buildMessages(
 	// Generate the transaction bytes
 	txBytes, err = cc.Cdc.TxConfig.TxEncoder()(tx)
 	if err != nil {
-		return nil, 0, sdk.Coins{}, fmt.Errorf("tx encoder: %w", err)
+		return nil, 0, sdk.Coins{}, err
 	}
 
 	return txBytes, txf.Sequence(), fees, nil

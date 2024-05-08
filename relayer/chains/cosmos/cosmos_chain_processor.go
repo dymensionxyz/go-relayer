@@ -457,6 +457,13 @@ func (ccp *CosmosChainProcessor) queryCycle(
 			break
 		}
 
+		ccp.log.Debug(
+			"Queried block",
+			zap.Int64("height", i),
+			zap.Int64("latest", persistence.latestHeight),
+			zap.Int64("delta", persistence.latestHeight-i),
+		)
+
 		persistence.retriesAtLatestQueriedBlock = 0
 
 		latestHeader = ibcHeader.(provider.TendermintIBCHeader)
@@ -539,6 +546,10 @@ func (ccp *CosmosChainProcessor) queryCycle(
 				zap.Error(err),
 			)
 			continue
+		}
+
+		if stuckPacket != nil && ccp.chainProvider.ChainId() == stuckPacket.ChainID {
+			ccp.log.Info("sending new data to the path processor", zap.Bool("inSync", ccp.inSync))
 		}
 
 		pp.HandleNewData(chainID, processor.ChainProcessorCacheData{

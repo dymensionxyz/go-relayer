@@ -506,7 +506,7 @@ func (mp *messageProcessor) sendBatchMessages(
 		mp.metricParseTxFailureCatagory(err, src)
 
 		if errors.Is(err, chantypes.ErrRedundantTx) {
-			mp.log.Debug("Message processor - redundant message(s)", errFields...)
+			mp.log.Debug("Redundant message(s)", errFields...)
 			return
 		}
 		mp.log.Error("Sending messages from batch", errFields...)

@@ -149,9 +149,7 @@ func (ccp *CosmosChainProcessor) handleClientICQMessage(
 }
 
 func (ccp *CosmosChainProcessor) logObservedIBCMessage(m string, fields ...zap.Field) {
-	/*
-		ccp.log.With(zap.String("event_type", m)).Debug("Observed IBC message", fields...)
-	*/
+	ccp.log.With(zap.String("event_type", m)).Debug("Observed IBC message", fields...)
 }
 
 func (ccp *CosmosChainProcessor) logPacketMessage(message string, pi provider.PacketInfo) {
