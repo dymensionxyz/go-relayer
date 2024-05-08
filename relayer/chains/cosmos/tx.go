@@ -616,7 +616,7 @@ func (cc *CosmosProvider) buildMessages(
 
 	txf, err := cc.PrepareFactory(cc.TxFactory(), txSignerKey)
 	if err != nil {
-		return nil, 0, sdk.Coins{}, err
+		return nil, 0, sdk.Coins{}, fmt.Errorf("prepare factory: %w", err)
 	}
 
 	if memo != "" {
@@ -663,11 +663,11 @@ func (cc *CosmosProvider) buildMessages(
 	// Build the transaction builder
 	txb, err := txf.BuildUnsignedTx(cMsgs...)
 	if err != nil {
-		return nil, 0, sdk.Coins{}, err
+		return nil, 0, sdk.Coins{}, fmt.Errorf("build unsigned tx: %w", err)
 	}
 
 	if err = tx.Sign(ctx, txf, txSignerKey, txb, false); err != nil {
-		return nil, 0, sdk.Coins{}, err
+		return nil, 0, sdk.Coins{}, fmt.Errorf("sign tx: %w", err)
 	}
 
 	tx := txb.GetTx()
@@ -676,7 +676,7 @@ func (cc *CosmosProvider) buildMessages(
 	// Generate the transaction bytes
 	txBytes, err = cc.Cdc.TxConfig.TxEncoder()(tx)
 	if err != nil {
-		return nil, 0, sdk.Coins{}, err
+		return nil, 0, sdk.Coins{}, fmt.Errorf("tx encoder: %w", err)
 	}
 
 	return txBytes, txf.Sequence(), fees, nil
