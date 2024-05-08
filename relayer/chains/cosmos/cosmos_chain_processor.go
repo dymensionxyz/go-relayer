@@ -541,10 +541,6 @@ func (ccp *CosmosChainProcessor) queryCycle(
 			continue
 		}
 
-		if stuckPacket != nil && ccp.chainProvider.ChainId() == stuckPacket.ChainID {
-			ccp.log.Info("sending new data to the path processor", zap.Bool("inSync", ccp.inSync))
-		}
-
 		pp.HandleNewData(chainID, processor.ChainProcessorCacheData{
 			LatestBlock:          ccp.latestBlock,
 			LatestHeader:         latestHeader,
