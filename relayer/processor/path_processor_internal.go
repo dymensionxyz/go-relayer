@@ -1372,6 +1372,9 @@ SeqLoop:
 		pp.metrics.SetUnrelayedAcks(pp.pathEnd1.info.PathName, src.info.ChainID, dst.info.ChainID, k.ChannelID, k.CounterpartyChannelID, len(unacked))
 	}
 
+	var unackedAndWillAck []uint64
+	var unackedAndWillAckMu sync.Mutex
+
 	for i, seq := range unacked {
 		ck := k.Counterparty()
 
@@ -1421,6 +1424,10 @@ SeqLoop:
 			dstCache.Cache(chantypes.EventTypeWriteAck, ck, seq, recvPacket)
 			dstMu.Unlock()
 
+			unackedAndWillAckMu.Lock()
+			unackedAndWillAck = append(unackedAndWillAck, seq)
+			unackedAndWillAckMu.Unlock()
+
 			return nil
 		})
 	}
@@ -1433,7 +1440,7 @@ SeqLoop:
 		dst.log.Debug(
 			"Will flush MsgAcknowledgement",
 			zap.Object("channel", k),
-			zap.Uint64s("sequences", unacked),
+			zap.Uint64s("sequences", unackedAndWillAck),
 		)
 	} else {
 		dst.log.Debug(
