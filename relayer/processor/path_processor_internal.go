@@ -1395,7 +1395,7 @@ SeqLoop:
 		eg.Go(func() error {
 			recvPacket, err := dst.chainProvider.QueryRecvPacket(ctx, k.CounterpartyChannelID, k.CounterpartyPortID, seq)
 			if err != nil {
-				return fmt.Errorf("query recv packet: seq: %d: %w", seq, err)
+				return fmt.Errorf("query recv packet: seq: dst: %s: %d: %w", dst.info.ChainID, seq, err)
 			}
 
 			ck := k.Counterparty()
