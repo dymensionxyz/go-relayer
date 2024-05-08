@@ -1064,6 +1064,12 @@ func (pp *PathProcessor) processLatestMessages(ctx context.Context, cancel func(
 		clientICQMessages:  pathEnd2ClientICQMessages,
 	}
 
+	pp.log.Debug("Processing messages",
+		zap.Any("path1ChainID", pp.pathEnd1.info.ChainID),
+		zap.Any("pathEnd1Messages", pathEnd1Messages.debugString()),
+		zap.Any("path2ChainID", pp.pathEnd2.info.ChainID),
+		zap.Any("pathEnd2Messages", pathEnd2Messages.debugString()))
+
 	// now assemble and send messages in parallel
 	// if sending messages fails to one pathEnd, we don't need to halt sending to the other pathEnd.
 	var eg errgroup.Group
