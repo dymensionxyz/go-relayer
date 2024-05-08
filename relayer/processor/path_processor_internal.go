@@ -1436,7 +1436,7 @@ SeqLoop:
 		return skipped, fmt.Errorf("eg wait 2: %w", err)
 	}
 
-	if len(unacked) > 0 {
+	if len(unackedAndWillAck) > 0 {
 		dst.log.Debug(
 			"Will flush MsgAcknowledgement",
 			zap.Object("channel", k),
