@@ -417,8 +417,12 @@ func (pp *PathProcessor) Run(ctx context.Context, cancel func()) {
 			pp.initialFlushComplete = true
 		} else if pp.shouldTerminateForFlushComplete() {
 			pp.log.Debug("PathProcessor terminating due to flush completion. Blocking until finished. CTRL-C!")
-			<-pp.pathEnd1.finishedProcessing
-			<-pp.pathEnd2.finishedProcessing
+
+			/*
+				NOTE: it is possible that there are still outstanding broadcasts
+				This cancel will cancel them
+				In the future, we may want to wait for them to finish (<-pp.pathEnd1.finishedProcessing etc)
+			*/
 
 			cancel()
 			return
