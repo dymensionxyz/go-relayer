@@ -36,12 +36,13 @@ func (m *pathEndMessages) size() int {
 
 func (m *pathEndMessages) debugString() string {
 	type T struct {
-		ConnectionMessages int
-		ChannelMessages    int
-		PacketMessages     int
-		ClientICQMessages  int
-		Total              int
-		PacketSequences    []int
+		ConnectionMessages            int
+		ChannelMessages               int
+		PacketMessages                int
+		ClientICQMessages             int
+		Total                         int
+		PacketSequences               []int
+		PacketSequencesIsJustAPreview bool
 	}
 	t := T{
 		ConnectionMessages: len(m.connectionMessages),
@@ -52,6 +53,10 @@ func (m *pathEndMessages) debugString() string {
 	}
 	for _, msg := range m.packetMessages {
 		t.PacketSequences = append(t.PacketSequences, int(msg.info.Sequence))
+	}
+	if 5 < len(t.PacketSequences) { // dont want to show too many
+		t.PacketSequences = t.PacketSequences[:5]
+		t.PacketSequencesIsJustAPreview = true
 	}
 	return fmt.Sprintf("%+v", t)
 }
