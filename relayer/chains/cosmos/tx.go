@@ -173,7 +173,7 @@ func (cc *CosmosProvider) SendMessagesToMempool(
 
 	txSignerKey, feegranterKeyOrAddr, err := cc.buildSignerConfig(msgs)
 	if err != nil {
-		return err
+		return fmt.Errorf("build signer config: %w", err)
 	}
 
 	sequenceGuard := ensureSequenceGuard(cc, txSignerKey)
@@ -187,7 +187,7 @@ func (cc *CosmosProvider) SendMessagesToMempool(
 			cc.handleAccountSequenceMismatchError(sequenceGuard, err)
 		}
 
-		return err
+		return fmt.Errorf("build messages: %w", err)
 	}
 
 	if err := cc.broadcastTx(ctx, txBytes, msgs, fees, asyncCtx, defaultBroadcastWaitTimeout, asyncCallbacks); err != nil {
@@ -195,7 +195,7 @@ func (cc *CosmosProvider) SendMessagesToMempool(
 			cc.handleAccountSequenceMismatchError(sequenceGuard, err)
 		}
 
-		return err
+		return fmt.Errorf("broadcast tx: %w", err)
 	}
 
 	cc.log.Debug("Transaction successfully sent to mempool", zap.String("chain", cc.PCfg.ChainID))
@@ -375,7 +375,7 @@ func (cc *CosmosProvider) broadcastTx(
 		if isErr && res == nil {
 			// There are some cases where BroadcastTxSync will return an error but the associated
 			// ResultBroadcastTx will be nil.
-			return err
+			return fmt.Errorf("broadcast tx sync: %w", err)
 		}
 		rlyResp := &provider.RelayerTxResponse{
 			TxHash:    res.Hash.String(),

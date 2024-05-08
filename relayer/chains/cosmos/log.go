@@ -58,7 +58,7 @@ func (cc *CosmosProvider) LogFailedTx(res *provider.RelayerTxResponse, err error
 	if err != nil {
 
 		if errors.Is(err, chantypes.ErrRedundantTx) {
-			cc.log.Debug("Cosmos chain processor - redundant message(s)", fields...)
+			cc.log.Debug("Failed tx(s): cosmos chain processor - redundant message(s)", fields...)
 			return
 		}
 
