@@ -30,6 +30,10 @@ type pathEndMessages struct {
 	clientICQMessages  []clientICQMessage
 }
 
+func (m *pathEndMessages) size() int {
+	return len(m.connectionMessages) + len(m.channelMessages) + len(m.packetMessages) + len(m.clientICQMessages)
+}
+
 func (m *pathEndMessages) debugString() string {
 	type T struct {
 		ConnectionMessages int
@@ -44,11 +48,11 @@ func (m *pathEndMessages) debugString() string {
 		ChannelMessages:    len(m.channelMessages),
 		PacketMessages:     len(m.packetMessages),
 		ClientICQMessages:  len(m.clientICQMessages),
+		Total:              m.size(),
 	}
 	for _, msg := range m.packetMessages {
 		t.PacketSequences = append(t.PacketSequences, int(msg.info.Sequence))
 	}
-	t.Total = t.ConnectionMessages + t.ChannelMessages + t.PacketMessages + t.ClientICQMessages
 	return fmt.Sprintf("%+v", t)
 }
 
