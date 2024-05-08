@@ -8,6 +8,8 @@ import (
 	"sort"
 	"sync"
 
+	"github.com/cosmos/relayer/v2/dymutils/gerr"
+
 	conntypes "github.com/cosmos/ibc-go/v8/modules/core/03-connection/types"
 	chantypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
 	"github.com/cosmos/relayer/v2/relayer/provider"
@@ -1354,7 +1356,15 @@ SeqLoop:
 				continue SeqLoop
 			}
 		}
-		// does not exist in unrecv, so this is an ack that must be written
+		/*
+			The packet is not in unrecv, meaning it has been received by the destination chain
+			The commitment on the src chain still exists
+			That means we need to send an ack to the src chain
+			HOWEVER
+			In the upstream relayer, they assume the ack is already available
+			For us, due to delayedack, it may not be available for some time
+			Thus, we adjust the code to make sure we gracefully handle this, and don't short circuit
+		*/
 		unacked = append(unacked, seq)
 	}
 
@@ -1395,7 +1405,13 @@ SeqLoop:
 		eg.Go(func() error {
 			recvPacket, err := dst.chainProvider.QueryRecvPacket(ctx, k.CounterpartyChannelID, k.CounterpartyPortID, seq)
 			if err != nil {
-				return fmt.Errorf("query recv packet: seq: dst: %s: %d: %w", dst.info.ChainID, seq, err)
+				if !errors.Is(err, gerr.ErrNotFound) {
+					return fmt.Errorf("query recv packet: seq: dst: %s: %d: %w", dst.info.ChainID, seq, err)
+				}
+				/*
+					It's possible that an acknowledgement event was not yet published on the dst chain
+				*/
+				return nil
 			}
 
 			ck := k.Counterparty()
