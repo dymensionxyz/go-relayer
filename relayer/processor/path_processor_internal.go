@@ -767,7 +767,7 @@ func (pp *PathProcessor) queuePreInitMessages(cancel func()) {
 		eventType, ok := observedEventTypeForDesiredMessage[m.Initial.EventType]
 		if !ok {
 			pp.log.Error(
-				"queue initial connection message, event type not handled",
+				"Queue initial connection message, event type not handled.",
 				zap.String("event_type", m.Initial.EventType),
 			)
 			cancel()
@@ -797,7 +797,7 @@ func (pp *PathProcessor) queuePreInitMessages(cancel func()) {
 		eventType, ok := observedEventTypeForDesiredMessage[m.Initial.EventType]
 		if !ok {
 			pp.log.Error(
-				"queue initial connection message, event type not handled",
+				"Queue initial connection message, event type not handled.",
 				zap.String("event_type", m.Initial.EventType),
 			)
 			cancel()
@@ -828,7 +828,7 @@ func (pp *PathProcessor) queuePreInitMessages(cancel func()) {
 		eventType, ok := observedEventTypeForDesiredMessage[m.Initial.EventType]
 		if !ok {
 			pp.log.Error(
-				"queue initial channel message, event type not handled",
+				"Queue initial channel message, event type not handled.",
 				zap.String("event_type", m.Initial.EventType),
 			)
 			cancel()
