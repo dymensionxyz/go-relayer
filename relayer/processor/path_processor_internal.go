@@ -1210,6 +1210,11 @@ type skippedPackets struct {
 	Ack  uint64
 }
 
+type SkippedPacketsHandlingConfig struct {
+	HubChainID                string
+	IgnoreHubAcksWhenFlushing bool
+}
+
 // queuePendingRecvAndAcks returns the number of packets skipped during a flush (nil if none).
 func (pp *PathProcessor) queuePendingRecvAndAcks(
 	ctx context.Context,
@@ -1553,7 +1558,7 @@ func (pp *PathProcessor) flush(ctx context.Context) error {
 		for chainID, chainSkipped := range skipped {
 			for channelKey, skipped := range chainSkipped {
 				skippedPacketsString += fmt.Sprintf(
-					"{ %s %s %s recv: %d, ack: %d } ",
+					"{ %s %s %s recv: %d, number of packets which have : %d } ",
 					chainID, channelKey.ChannelID, channelKey.PortID, skipped.Recv, skipped.Ack,
 				)
 			}

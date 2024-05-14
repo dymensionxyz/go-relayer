@@ -154,6 +154,26 @@ $ %s start demo-path2 --max-tx-size 10`, appName, appName, appName, appName)),
 				return err
 			}
 
+			var skippedPacketsHandlingCfg *processor.SkippedPacketsHandlingConfig
+			{
+				ignoreAcks, err := cmd.Flags().GetBool(flagFlushIgnoreHubAcks)
+				if err != nil {
+					return err
+				}
+				hubChain, err := cmd.Flags().GetString(flagHubChainID)
+				if err != nil {
+					return err
+				}
+				if ignoreAcks && hubChain == "" {
+					return errors.New("must supply hub chain id if ignoring hub acks when flushing")
+				}
+
+				skippedPacketsHandlingCfg = &processor.SkippedPacketsHandlingConfig{
+					HubChainID:                hubChain,
+					IgnoreHubAcksWhenFlushing: ignoreAcks,
+				}
+			}
+
 			rlyErrCh := relayer.StartRelayer(
 				cmd.Context(),
 				a.log,
@@ -170,6 +190,7 @@ $ %s start demo-path2 --max-tx-size 10`, appName, appName, appName, appName)),
 				initialBlockHistory,
 				prometheusMetrics,
 				stuckPacket,
+				skippedPacketsHandlingCfg,
 			)
 
 			// Block until the error channel sends a message.
@@ -194,5 +215,6 @@ $ %s start demo-path2 --max-tx-size 10`, appName, appName, appName, appName)),
 	cmd = flushIntervalFlag(a.viper, cmd)
 	cmd = memoFlag(a.viper, cmd)
 	cmd = stuckPacketFlags(a.viper, cmd)
+	cmd = addHubAckRetryFlags(a.viper, cmd)
 	return cmd
 }

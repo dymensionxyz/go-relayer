@@ -77,7 +77,8 @@ type PathProcessor struct {
 	maxMsgs                    uint64
 	memoLimit, maxReceiverSize int
 
-	metrics *PrometheusMetrics
+	metrics                      *PrometheusMetrics
+	SkippedPacketsHandlingConfig *SkippedPacketsHandlingConfig
 }
 
 // PathProcessors is a slice of PathProcessor instances
@@ -102,22 +103,24 @@ func NewPathProcessor(
 	flushInterval time.Duration,
 	maxMsgs uint64,
 	memoLimit, maxReceiverSize int,
+	skippedPacketsHandlingCfg *SkippedPacketsHandlingConfig,
 ) *PathProcessor {
 	isLocalhost := pathEnd1.ClientID == ibcexported.LocalhostClientID
 
 	pp := &PathProcessor{
-		log:                       log,
-		pathEnd1:                  newPathEndRuntime(log, pathEnd1, metrics),
-		pathEnd2:                  newPathEndRuntime(log, pathEnd2, metrics),
-		retryProcess:              make(chan struct{}, 2),
-		memo:                      memo,
-		clientUpdateThresholdTime: clientUpdateThresholdTime,
-		flushInterval:             flushInterval,
-		metrics:                   metrics,
-		isLocalhost:               isLocalhost,
-		maxMsgs:                   maxMsgs,
-		memoLimit:                 memoLimit,
-		maxReceiverSize:           maxReceiverSize,
+		log:                          log,
+		pathEnd1:                     newPathEndRuntime(log, pathEnd1, metrics),
+		pathEnd2:                     newPathEndRuntime(log, pathEnd2, metrics),
+		retryProcess:                 make(chan struct{}, 2),
+		memo:                         memo,
+		clientUpdateThresholdTime:    clientUpdateThresholdTime,
+		flushInterval:                flushInterval,
+		metrics:                      metrics,
+		isLocalhost:                  isLocalhost,
+		maxMsgs:                      maxMsgs,
+		memoLimit:                    memoLimit,
+		maxReceiverSize:              maxReceiverSize,
+		SkippedPacketsHandlingConfig: skippedPacketsHandlingCfg,
 	}
 	if flushInterval == 0 {
 		pp.disablePeriodicFlush()
