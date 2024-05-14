@@ -88,7 +88,12 @@ func (ccp *CosmosChainProcessor) handleChannelMessage(eventType string, ci provi
 			ccp.channelStateCache.SetOpen(channelKey, false, ci.Order)
 		case chantypes.EventTypeChannelOpenAck, chantypes.EventTypeChannelOpenConfirm:
 			ccp.channelStateCache.SetOpen(channelKey, true, ci.Order)
-			ccp.logChannelOpenMessage(eventType, ci)
+			fields := []zap.Field{
+				zap.String("channel_id", ci.ChannelID),
+				zap.String("connection_id", ci.ConnID),
+				zap.String("port_id", ci.PortID),
+			}
+			ccp.log.Info("Created new channel.", fields...)
 		case chantypes.EventTypeChannelClosed, chantypes.EventTypeChannelCloseConfirm:
 			for k := range ccp.channelStateCache {
 				if k.PortID == ci.PortID && k.ChannelID == ci.ChannelID {
@@ -103,7 +108,13 @@ func (ccp *CosmosChainProcessor) handleChannelMessage(eventType string, ci provi
 
 	ibcMessagesCache.ChannelHandshake.Retain(channelKey, eventType, ci)
 
-	ccp.logChannelMessage(eventType, ci)
+	ccp.log.With(zap.String("event_type", eventType)).Debug("Retained channel message.", []zap.Field{
+		zap.String("channel_id", ci.ChannelID),
+		zap.String("port_id", ci.PortID),
+		zap.String("counterparty_channel_id", ci.CounterpartyChannelID),
+		zap.String("counterparty_port_id", ci.CounterpartyPortID),
+		zap.String("connection_id", ci.ConnID),
+	}...)
 }
 
 func (ccp *CosmosChainProcessor) handleConnectionMessage(eventType string, ci provider.ConnectionInfo, ibcMessagesCache processor.IBCMessagesCache) {
@@ -131,12 +142,17 @@ func (ccp *CosmosChainProcessor) handleConnectionMessage(eventType string, ci pr
 	}
 	ibcMessagesCache.ConnectionHandshake.Retain(connectionKey, eventType, ci)
 
-	ccp.logConnectionMessage(eventType, ci)
+	ccp.log.With(zap.String("event_type", eventType)).Debug("Observed IBC message", []zap.Field{
+		zap.String("client_id", ci.ClientID),
+		zap.String("connection_id", ci.ConnID),
+		zap.String("counterparty_client_id", ci.CounterpartyClientID),
+		zap.String("counterparty_connection_id", ci.CounterpartyConnID),
+	}...)
 }
 
 func (ccp *CosmosChainProcessor) handleClientMessage(ctx context.Context, eventType string, ci chains.ClientInfo) {
 	ccp.latestClientState.update(ctx, ci, ccp)
-	ccp.log.With(zap.String("event_type", eventType)).Debug("Observed IBC message", []zap.Field{zap.String("client_id", ci.ClientID)}...)
+	ccp.log.With(zap.String("event_type", eventType)).Debug("Observed client message.", []zap.Field{zap.String("client_id", ci.ClientID)}...)
 }
 
 func (ccp *CosmosChainProcessor) handleClientICQMessage(
@@ -145,7 +161,14 @@ func (ccp *CosmosChainProcessor) handleClientICQMessage(
 	c processor.IBCMessagesCache,
 ) {
 	c.ClientICQ.Retain(processor.ClientICQType(eventType), ci)
-	ccp.logClientICQMessage(eventType, ci)
+	ccp.log.With(zap.String("event_type", eventType)).Debug("Observed IBC message", []zap.Field{
+		zap.String("type", ci.Type),
+		zap.String("query_id", string(ci.QueryID)),
+		zap.String("request", hex.EncodeToString(ci.Request)),
+		zap.String("chain_id", ci.Chain),
+		zap.String("connection_id", ci.Connection),
+		zap.Uint64("height", ci.Height),
+	}...)
 }
 
 func (ccp *CosmosChainProcessor) logPacketMessage(message string, pi provider.PacketInfo) {
@@ -169,43 +192,4 @@ func (ccp *CosmosChainProcessor) logPacketMessage(message string, pi provider.Pa
 		fields = append(fields, zap.Uint64("timeout_timestamp", pi.TimeoutTimestamp))
 	}
 	ccp.log.With(zap.String("event_type", message)).Debug("Observed IBC message", fields...)
-}
-
-func (ccp *CosmosChainProcessor) logChannelMessage(message string, ci provider.ChannelInfo) {
-	ccp.log.With(zap.String("event_type", message)).Debug("Observed IBC message", []zap.Field{
-		zap.String("channel_id", ci.ChannelID),
-		zap.String("port_id", ci.PortID),
-		zap.String("counterparty_channel_id", ci.CounterpartyChannelID),
-		zap.String("counterparty_port_id", ci.CounterpartyPortID),
-		zap.String("connection_id", ci.ConnID),
-	}...)
-}
-
-func (ccp *CosmosChainProcessor) logChannelOpenMessage(message string, ci provider.ChannelInfo) {
-	fields := []zap.Field{
-		zap.String("channel_id", ci.ChannelID),
-		zap.String("connection_id", ci.ConnID),
-		zap.String("port_id", ci.PortID),
-	}
-	ccp.log.Info("Created new channel.", fields...)
-}
-
-func (ccp *CosmosChainProcessor) logConnectionMessage(message string, ci provider.ConnectionInfo) {
-	ccp.log.With(zap.String("event_type", message)).Debug("Observed IBC message", []zap.Field{
-		zap.String("client_id", ci.ClientID),
-		zap.String("connection_id", ci.ConnID),
-		zap.String("counterparty_client_id", ci.CounterpartyClientID),
-		zap.String("counterparty_connection_id", ci.CounterpartyConnID),
-	}...)
-}
-
-func (ccp *CosmosChainProcessor) logClientICQMessage(icqType string, ci provider.ClientICQInfo) {
-	ccp.log.With(zap.String("event_type", icqType)).Debug("Observed IBC message", []zap.Field{
-		zap.String("type", ci.Type),
-		zap.String("query_id", string(ci.QueryID)),
-		zap.String("request", hex.EncodeToString(ci.Request)),
-		zap.String("chain_id", ci.Chain),
-		zap.String("connection_id", ci.Connection),
-		zap.Uint64("height", ci.Height),
-	}...)
 }
