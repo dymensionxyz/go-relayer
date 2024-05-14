@@ -233,13 +233,12 @@ func (mp *messageProcessor) assembleMessage(
 	mp.trackMessage(msg.tracker(assembled), i)
 	wg.Done()
 	if err != nil {
-		dst.log.Error(fmt.Sprintf("Assembling message: %s.", msg.msgType()),
+		dst.log.Error(fmt.Sprintf("Assemble message: %s.", msg.msgType()),
 			zap.Object("msg", msg),
 			zap.Error(err),
 		)
 		return
 	}
-	dst.log.Debug(fmt.Sprintf("Assembled message: %s", msg.msgType()), zap.Object("msg", msg))
 }
 
 // assembleMsgUpdateClient uses the ChainProvider from both pathEnds to assemble the client update header

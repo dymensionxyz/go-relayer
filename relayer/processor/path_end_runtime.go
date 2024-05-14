@@ -534,7 +534,7 @@ func (pathEnd *pathEndRuntime) shouldSendPacketMessage(message packetIBCMessage,
 	sequence := message.info.Sequence
 	k, err := message.channelKey()
 	if err != nil {
-		pathEnd.log.Error("Unexpected error checking if should send packet message.",
+		pathEnd.log.Error("Unexpected checking if should send packet message.",
 			zap.String("event_type", eventType),
 			zap.Uint64("sequence", sequence),
 			zap.Inline(k),
@@ -549,7 +549,7 @@ func (pathEnd *pathEndRuntime) shouldSendPacketMessage(message packetIBCMessage,
 	}
 
 	if message.info.Height >= pathEndForHeight.latestBlock.Height {
-		pathEnd.log.Debug("Waiting to relay packet message until counterparty height has incremented",
+		pathEnd.log.Debug("Not relaying packet message until counterparty height has incremented",
 			zap.String("event_type", eventType),
 			zap.Uint64("sequence", sequence),
 			zap.Uint64("message_height", message.info.Height),
