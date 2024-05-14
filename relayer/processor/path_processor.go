@@ -316,7 +316,6 @@ func (pp *PathProcessor) handleFlush(ctx context.Context) {
 				counterPartyChain = pp.pathEnd1.info.ChainID
 			}
 
-			pp.log.Debug("flush fail counterparty", zap.String("counterparty", counterPartyChain))
 			for chain, chanSkipped := range se.packets {
 				skippedPacketsOnCounterparty := chain == counterPartyChain
 				onlySkippedPacketsOnCounterparty := len(se.packets) == 1
