@@ -591,7 +591,7 @@ func (c *Config) validateConfig() error {
 	// verify that the channel filter rule is valid for every path in the config
 	for _, p := range c.Paths {
 		if err := p.ValidateChannelFilterRule(); err != nil {
-			return fmt.Errorf("error initializing the relayer config for path %s: %w", p.String(), err)
+			return fmt.Errorf(initializing the relayer config for path %s: %w", p.String(), err)
 		}
 	}
 

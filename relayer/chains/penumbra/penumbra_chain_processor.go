@@ -225,7 +225,7 @@ func (pcp *PenumbraChainProcessor) initializeConnectionState(ctx context.Context
 	defer cancel()
 	connections, err := pcp.chainProvider.QueryConnections(ctx)
 	if err != nil {
-		return fmt.Errorf("error querying connections: %w", err)
+		return fmt.Errorf(querying connections: %w", err)
 	}
 	for _, c := range connections {
 		pcp.connectionClients[c.Id] = c.ClientId
@@ -245,7 +245,7 @@ func (pcp *PenumbraChainProcessor) initializeChannelState(ctx context.Context) e
 	defer cancel()
 	channels, err := pcp.chainProvider.QueryChannels(ctx)
 	if err != nil {
-		return fmt.Errorf("error querying channels: %w", err)
+		return fmt.Errorf(querying channels: %w", err)
 	}
 	for _, ch := range channels {
 		if len(ch.ConnectionHops) != 1 {
@@ -404,7 +404,7 @@ func (pcp *PenumbraChainProcessor) queryCycle(ctx context.Context, persistence *
 		clientID := pp.RelevantClientID(chainID)
 		clientState, err := pcp.clientState(ctx, clientID)
 		if err != nil {
-			pcp.log.Error("Error fetching client state",
+			pcp.log.Error(fetching client state",
 				zap.String("client_id", clientID),
 				zap.Error(err),
 			)

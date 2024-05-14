@@ -384,7 +384,7 @@ func (cc *PenumbraProvider) SendMessages(ctx context.Context, msgs []provider.Re
 		return nil
 	}, retry.Context(ctx), rtyAtt, rtyDel, rtyErr, retry.OnRetry(func(n uint, err error) {
 		cc.log.Info(
-			"Error building or broadcasting transaction",
+			building or broadcasting transaction",
 			zap.String("chain_id", cc.PCfg.ChainID),
 			zap.Uint("attempt", n+1),
 			zap.Uint("max_attempts", rtyAttNum),
@@ -1216,7 +1216,7 @@ func (cc *PenumbraProvider) PacketCommitment(ctx context.Context, msgTransfer pr
 	key := host.PacketCommitmentKey(msgTransfer.SourcePort, msgTransfer.SourceChannel, msgTransfer.Sequence)
 	_, proof, proofHeight, err := cc.QueryTendermintProof(ctx, int64(height), key)
 	if err != nil {
-		return provider.PacketProof{}, fmt.Errorf("error querying tendermint proof for packet commitment: %w", err)
+		return provider.PacketProof{}, fmt.Errorf(querying tendermint proof for packet commitment: %w", err)
 	}
 	return provider.PacketProof{
 		Proof:       proof,
@@ -1245,7 +1245,7 @@ func (cc *PenumbraProvider) PacketAcknowledgement(ctx context.Context, msgRecvPa
 	key := host.PacketAcknowledgementKey(msgRecvPacket.DestPort, msgRecvPacket.DestChannel, msgRecvPacket.Sequence)
 	_, proof, proofHeight, err := cc.QueryTendermintProof(ctx, int64(height), key)
 	if err != nil {
-		return provider.PacketProof{}, fmt.Errorf("error querying tendermint proof for packet acknowledgement: %w", err)
+		return provider.PacketProof{}, fmt.Errorf(querying tendermint proof for packet acknowledgement: %w", err)
 	}
 	return provider.PacketProof{
 		Proof:       proof,
@@ -1275,7 +1275,7 @@ func (cc *PenumbraProvider) PacketReceipt(ctx context.Context, msgTransfer provi
 	key := host.PacketReceiptKey(msgTransfer.DestPort, msgTransfer.DestChannel, msgTransfer.Sequence)
 	_, proof, proofHeight, err := cc.QueryTendermintProof(ctx, int64(height), key)
 	if err != nil {
-		return provider.PacketProof{}, fmt.Errorf("error querying tendermint proof for packet receipt: %w", err)
+		return provider.PacketProof{}, fmt.Errorf(querying tendermint proof for packet receipt: %w", err)
 	}
 
 	return provider.PacketProof{
@@ -1445,7 +1445,7 @@ func (cc *PenumbraProvider) NextSeqRecv(
 	key := host.NextSequenceRecvKey(msgTransfer.DestPort, msgTransfer.DestChannel)
 	_, proof, proofHeight, err := cc.QueryTendermintProof(ctx, int64(height), key)
 	if err != nil {
-		return provider.PacketProof{}, fmt.Errorf("error querying tendermint proof for next sequence receive: %w", err)
+		return provider.PacketProof{}, fmt.Errorf(querying tendermint proof for next sequence receive: %w", err)
 	}
 
 	return provider.PacketProof{
@@ -1642,14 +1642,14 @@ func (cc *PenumbraProvider) MsgUpdateClientHeader(
 
 	trustedValidatorsProto, err := trustedCosmosHeader.ValidatorSet.ToProto()
 	if err != nil {
-		return nil, fmt.Errorf("error converting trusted validators to proto object: %w", err)
+		return nil, fmt.Errorf(converting trusted validators to proto object: %w", err)
 	}
 
 	signedHeaderProto := latestCosmosHeader.SignedHeader.ToProto()
 
 	validatorSetProto, err := latestCosmosHeader.ValidatorSet.ToProto()
 	if err != nil {
-		return nil, fmt.Errorf("error converting validator set to proto object: %w", err)
+		return nil, fmt.Errorf(converting validator set to proto object: %w", err)
 	}
 
 	return &tmclient.Header{
@@ -1990,7 +1990,7 @@ func castClientStateToTMType(cs *codectypes.Any) (*tmclient.ClientState, error) 
 	clientState, ok := clientStateExported.(*tmclient.ClientState)
 	if !ok {
 		return &tmclient.ClientState{},
-			fmt.Errorf("error when casting exported clientstate to tendermint type")
+			fmt.Errorf(when casting exported clientstate to tendermint type")
 	}
 
 	return clientState, nil
@@ -2132,7 +2132,7 @@ func isQueryStoreWithProof(path string) bool {
 func (cc *PenumbraProvider) sdkError(codespace string, code uint32) error {
 	// ABCIError will return an error other than "unknown" if syncRes.Code is a registered error in syncRes.Codespace
 	// This catches all of the sdk errors https://github.com/cosmos/cosmos-sdk/blob/f10f5e5974d2ecbf9efc05bc0bfe1c99fdeed4b6/types/errors/errors.go
-	err := errors.Unwrap(sdkerrors.ABCIError(codespace, code, "error broadcasting transaction"))
+	err := errors.Unwrap(sdkerrors.ABCIError(codespace, code, broadcasting transaction"))
 	if err.Error() != errUnknown {
 		return err
 	}

@@ -246,7 +246,7 @@ func (mp *messageProcessor) assembleMessage(
 	mp.trackMessage(msg.tracker(assembled), i)
 	wg.Done()
 	if err != nil {
-		dst.log.Error(fmt.Sprintf("Error assembling message: %s", msg.msgType()),
+		dst.log.Error(fmt.Sprintf(assembling message: %s", msg.msgType()),
 			zap.Object("msg", msg),
 			zap.Error(err),
 		)
@@ -279,7 +279,7 @@ func (mp *messageProcessor) assembleMsgUpdateClient(ctx context.Context, src, ds
 
 		header, err := src.chainProvider.QueryIBCHeader(ctx, int64(clientConsensusHeight.RevisionHeight+1))
 		if err != nil {
-			return fmt.Errorf("error getting IBC header at height: %d for chain_id: %s, %w",
+			return fmt.Errorf(getting IBC header at height: %d for chain_id: %s, %w",
 				clientConsensusHeight.RevisionHeight+1, src.info.ChainID, err)
 		}
 
@@ -392,7 +392,7 @@ func (mp *messageProcessor) sendClientUpdate(
 	msgs := []provider.RelayerMessage{mp.msgUpdateClient}
 
 	if err := dst.chainProvider.SendMessagesToMempool(broadcastCtx, msgs, mp.memo, ctx, nil); err != nil {
-		mp.log.Error("Error sending client update message",
+		mp.log.Error(sending client update message",
 			zap.String("path_name", src.info.PathName),
 			zap.String("src_chain_id", src.info.ChainID),
 			zap.String("dst_chain_id", dst.info.ChainID),
@@ -596,7 +596,7 @@ func (mp *messageProcessor) sendSingleMessage(
 			mp.log.Debug(fmt.Sprintf("Redundant %s message", msgType), errFields...)
 			return
 		}
-		mp.log.Error(fmt.Sprintf("Error broadcasting %s message", msgType), errFields...)
+		mp.log.Error(fmt.Sprintf(broadcasting %s message", msgType), errFields...)
 		return
 	}
 

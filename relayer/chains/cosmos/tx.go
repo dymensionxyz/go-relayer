@@ -128,7 +128,7 @@ func (cc *CosmosProvider) SendMessages(ctx context.Context, msgs []provider.Rela
 		return cc.SendMessagesToMempool(ctx, msgs, memo, ctx, []func(*provider.RelayerTxResponse, error){callback})
 	}, retry.Context(ctx), rtyAtt, rtyDel, rtyErr, retry.OnRetry(func(n uint, err error) {
 		cc.log.Info(
-			"Error building or broadcasting transaction",
+			building or broadcasting transaction",
 			zap.String("chain_id", cc.PCfg.ChainID),
 			zap.Uint("attempt", n+1),
 			zap.Uint("max_attempts", rtyAttNum),
@@ -348,7 +348,7 @@ func (cc *CosmosProvider) SendMsgsWith(ctx context.Context, msgs []sdk.Msg, memo
 func (cc *CosmosProvider) sdkError(codespace string, code uint32) error {
 	// ABCIError will return an error other than "unknown" if syncRes.Code is a registered error in syncRes.Codespace
 	// This catches all of the sdk errors https://github.com/cosmos/cosmos-sdk/blob/f10f5e5974d2ecbf9efc05bc0bfe1c99fdeed4b6/types/errors/errors.go
-	err := errors.Unwrap(sdkerrors.ABCIError(codespace, code, "error broadcasting transaction"))
+	err := errors.Unwrap(sdkerrors.ABCIError(codespace, code, broadcasting transaction"))
 	if err.Error() != errUnknown {
 		return err
 	}
@@ -840,7 +840,7 @@ func (cc *CosmosProvider) PacketCommitment(
 	key := host.PacketCommitmentKey(msgTransfer.SourcePort, msgTransfer.SourceChannel, msgTransfer.Sequence)
 	commitment, proof, proofHeight, err := cc.QueryTendermintProof(ctx, int64(height), key)
 	if err != nil {
-		return provider.PacketProof{}, fmt.Errorf("error querying comet proof for packet commitment: %w", err)
+		return provider.PacketProof{}, fmt.Errorf(querying comet proof for packet commitment: %w", err)
 	}
 	// check if packet commitment exists
 	if len(commitment) == 0 {
@@ -881,7 +881,7 @@ func (cc *CosmosProvider) PacketAcknowledgement(
 	key := host.PacketAcknowledgementKey(msgRecvPacket.DestPort, msgRecvPacket.DestChannel, msgRecvPacket.Sequence)
 	ack, proof, proofHeight, err := cc.QueryTendermintProof(ctx, int64(height), key)
 	if err != nil {
-		return provider.PacketProof{}, fmt.Errorf("error querying comet proof for packet acknowledgement: %w", err)
+		return provider.PacketProof{}, fmt.Errorf(querying comet proof for packet acknowledgement: %w", err)
 	}
 	if len(ack) == 0 {
 		return provider.PacketProof{}, chantypes.ErrInvalidAcknowledgement
@@ -921,7 +921,7 @@ func (cc *CosmosProvider) PacketReceipt(
 	key := host.PacketReceiptKey(msgTransfer.DestPort, msgTransfer.DestChannel, msgTransfer.Sequence)
 	_, proof, proofHeight, err := cc.QueryTendermintProof(ctx, int64(height), key)
 	if err != nil {
-		return provider.PacketProof{}, fmt.Errorf("error querying comet proof for packet receipt: %w", err)
+		return provider.PacketProof{}, fmt.Errorf(querying comet proof for packet receipt: %w", err)
 	}
 
 	return provider.PacketProof{
@@ -941,7 +941,7 @@ func (cc *CosmosProvider) NextSeqRecv(
 	key := host.NextSequenceRecvKey(msgTransfer.DestPort, msgTransfer.DestChannel)
 	_, proof, proofHeight, err := cc.QueryTendermintProof(ctx, int64(height), key)
 	if err != nil {
-		return provider.PacketProof{}, fmt.Errorf("error querying comet proof for next sequence receive: %w", err)
+		return provider.PacketProof{}, fmt.Errorf(querying comet proof for next sequence receive: %w", err)
 	}
 
 	return provider.PacketProof{
@@ -1296,14 +1296,14 @@ func (cc *CosmosProvider) MsgUpdateClientHeader(latestHeader provider.IBCHeader,
 
 	trustedValidatorsProto, err := trustedCosmosHeader.ValidatorSet.ToProto()
 	if err != nil {
-		return nil, fmt.Errorf("error converting trusted validators to proto object: %w", err)
+		return nil, fmt.Errorf(converting trusted validators to proto object: %w", err)
 	}
 
 	signedHeaderProto := latestCosmosHeader.SignedHeader.ToProto()
 
 	validatorSetProto, err := latestCosmosHeader.ValidatorSet.ToProto()
 	if err != nil {
-		return nil, fmt.Errorf("error converting validator set to proto object: %w", err)
+		return nil, fmt.Errorf(converting validator set to proto object: %w", err)
 	}
 
 	return &tmclient.Header{
@@ -1544,7 +1544,7 @@ func (cc *CosmosProvider) queryTMClientState(ctx context.Context, srch int64, sr
 	clientState, ok := clientStateExported.(*tmclient.ClientState)
 	if !ok {
 		return &tmclient.ClientState{},
-			fmt.Errorf("error when casting exported clientstate to tendermint type, got(%T)", clientStateExported)
+			fmt.Errorf(when casting exported clientstate to tendermint type, got(%T)", clientStateExported)
 	}
 
 	return clientState, nil
@@ -1566,7 +1566,7 @@ func (cc *CosmosProvider) queryLocalhostClientState(ctx context.Context, srch in
 	clientState, ok := clientStateExported.(*localhost.ClientState)
 	if !ok {
 		return &localhost.ClientState{},
-			fmt.Errorf("error when casting exported clientstate to localhost client type, got(%T)", clientStateExported)
+			fmt.Errorf(when casting exported clientstate to localhost client type, got(%T)", clientStateExported)
 	}
 
 	return clientState, nil
