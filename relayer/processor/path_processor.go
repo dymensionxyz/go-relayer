@@ -295,9 +295,8 @@ func (pp *PathProcessor) HandleNewData(chainID string, cacheData ChainProcessorC
 
 func (pp *PathProcessor) handleFlush(ctx context.Context) {
 	flushTimer := pp.flushInterval
-	pp.log.Debug("Flushing PathProcessor (handleFlush)")
 	if err := pp.flush(ctx); err != nil {
-		pp.log.Error("Flush not complete.", zap.Error(err))
+		pp.log.Error("Flush.", zap.Error(err))
 		flushTimer = flushFailureRetry
 	}
 	pp.flushTimer.Stop()
@@ -412,6 +411,7 @@ func (pp *PathProcessor) Run(ctx context.Context, cancel func()) {
 		}
 
 		if pp.shouldFlush() && !pp.initialFlushComplete {
+			pp.log.Debug("Flushing: should flush and initial flush is not yet complete.")
 			pp.handleFlush(ctx)
 			pp.initialFlushComplete = true
 		} else if pp.shouldTerminateForFlushComplete() {

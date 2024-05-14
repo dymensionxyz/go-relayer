@@ -492,7 +492,6 @@ func (mp *messageProcessor) sendBatchMessages(
 		mp.metricParseTxFailureCatagory(err, src)
 
 		if errors.Is(err, chantypes.ErrRedundantTx) {
-			mp.log.Debug("Redundant message(s)", errFields...)
 			return
 		}
 		mp.log.Error("Sending messages from batch.", errFields...)
@@ -579,7 +578,6 @@ func (mp *messageProcessor) sendSingleMessage(
 		errFields = append(errFields, zap.Object("msg", tracker))
 		errFields = append(errFields, zap.Error(err))
 		if errors.Is(err, chantypes.ErrRedundantTx) {
-			mp.log.Debug(fmt.Sprintf("Redundant message: %s.", msgType), errFields...)
 			return
 		}
 		mp.log.Error(fmt.Sprintf("Broadcasting message: %s.", msgType), errFields...)
