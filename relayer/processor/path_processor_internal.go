@@ -1397,18 +1397,25 @@ SeqLoop:
 
 		seq := seq
 
-		dst.log.Debug("Querying recv packet",
-			zap.String("channel", k.CounterpartyChannelID),
-			zap.String("port", k.CounterpartyPortID),
-			zap.Uint64("sequence", seq),
-		)
-
 		eg.Go(func() error {
 			recvPacket, err := dst.chainProvider.QueryRecvPacket(ctx, k.CounterpartyChannelID, k.CounterpartyPortID, seq)
-			if err != nil {
-				if !errors.Is(err, gerr.ErrNotFound) {
-					return fmt.Errorf("query recv packet: seq: dst: %s: %d: %w", dst.info.ChainID, seq, err)
-				}
+
+			if err != nil && !errors.Is(err, gerr.ErrNotFound) {
+				return fmt.Errorf("query recv packet: seq: dst: %s: %d: %w", dst.info.ChainID, seq, err)
+			}
+			ackFound := true
+			if errors.Is(err, gerr.ErrNotFound) {
+				ackFound = false
+			}
+			dst.log.Debug("Queried to see if ack exists on chain",
+				zap.String("chain", dst.info.ChainID),
+				zap.String("channel", k.CounterpartyChannelID),
+				zap.String("port", k.CounterpartyPortID),
+				zap.Uint64("sequence", seq),
+				zap.Bool("ack exists", ackFound),
+			)
+
+			if !ackFound {
 				/*
 					It's possible that an acknowledgement event was not yet published on the dst chain
 				*/
