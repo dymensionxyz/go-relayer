@@ -1001,7 +1001,7 @@ func (cc *PenumbraProvider) QueryRecvPacket(
 func (cc *PenumbraProvider) QueryStatus(ctx context.Context) (*coretypes.ResultStatus, error) {
 	status, err := cc.RPCClient.Status(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("to query node status: %w", err)
+		return nil, fmt.Errorf("query node status: %w", err)
 	}
 	return status, nil
 }

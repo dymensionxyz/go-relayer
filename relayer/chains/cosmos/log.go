@@ -65,7 +65,7 @@ func (cc *CosmosProvider) LogFailedTx(res *provider.RelayerTxResponse, err error
 		// Make a copy since we may continue to the warning
 		errorFields := append(fields, zap.Error(err))
 		cc.log.Error(
-			"sending cosmos transaction",
+			"Sending cosmos transaction.",
 			errorFields...,
 		)
 
@@ -80,7 +80,7 @@ func (cc *CosmosProvider) LogFailedTx(res *provider.RelayerTxResponse, err error
 		}
 		fields = append(fields, zap.Object("response", res))
 		cc.log.Error(
-			"Sent transaction but received failure response",
+			"Sent transaction but got non success code.",
 			fields...,
 		)
 	}

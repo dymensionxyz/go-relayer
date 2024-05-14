@@ -362,7 +362,7 @@ func (cc *CosmosProvider) QueryUnbondingPeriod(ctx context.Context) (time.Durati
 	}
 
 	return 0,
-		fmt.Errorf("to query unbonding period from ccvconsumer, staking & fallback : %w: %s : %s", consumerErr, stakingParamsErr.Error(), err.Error())
+		fmt.Errorf("query unbonding period from ccvconsumer, staking & fallback : %w: %s : %s", consumerErr, stakingParamsErr.Error(), err.Error())
 }
 
 // QueryTendermintProof performs an ABCI query with the given key and returns
@@ -1200,7 +1200,7 @@ func (cc *CosmosProvider) QueryLatestHeight(ctx context.Context) (int64, error) 
 func (cc *CosmosProvider) QueryStatus(ctx context.Context) (*coretypes.ResultStatus, error) {
 	status, err := cc.RPCClient.Status(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("to query node status: %w", err)
+		return nil, fmt.Errorf("query node status: %w", err)
 	}
 	return status, nil
 }

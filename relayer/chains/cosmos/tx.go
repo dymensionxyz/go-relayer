@@ -421,7 +421,7 @@ func (cc *CosmosProvider) waitForTx(
 ) {
 	res, err := cc.waitForBlockInclusion(ctx, txHash, waitTimeout)
 	if err != nil {
-		cc.log.Error("to wait for block inclusion", zap.Error(err))
+		cc.log.Error("Wait for block inclusion.", zap.Error(err))
 		if len(callbacks) > 0 {
 			for _, cb := range callbacks {
 				// Call each callback in order since waitForTx is already invoked asyncronously

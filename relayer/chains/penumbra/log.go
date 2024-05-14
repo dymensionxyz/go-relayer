@@ -57,7 +57,7 @@ func (cc *PenumbraProvider) LogFailedTx(res *provider.RelayerTxResponse, err err
 		// Make a copy since we may continue to the warning
 		errorFields := append(fields, zap.Error(err))
 		cc.log.Error(
-			"sending cosmos transaction",
+			"Sending cosmos transaction.",
 			errorFields...,
 		)
 

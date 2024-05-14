@@ -246,7 +246,7 @@ func (mp *messageProcessor) assembleMessage(
 	mp.trackMessage(msg.tracker(assembled), i)
 	wg.Done()
 	if err != nil {
-		dst.log.Error(fmt.Sprintf("assembling message: %s", msg.msgType()),
+		dst.log.Error(fmt.Sprintf("Assembling message: %s.", msg.msgType()),
 			zap.Object("msg", msg),
 			zap.Error(err),
 		)
@@ -392,7 +392,7 @@ func (mp *messageProcessor) sendClientUpdate(
 	msgs := []provider.RelayerMessage{mp.msgUpdateClient}
 
 	if err := dst.chainProvider.SendMessagesToMempool(broadcastCtx, msgs, mp.memo, ctx, nil); err != nil {
-		mp.log.Error("sending client update message",
+		mp.log.Error("Sending client update message.",
 			zap.String("path_name", src.info.PathName),
 			zap.String("src_chain_id", src.info.ChainID),
 			zap.String("dst_chain_id", dst.info.ChainID),
@@ -509,7 +509,7 @@ func (mp *messageProcessor) sendBatchMessages(
 			mp.log.Debug("Redundant message(s)", errFields...)
 			return
 		}
-		mp.log.Error("Sending messages from batch", errFields...)
+		mp.log.Error("Sending messages from batch.", errFields...)
 		return
 	}
 	dst.log.Debug("Message broadcast completed", fields...)
@@ -593,14 +593,14 @@ func (mp *messageProcessor) sendSingleMessage(
 		errFields = append(errFields, zap.Object("msg", tracker))
 		errFields = append(errFields, zap.Error(err))
 		if errors.Is(err, chantypes.ErrRedundantTx) {
-			mp.log.Debug(fmt.Sprintf("Redundant %s message", msgType), errFields...)
+			mp.log.Debug(fmt.Sprintf("Redundant message: %s.", msgType), errFields...)
 			return
 		}
-		mp.log.Error(fmt.Sprintf("broadcasting %s message", msgType), errFields...)
+		mp.log.Error(fmt.Sprintf("Broadcasting message: %s.", msgType), errFields...)
 		return
 	}
 
-	dst.log.Debug(fmt.Sprintf("Successfully broadcasted %s message", msgType), zap.Object("msg", tracker))
+	dst.log.Debug(fmt.Sprintf("Successfully broadcasted message: %s.", msgType), zap.Object("msg", tracker))
 }
 
 func (mp *messageProcessor) metricParseTxFailureCatagory(err error, src *pathEndRuntime) {

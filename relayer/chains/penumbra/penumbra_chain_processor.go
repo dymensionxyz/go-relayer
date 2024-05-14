@@ -117,7 +117,7 @@ func (pcp *PenumbraChainProcessor) latestHeightWithRetry(ctx context.Context) (l
 		return err
 	}, retry.Context(ctx), retry.Attempts(latestHeightQueryRetries), retry.Delay(latestHeightQueryRetryDelay), retry.LastErrorOnly(true), retry.OnRetry(func(n uint, err error) {
 		pcp.log.Info(
-			"to query latest height",
+			"Query latest height",
 			zap.Uint("attempt", n+1),
 			zap.Uint("max_attempts", latestHeightQueryRetries),
 			zap.Error(err),
@@ -169,7 +169,7 @@ func (pcp *PenumbraChainProcessor) Run(ctx context.Context, initialBlockHistory 
 		latestHeight, err := pcp.latestHeightWithRetry(ctx)
 		if err != nil {
 			pcp.log.Error(
-				"to query latest height after max attempts",
+				"Query latest height after max attempts.",
 				zap.Uint("attempts", latestHeightQueryRetries),
 				zap.Error(err),
 			)
@@ -284,7 +284,7 @@ func (pcp *PenumbraChainProcessor) queryCycle(ctx context.Context, persistence *
 	// don't want to cause CosmosChainProcessor to quit here, can retry again next cycle.
 	if err != nil {
 		pcp.log.Error(
-			"to query latest height after max attempts",
+			"Query latest height after max attempts.",
 			zap.Uint("attempts", latestHeightQueryRetries),
 			zap.Error(err),
 		)
@@ -349,7 +349,7 @@ func (pcp *PenumbraChainProcessor) queryCycle(ctx context.Context, persistence *
 		})
 
 		if err := eg.Wait(); err != nil {
-			pcp.log.Error("Error querying block data", zap.Error(err))
+			pcp.log.Error("Querying block data.", zap.Error(err))
 			break
 		}
 
@@ -403,7 +403,7 @@ func (pcp *PenumbraChainProcessor) queryCycle(ctx context.Context, persistence *
 		clientID := pp.RelevantClientID(chainID)
 		clientState, err := pcp.clientState(ctx, clientID)
 		if err != nil {
-			pcp.log.Error("fetching client state",
+			pcp.log.Error("Fetching client state.",
 				zap.String("client_id", clientID),
 				zap.Error(err),
 			)

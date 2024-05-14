@@ -31,7 +31,7 @@ func (ccp *CosmosChainProcessor) handleMessage(ctx context.Context, m chains.Ibc
 func (ccp *CosmosChainProcessor) handlePacketMessage(eventType string, pi provider.PacketInfo, c processor.IBCMessagesCache) {
 	k, err := processor.PacketInfoChannelKey(eventType, pi)
 	if err != nil {
-		ccp.log.Error("Unexpected error handling packet message",
+		ccp.log.Error("Unexpected in handling packet message.",
 			zap.String("event_type", eventType),
 			zap.Uint64("sequence", pi.Sequence),
 			zap.Inline(k),

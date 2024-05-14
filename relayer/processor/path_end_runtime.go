@@ -181,12 +181,12 @@ func (pathEnd *pathEndRuntime) mergeMessageCache(
 				newPc := make(PacketSequenceCache)
 				for seq, p := range pCache {
 					if err := checkMemoLimit(p.Data, memoLimit); err != nil {
-						pathEnd.log.Error("Ignoring packet", zap.Error(err))
+						pathEnd.log.Error("Ignoring packet.", zap.Error(err))
 						continue
 					}
 
 					if err := checkMaxReceiverSize(p.Data, maxReceiverSize); err != nil {
-						pathEnd.log.Error("Ignoring packet", zap.Error(err))
+						pathEnd.log.Error("Ignoring packet.", zap.Error(err))
 						continue
 					}
 
@@ -292,7 +292,7 @@ func (pathEnd *pathEndRuntime) shouldTerminate(ibcMessagesCache IBCMessagesCache
 		}
 		channelKey, err := PacketInfoChannelKey(m.Termination.EventType, m.Termination.Info)
 		if err != nil {
-			pathEnd.log.Error("Unexpected error checking packet message",
+			pathEnd.log.Error("Unexpected error checking packet message.",
 				zap.String("event_type", m.Termination.EventType),
 				zap.Inline(channelKey),
 				zap.Error(err),
@@ -487,8 +487,7 @@ func (pathEnd *pathEndRuntime) mergeCacheData(
 
 	terminate, err := pathEnd.checkForMisbehaviour(ctx, pathEnd.clientState, counterParty)
 	if err != nil {
-		pathEnd.log.Error(
-			"to check for misbehaviour",
+		pathEnd.log.Error("Check for misbehaviour.",
 			zap.String("client_id", pathEnd.info.ClientID),
 			zap.Error(err),
 		)
@@ -535,7 +534,7 @@ func (pathEnd *pathEndRuntime) shouldSendPacketMessage(message packetIBCMessage,
 	sequence := message.info.Sequence
 	k, err := message.channelKey()
 	if err != nil {
-		pathEnd.log.Error("Unexpected error checking if should send packet message",
+		pathEnd.log.Error("Unexpected error checking if should send packet message.",
 			zap.String("event_type", eventType),
 			zap.Uint64("sequence", sequence),
 			zap.Inline(k),
@@ -561,7 +560,7 @@ func (pathEnd *pathEndRuntime) shouldSendPacketMessage(message packetIBCMessage,
 	}
 	if !pathEnd.channelStateCache[k].Open {
 		// channel is not open, do not send
-		pathEnd.log.Error("Refusing to relay packet message because channel is not open",
+		pathEnd.log.Error("Refusing to relay packet message because channel is not open.",
 			zap.String("event_type", eventType),
 			zap.Uint64("sequence", sequence),
 			zap.Inline(k),
@@ -595,7 +594,7 @@ func (pathEnd *pathEndRuntime) shouldSendPacketMessage(message packetIBCMessage,
 	}
 
 	if inProgress.retryCount >= maxMessageSendRetries {
-		pathEnd.log.Error("Giving up on sending packet message after max retries",
+		pathEnd.log.Error("Giving up on sending packet message after max retries.",
 			zap.String("event_type", eventType),
 			zap.Uint64("sequence", sequence),
 			zap.Inline(k),
@@ -681,7 +680,7 @@ func (pathEnd *pathEndRuntime) shouldSendConnectionMessage(message connectionIBC
 		return false
 	}
 	if inProgress.retryCount >= maxMessageSendRetries {
-		pathEnd.log.Error("Giving up on sending connection message after max retries",
+		pathEnd.log.Error("Giving up on sending connection message after max retries.",
 			zap.String("event_type", eventType),
 		)
 		// giving up on sending this connection handshake message
@@ -760,7 +759,7 @@ func (pathEnd *pathEndRuntime) shouldSendChannelMessage(message channelIBCMessag
 		return false
 	}
 	if inProgress.retryCount >= maxMessageSendRetries {
-		pathEnd.log.Error("Giving up on sending channel message after max retries",
+		pathEnd.log.Error("Giving up on sending channel message after max retries.",
 			zap.String("event_type", eventType),
 			zap.Int("max_retries", maxMessageSendRetries),
 		)
@@ -851,7 +850,7 @@ func (pathEnd *pathEndRuntime) shouldSendClientICQMessage(message provider.Clien
 		return false
 	}
 	if inProgress.retryCount >= maxMessageSendRetries {
-		pathEnd.log.Error("Giving up on sending client ICQ message after max retries",
+		pathEnd.log.Error("Giving up on sending client ICQ message after max retries.",
 			zap.String("query_id", string(queryID)),
 		)
 
@@ -875,7 +874,7 @@ func (pathEnd *pathEndRuntime) trackProcessingMessage(tracker messageToTrack) ui
 		sequence := t.msg.info.Sequence
 		channelKey, err := t.msg.channelKey()
 		if err != nil {
-			pathEnd.log.Error("Unexpected error tracking processing packet",
+			pathEnd.log.Error("Unexpected error tracking processing packet.",
 				zap.Inline(channelKey),
 				zap.String("event_type", eventType),
 				zap.Uint64("sequence", sequence),
