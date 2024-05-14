@@ -467,7 +467,7 @@ func addChainsFromRegistry(ctx context.Context, a *appState, forceAdd, testnet b
 	for _, chain := range chains {
 		if _, ok := a.config.Chains[chain]; ok {
 			a.log.Error(
-				"Chain already exists",
+				"Chain already exists.",
 				zap.String("chain", chain),
 				zap.String("source_link", chainRegistry.SourceLink()),
 			)
@@ -478,7 +478,7 @@ func addChainsFromRegistry(ctx context.Context, a *appState, forceAdd, testnet b
 		chainInfo, err := chainRegistry.GetChain(ctx, testnet, chain)
 		if err != nil {
 			a.log.Error(
-				"retrieving chain",
+				"Get chain.",
 				zap.String("chain", chain),
 				zap.Error(err),
 			)
@@ -489,7 +489,7 @@ func addChainsFromRegistry(ctx context.Context, a *appState, forceAdd, testnet b
 		chainConfig, err := chainInfo.GetChainConfig(ctx, forceAdd, testnet, chain)
 		if err != nil {
 			a.log.Error(
-				"generating chain config",
+				"Get chain config.",
 				zap.String("chain", chain),
 				zap.Error(err),
 			)
@@ -506,7 +506,7 @@ func addChainsFromRegistry(ctx context.Context, a *appState, forceAdd, testnet b
 		)
 		if err != nil {
 			a.log.Error(
-				"build ChainProvider",
+				"Chain config new provider.",
 				zap.String("chain_id", chainConfig.ChainID),
 				zap.Error(err),
 			)
@@ -518,7 +518,7 @@ func addChainsFromRegistry(ctx context.Context, a *appState, forceAdd, testnet b
 		c := relayer.NewChain(a.log, prov, a.debug)
 		if err = a.config.AddChain(c); err != nil {
 			a.log.Error(
-				"add chain to config",
+				"Config add chain.",
 				zap.String("chain", chain),
 				zap.Error(err),
 			)
@@ -530,7 +530,7 @@ func addChainsFromRegistry(ctx context.Context, a *appState, forceAdd, testnet b
 		// found the correct chain so move on to next chain in chains
 
 	}
-	a.log.Info("Config update status",
+	a.log.Info("Config update status.",
 		zap.Any("added", added),
 		zap.Any("failed", failed),
 		zap.Any("already existed", existed),

@@ -75,7 +75,6 @@ func feegrantConfigureBasicCmd(a *appState) *cobra.Command {
 			}
 
 			if delete {
-				a.log.Info("Deleting feegrant configuration", zap.String("chain", chain))
 
 				cfgErr := a.performConfigLockingOperation(cmd.Context(), func() error {
 					chain := a.config.Chains[chain]
@@ -84,6 +83,7 @@ func feegrantConfigureBasicCmd(a *appState) *cobra.Command {
 					return nil
 				})
 				cobra.CheckErr(cfgErr)
+				a.log.Info("Deleted fee grant configuration.", zap.String("chain", chain))
 				return nil
 			}
 
@@ -157,7 +157,7 @@ func feegrantConfigureBasicCmd(a *appState) *cobra.Command {
 					prov.PCfg.FeeGrants.IsExternalGranter = externalGranter
 					oldProv.PCfg.FeeGrants = prov.PCfg.FeeGrants
 					oldProv.PCfg.FeeGrants.BlockHeightVerified = h
-					a.log.Info("feegrant configured", zap.Int64("height", h))
+					a.log.Info("Configured feegrant.", zap.Int64("height", h))
 					return nil
 				})
 				cobra.CheckErr(cfgErr)
@@ -205,7 +205,7 @@ func feegrantBasicGrantsCmd(a *appState) *cobra.Command {
 
 			granterAcc, err := prov.AccountFromKeyOrAddress(keyNameOrAddress)
 			if err != nil {
-				a.log.Error("Unknown account", zap.String("key_or_address", keyNameOrAddress), zap.Error(err))
+				a.log.Error("Unknown account.", zap.String("key_or_address", keyNameOrAddress), zap.Error(err))
 				return err
 			}
 			granterAddr := prov.MustEncodeAccAddr(granterAcc)
@@ -218,7 +218,7 @@ func feegrantBasicGrantsCmd(a *appState) *cobra.Command {
 			for _, grant := range res {
 				allowance, e := prov.Sprint(grant.Allowance)
 				cobra.CheckErr(e)
-				a.log.Info("feegrant", zap.String("granter", grant.Granter), zap.String("grantee", grant.Grantee), zap.String("allowance", allowance))
+				a.log.Info("Feegrant.", zap.String("granter", grant.Granter), zap.String("grantee", grant.Grantee), zap.String("allowance", allowance))
 			}
 
 			return nil

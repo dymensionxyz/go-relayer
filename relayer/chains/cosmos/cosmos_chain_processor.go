@@ -158,7 +158,7 @@ func (ccp *CosmosChainProcessor) nodeStatusWithRetry(ctx context.Context) (statu
 		return err
 	}, retry.Context(ctx), retry.Attempts(latestHeightQueryRetries), retry.Delay(latestHeightQueryRetryDelay), retry.LastErrorOnly(true), retry.OnRetry(func(n uint, err error) {
 		ccp.log.Error(
-			"Failed to query node status",
+			"Query node status.",
 			zap.Uint("attempt", n+1),
 			zap.Uint("max_attempts", latestHeightQueryRetries),
 			zap.Error(err),
@@ -231,7 +231,7 @@ func (ccp *CosmosChainProcessor) Run(ctx context.Context, initialBlockHistory ui
 		status, err := ccp.nodeStatusWithRetry(ctx)
 		if err != nil {
 			ccp.log.Error(
-				"Failed to query latest height after max attempts",
+				"Query latest height after max attempts",
 				zap.Uint("attempts", latestHeightQueryRetries),
 				zap.Error(err),
 			)
@@ -269,7 +269,7 @@ func (ccp *CosmosChainProcessor) Run(ctx context.Context, initialBlockHistory ui
 		return err
 	}
 
-	ccp.log.Debug("Entering main query loop")
+	ccp.log.Debug("Entering main query loop.")
 
 	ticker := time.NewTicker(persistence.minQueryLoopDuration)
 	defer ticker.Stop()
@@ -351,7 +351,7 @@ func (ccp *CosmosChainProcessor) queryCycle(
 	if err != nil {
 		// don't want to cause CosmosChainProcessor to quit here, can retry again next cycle.
 		ccp.log.Error(
-			"Failed to query node status after max attempts",
+			"Query node status after max attempts.",
 			zap.Uint("attempts", latestHeightQueryRetries),
 			zap.Error(err),
 		)
@@ -359,11 +359,6 @@ func (ccp *CosmosChainProcessor) queryCycle(
 	}
 
 	persistence.latestHeight = status.SyncInfo.LatestBlockHeight
-
-	// This debug log is very noisy, but is helpful when debugging new chains.
-	// ccp.log.Debug("Queried latest height",
-	// 	zap.Int64("latest_height", persistence.latestHeight),
-	// )
 
 	if ccp.metrics != nil {
 		ccp.CollectMetrics(ctx, persistence)
@@ -542,7 +537,7 @@ func (ccp *CosmosChainProcessor) queryCycle(
 		clientID := pp.RelevantClientID(chainID)
 		clientState, err := ccp.clientState(ctx, clientID)
 		if err != nil {
-			ccp.log.Error("fetching client state",
+			ccp.log.Error("Fetching client state.",
 				zap.String("client_id", clientID),
 				zap.Error(err),
 			)
@@ -586,7 +581,7 @@ func (ccp *CosmosChainProcessor) CurrentRelayerBalance(ctx context.Context) {
 		gp, err := sdk.ParseDecCoins(ccp.chainProvider.PCfg.GasPrices)
 		if err != nil {
 			ccp.log.Error(
-				"Failed to parse gas prices",
+				"Parse gas prices.",
 				zap.Error(err),
 			)
 		}
@@ -597,14 +592,14 @@ func (ccp *CosmosChainProcessor) CurrentRelayerBalance(ctx context.Context) {
 	relayerWalletBalances, err := ccp.chainProvider.QueryBalance(ctx, ccp.chainProvider.Key())
 	if err != nil {
 		ccp.log.Error(
-			"Failed to query relayer balance",
+			"Query relayer balance.",
 			zap.Error(err),
 		)
 	}
 	address, err := ccp.chainProvider.Address()
 	if err != nil {
 		ccp.log.Error(
-			"Failed to get relayer bech32 wallet addresss",
+			"Get relayer bech32 wallet address.",
 			zap.Error(err),
 		)
 	}

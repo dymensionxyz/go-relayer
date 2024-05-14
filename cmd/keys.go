@@ -310,7 +310,7 @@ func askForConfirmation(a *appState, stdin io.Reader, stderr io.Writer) bool {
 
 	_, err := fmt.Fscanln(stdin, &response)
 	if err != nil {
-		a.log.Fatal("read input", zap.Error(err))
+		a.log.Fatal("Fscanln.", zap.Error(err))
 	}
 
 	switch strings.ToLower(response) {

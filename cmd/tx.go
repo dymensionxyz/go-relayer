@@ -240,7 +240,7 @@ func createClientCmd(a *appState) *cobra.Command {
 				relayer.RtyErr,
 				retry.OnRetry(func(n uint, err error) {
 					a.log.Info(
-						"get light signed header",
+						"Get light signed header.",
 						zap.String("src_chain_id", src.ChainID()),
 						zap.Int64("src_height", srch),
 						zap.String("dst_chain_id", dst.ChainID()),
@@ -847,7 +847,7 @@ $ %s tx link-then-start demo-path --timeout 5s`, appName, appName)),
 			lCmd := linkCmd(a)
 
 			for err := lCmd.RunE(cmd, args); err != nil; err = lCmd.RunE(cmd, args) {
-				a.log.Info("running link; retrying", zap.Error(err))
+				a.log.Info("Running link; retrying.", zap.Error(err))
 				select {
 				case <-time.After(time.Second):
 					// Keep going.
@@ -976,7 +976,7 @@ $ %s tx flush demo-path channel-0`,
 			// because we would risk returning before the relayer cleans up.
 			if err := <-rlyErrCh; err != nil && !errors.Is(err, context.Canceled) {
 				a.log.Error(
-					"Relayer start error",
+					"Start relayer.",
 					zap.Error(err),
 				)
 				return err
@@ -1004,7 +1004,7 @@ $ %s tx relay-pkts demo-path channel-0`,
 			appName, appName,
 		)),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			a.log.Error("This command is deprecated. Please use 'tx flush' command instead")
+			a.log.Error("This command is deprecated. Please use 'tx flush' command instead.")
 			return flushCmd(a).RunE(cmd, args)
 		},
 	}
@@ -1026,7 +1026,7 @@ $ %s tx relay-acks demo-path channel-0 -l 3 -s 6`,
 			appName, appName,
 		)),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			a.log.Error("This command is deprecated. Please use 'tx flush' command instead")
+			a.log.Error("This command is deprecated. Please use 'tx flush' command instead.")
 			return flushCmd(a).RunE(cmd, args)
 		},
 	}

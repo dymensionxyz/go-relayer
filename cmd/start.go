@@ -106,12 +106,12 @@ $ %s start demo-path2 --max-tx-size 10`, appName, appName, appName, appName)),
 			}
 
 			if debugAddr == "" {
-				a.log.Info("Skipping debug server due to empty debug address flag")
+				a.log.Info("Skipping debug server due to empty debug address flag.")
 			} else {
 				ln, err := net.Listen("tcp", debugAddr)
 				if err != nil {
 					a.log.Error(
-						"listen on debug address. If you have another relayer process open, use --" +
+						"Listen on debug address. If you have another relayer process open, use --" +
 							flagDebugAddr +
 							" to pick a different address.",
 					)
@@ -119,7 +119,7 @@ $ %s start demo-path2 --max-tx-size 10`, appName, appName, appName, appName)),
 					return fmt.Errorf("listen on debug address %q: %w", debugAddr, err)
 				}
 				log := a.log.With(zap.String("sys", "debughttp"))
-				log.Info("Debug server listening", zap.String("addr", debugAddr))
+				log.Info("Debug server listening.", zap.String("addr", debugAddr))
 				prometheusMetrics = processor.NewPrometheusMetrics()
 				relaydebug.StartDebugServer(cmd.Context(), log, ln, prometheusMetrics.Registry)
 				for _, chain := range chains {
@@ -178,7 +178,7 @@ $ %s start demo-path2 --max-tx-size 10`, appName, appName, appName, appName)),
 			// because we would risk returning before the relayer cleans up.
 			if err := <-rlyErrCh; err != nil && !errors.Is(err, context.Canceled) {
 				a.log.Error(
-					"Relayer start error",
+					"Start relayer.",
 					zap.Error(err),
 				)
 				return err
