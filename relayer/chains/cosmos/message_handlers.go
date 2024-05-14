@@ -45,7 +45,7 @@ func (ccp *CosmosChainProcessor) handlePacketMessage(eventType string, pi provid
 	}
 
 	if !c.PacketFlow.ShouldRetainSequence(ccp.pathProcessors, k, ccp.chainProvider.ChainId(), eventType, pi.Sequence) {
-		ccp.log.Debug("Not retaining packet message",
+		ccp.log.Debug("Not retaining packet message.",
 			zap.String("event_type", eventType),
 			zap.Uint64("sequence", pi.Sequence),
 			zap.Inline(k),
@@ -53,14 +53,14 @@ func (ccp *CosmosChainProcessor) handlePacketMessage(eventType string, pi provid
 		return
 	}
 
-	ccp.log.Debug("Retaining packet message",
+	c.PacketFlow.Retain(k, eventType, pi)
+
+	ccp.log.Debug("Retained packet message.",
 		zap.String("event_type", eventType),
 		zap.Uint64("sequence", pi.Sequence),
 		zap.Uint64("height", pi.Height),
 		zap.Inline(k),
 	)
-
-	c.PacketFlow.Retain(k, eventType, pi)
 	ccp.logPacketMessage(eventType, pi)
 }
 

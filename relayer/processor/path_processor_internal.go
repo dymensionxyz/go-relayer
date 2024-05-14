@@ -1080,14 +1080,14 @@ func (pp *PathProcessor) processLatestMessages(ctx context.Context, cancel func(
 	eg.Go(func() error {
 		mp := newMessageProcessor(pp.log, pp.metrics, pp.memo, pp.clientUpdateThresholdTime, pp.isLocalhost)
 		if err := mp.processMessages(ctx, pathEnd1Messages, pp.pathEnd2, pp.pathEnd1); err != nil {
-			return fmt.Errorf("process path end 1 messages: %w", err)
+			return fmt.Errorf("process path end 1 messages: dst: %s: %w", pp.pathEnd1.info.ChainID, err)
 		}
 		return nil
 	})
 	eg.Go(func() error {
 		mp := newMessageProcessor(pp.log, pp.metrics, pp.memo, pp.clientUpdateThresholdTime, pp.isLocalhost)
 		if err := mp.processMessages(ctx, pathEnd2Messages, pp.pathEnd1, pp.pathEnd2); err != nil {
-			return fmt.Errorf("process path end 2 messages: %w", err)
+			return fmt.Errorf("process path end 2 messages: dst: %s: %w", pp.pathEnd2.info.ChainID, err)
 		}
 		return nil
 	})
