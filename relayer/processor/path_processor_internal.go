@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"sort"
+	"strings"
 	"sync"
 
 	"github.com/cosmos/relayer/v2/dymutils/gerr"
@@ -1554,22 +1555,27 @@ func (pp *PathProcessor) flush(ctx context.Context) error {
 	pp.pathEnd2.mergeMessageCache(pathEnd2Cache, pp.pathEnd1.info.ChainID, pp.pathEnd1.inSync, pp.memoLimit, pp.maxReceiverSize)
 
 	if len(skipped) > 0 {
-		skippedPacketsString := ""
-		for chainID, chainSkipped := range skipped {
-			for channelKey, skipped := range chainSkipped {
-				skippedPacketsString += fmt.Sprintf(
-					"{ %s %s %s recv: %d, number of packets which have : %d } ",
-					chainID, channelKey.ChannelID, channelKey.PortID, skipped.Recv, skipped.Ack,
-				)
-			}
-		}
-		return fmt.Errorf(
-			"flush was successful, but packets are still pending. %s",
-			skippedPacketsString,
-		)
+		return SkippedError{skipped}
 	}
 
 	return nil
+}
+
+type SkippedError struct {
+	packets map[string]map[ChannelKey]skippedPackets
+}
+
+func (s SkippedError) Error() string {
+	sb := strings.Builder{}
+	for chainID, chainSkipped := range s.packets {
+		for channelKey, skipped := range chainSkipped {
+			sb.WriteString(fmt.Sprintf(
+				"{ %s %s %s recv: %d, number of committed packets for which acks need to be relayed: %d } ",
+				chainID, channelKey.ChannelID, channelKey.PortID, skipped.Recv, skipped.Ack,
+			))
+		}
+	}
+	return sb.String()
 }
 
 // shouldTerminateForFlushComplete will determine if the relayer should exit
