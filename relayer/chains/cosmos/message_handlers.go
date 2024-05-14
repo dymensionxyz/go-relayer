@@ -10,7 +10,6 @@ import (
 	"github.com/cosmos/relayer/v2/relayer/processor"
 	"github.com/cosmos/relayer/v2/relayer/provider"
 	"go.uber.org/zap"
-	"go.uber.org/zap/zapcore"
 )
 
 func (ccp *CosmosChainProcessor) handleMessage(ctx context.Context, m chains.IbcMessage, c processor.IBCMessagesCache) {
@@ -55,12 +54,6 @@ func (ccp *CosmosChainProcessor) handlePacketMessage(eventType string, pi provid
 
 	c.PacketFlow.Retain(k, eventType, pi)
 
-	ccp.log.Debug("Retained packet message.",
-		zap.String("event_type", eventType),
-		zap.Uint64("sequence", pi.Sequence),
-		zap.Uint64("height", pi.Height),
-		zap.Inline(k),
-	)
 	ccp.logPacketMessage(eventType, pi)
 }
 
@@ -137,12 +130,12 @@ func (ccp *CosmosChainProcessor) handleConnectionMessage(eventType string, ci pr
 	} else {
 		// Clear out MsgInitKeys once we have the counterparty connection ID
 		delete(ccp.connectionStateCache, connectionKey.MsgInitKey())
-		open := (eventType == conntypes.EventTypeConnectionOpenAck || eventType == conntypes.EventTypeConnectionOpenConfirm)
+		open := eventType == conntypes.EventTypeConnectionOpenAck || eventType == conntypes.EventTypeConnectionOpenConfirm
 		ccp.connectionStateCache[connectionKey] = open
 	}
 	ibcMessagesCache.ConnectionHandshake.Retain(connectionKey, eventType, ci)
 
-	ccp.log.With(zap.String("event_type", eventType)).Debug("Observed IBC message", []zap.Field{
+	ccp.log.With(zap.String("event_type", eventType)).Debug("Retained connection message", []zap.Field{
 		zap.String("client_id", ci.ClientID),
 		zap.String("connection_id", ci.ConnID),
 		zap.String("counterparty_client_id", ci.CounterpartyClientID),
@@ -161,7 +154,7 @@ func (ccp *CosmosChainProcessor) handleClientICQMessage(
 	c processor.IBCMessagesCache,
 ) {
 	c.ClientICQ.Retain(processor.ClientICQType(eventType), ci)
-	ccp.log.With(zap.String("event_type", eventType)).Debug("Observed IBC message", []zap.Field{
+	ccp.log.With(zap.String("event_type", eventType)).Debug("Retained client ICQ message", []zap.Field{
 		zap.String("type", ci.Type),
 		zap.String("query_id", string(ci.QueryID)),
 		zap.String("request", hex.EncodeToString(ci.Request)),
@@ -172,9 +165,6 @@ func (ccp *CosmosChainProcessor) handleClientICQMessage(
 }
 
 func (ccp *CosmosChainProcessor) logPacketMessage(message string, pi provider.PacketInfo) {
-	if !ccp.log.Core().Enabled(zapcore.DebugLevel) {
-		return
-	}
 	fields := []zap.Field{
 		zap.Uint64("sequence", pi.Sequence),
 		zap.String("src_channel", pi.SourceChannel),
@@ -191,5 +181,5 @@ func (ccp *CosmosChainProcessor) logPacketMessage(message string, pi provider.Pa
 	if pi.TimeoutTimestamp > 0 {
 		fields = append(fields, zap.Uint64("timeout_timestamp", pi.TimeoutTimestamp))
 	}
-	ccp.log.With(zap.String("event_type", message)).Debug("Observed IBC message", fields...)
+	ccp.log.With(zap.String("event_type", message)).Debug("Retained packet message.", fields...)
 }
