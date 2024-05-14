@@ -450,7 +450,7 @@ func relayUnrelayedPackets(ctx context.Context, log *zap.Logger, src, dst *Chain
 		// log that and indicate failure.
 		if errors.Is(err, context.DeadlineExceeded) || errors.Is(err, context.Canceled) {
 			log.Error(
-				"Context finished while waiting for RelayPackets to complete",
+				"Context finished while waiting for RelayPackets to complete.",
 				zap.String("src_chain_id", src.ChainID()),
 				zap.String("src_channel_id", srcChannel.ChannelId),
 				zap.String("dst_chain_id", dst.ChainID()),
@@ -463,7 +463,7 @@ func relayUnrelayedPackets(ctx context.Context, log *zap.Logger, src, dst *Chain
 		// If we encounter an error that suggest node configuration issues, log a more insightful error message.
 		if strings.Contains(err.Error(), "Internal error: transaction indexing is disabled") {
 			log.Error(
-				"Remote server needs to enable transaction indexing",
+				"Remote server needs to enable transaction indexing.",
 				zap.String("src_chain_id", src.ChainID()),
 				zap.String("src_channel_id", srcChannel.ChannelId),
 				zap.String("dst_chain_id", dst.ChainID()),
@@ -475,7 +475,7 @@ func relayUnrelayedPackets(ctx context.Context, log *zap.Logger, src, dst *Chain
 
 		// Otherwise, not a context error, but an application-level error.
 		log.Error(
-			"Relay packets error",
+			"Relay packets.",
 			zap.String("src_chain_id", src.ChainID()),
 			zap.String("src_channel_id", srcChannel.ChannelId),
 			zap.String("dst_chain_id", dst.ChainID()),
@@ -533,7 +533,7 @@ func relayUnrelayedAcks(ctx context.Context, log *zap.Logger, src, dst *Chain, m
 		// log that and indicate failure.
 		if errors.Is(err, context.DeadlineExceeded) || errors.Is(err, context.Canceled) {
 			log.Error(
-				"Context finished while waiting for RelayAcknowledgements to complete",
+				"Context finished while waiting for RelayAcknowledgements to complete.",
 				zap.String("src_chain_id", src.ChainID()),
 				zap.String("src_channel_id", srcChannel.ChannelId),
 				zap.String("dst_chain_id", dst.ChainID()),
@@ -545,7 +545,7 @@ func relayUnrelayedAcks(ctx context.Context, log *zap.Logger, src, dst *Chain, m
 
 		// Otherwise, not a context error, but an application-level error.
 		log.Error(
-			"Relay acknowledgements error",
+			"Relay acknowledgements.",
 			zap.String("src_chain_id", src.ChainID()),
 			zap.String("src_channel_id", srcChannel.ChannelId),
 			zap.String("dst_chain_id", dst.ChainID()),
