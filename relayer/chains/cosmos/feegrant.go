@@ -350,7 +350,7 @@ func (cc *CosmosProvider) EnsureBasicGrants(ctx context.Context, memo string, ga
 				return nil, fmt.Errorf("could not configure feegrant for granter %s", granterKey)
 			}
 
-			cc.log.Info("Feegrant succeeded", zap.Int("new_grants", grantsNeeded), zap.Int("existing_grants", numGrantees-grantsNeeded), zap.String("tx_hash", txResp.TxResponse.TxHash))
+			cc.log.Info("Feegrant succeeded.", zap.Int("new_grants", grantsNeeded), zap.Int("existing_grants", numGrantees-grantsNeeded), zap.String("tx_hash", txResp.TxResponse.TxHash))
 			return txResp.TxResponse, err
 		}
 

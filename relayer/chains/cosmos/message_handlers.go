@@ -191,7 +191,7 @@ func (ccp *CosmosChainProcessor) logChannelOpenMessage(message string, ci provid
 		zap.String("connection_id", ci.ConnID),
 		zap.String("port_id", ci.PortID),
 	}
-	ccp.log.Info("Successfully created new channel", fields...)
+	ccp.log.Info("Created new channel.", fields...)
 }
 
 func (ccp *CosmosChainProcessor) logConnectionMessage(message string, ci provider.ConnectionInfo) {

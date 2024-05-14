@@ -380,8 +380,8 @@ func (cc *PenumbraProvider) SendMessages(ctx context.Context, msgs []provider.Re
 		events = append(events, parseEventsFromABCIResponse(res.TxResult)...)
 		return nil
 	}, retry.Context(ctx), rtyAtt, rtyDel, rtyErr, retry.OnRetry(func(n uint, err error) {
-		cc.log.Info(
-			"building or broadcasting transaction",
+		cc.log.Debug(
+			"Retrying building or broadcasting transaction.",
 			zap.String("chain_id", cc.PCfg.ChainID),
 			zap.Uint("attempt", n+1),
 			zap.Uint("max_attempts", rtyAttNum),

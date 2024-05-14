@@ -862,7 +862,7 @@ func (pp *PathProcessor) queuePreInitMessages(cancel func()) {
 					break
 				}
 				if counterpartyState, ok := pp.pathEnd2.channelStateCache[k.Counterparty()]; ok && !counterpartyState.Open {
-					pp.log.Info("Channel already closed on both sides")
+					pp.log.Info("Channel already closed on both sides.")
 					cancel()
 					return
 				}
@@ -888,7 +888,7 @@ func (pp *PathProcessor) queuePreInitMessages(cancel func()) {
 					break
 				}
 				if counterpartyChanState, ok := pp.pathEnd1.channelStateCache[k.Counterparty()]; ok && !counterpartyChanState.Open {
-					pp.log.Info("Channel already closed on both sides")
+					pp.log.Info("Channel already closed on both sides.")
 					cancel()
 					return
 				}
@@ -1622,6 +1622,6 @@ func (pp *PathProcessor) shouldTerminateForFlushComplete() bool {
 			}
 		}
 	}
-	pp.log.Info("Found termination condition for flush, all caches cleared")
+	pp.log.Info("Found termination condition for flush, all caches cleared.")
 	return true
 }

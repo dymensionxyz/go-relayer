@@ -312,7 +312,7 @@ func (pathEnd *pathEndRuntime) shouldTerminate(ibcMessagesCache IBCMessagesCache
 			return false
 		}
 		// stop path processor, condition fulfilled
-		pathEnd.log.Info("Found termination condition for packet flow")
+		pathEnd.log.Info("Found termination condition for packet flow.")
 		return true
 	case *ChannelMessageLifecycle:
 		if m.Termination == nil || m.Termination.ChainID != pathEnd.info.ChainID {
@@ -328,7 +328,7 @@ func (pathEnd *pathEndRuntime) shouldTerminate(ibcMessagesCache IBCMessagesCache
 		foundCounterpartyChannelID := m.Termination.Info.CounterpartyChannelID == ""
 		foundCounterpartyPortID := m.Termination.Info.CounterpartyPortID == ""
 		for _, ci := range cache {
-			pathEnd.log.Info("Channel handshake termination candidate",
+			pathEnd.log.Info("Channel handshake termination candidate.",
 				zap.String("termination_port_id", m.Termination.Info.PortID),
 				zap.String("observed_port_id", ci.PortID),
 				zap.String("termination_counterparty_port_id", m.Termination.Info.CounterpartyPortID),
@@ -348,7 +348,7 @@ func (pathEnd *pathEndRuntime) shouldTerminate(ibcMessagesCache IBCMessagesCache
 			}
 		}
 		if foundChannelID && foundPortID && foundCounterpartyChannelID && foundCounterpartyPortID {
-			pathEnd.log.Info("Found termination condition for channel handshake")
+			pathEnd.log.Info("Found termination condition for channel handshake.")
 			return true
 		}
 	case *ChannelCloseLifecycle:
@@ -360,7 +360,7 @@ func (pathEnd *pathEndRuntime) shouldTerminate(ibcMessagesCache IBCMessagesCache
 		foundChannelID := m.SrcChannelID == ""
 		foundPortID := m.SrcPortID == ""
 		for _, ci := range cache {
-			pathEnd.log.Info("Channel close termination candidate",
+			pathEnd.log.Info("Channel close termination candidate.",
 				zap.String("termination_port_id", m.SrcPortID),
 				zap.String("observed_port_id", ci.PortID),
 				zap.String("termination_channel_id", m.SrcChannelID),
@@ -383,7 +383,7 @@ func (pathEnd *pathEndRuntime) shouldTerminate(ibcMessagesCache IBCMessagesCache
 			}
 		}
 		if foundChannelID && foundPortID {
-			pathEnd.log.Info("Found termination condition for channel close")
+			pathEnd.log.Info("Found termination condition for channel close.")
 			return true
 		}
 	case *ConnectionMessageLifecycle:
@@ -400,7 +400,7 @@ func (pathEnd *pathEndRuntime) shouldTerminate(ibcMessagesCache IBCMessagesCache
 		foundCounterpartyClientID := m.Termination.Info.CounterpartyClientID == ""
 		foundCounterpartyConnectionID := m.Termination.Info.CounterpartyConnID == ""
 		for _, ci := range cache {
-			pathEnd.log.Info("Connection handshake termination candidate",
+			pathEnd.log.Info("Connection handshake termination candidate.",
 				zap.String("termination_client_id", m.Termination.Info.ClientID),
 				zap.String("observed_client_id", ci.ClientID),
 				zap.String("termination_counterparty_client_id", m.Termination.Info.CounterpartyClientID),
@@ -420,7 +420,7 @@ func (pathEnd *pathEndRuntime) shouldTerminate(ibcMessagesCache IBCMessagesCache
 			}
 		}
 		if foundClientID && foundConnectionID && foundCounterpartyClientID && foundCounterpartyConnectionID {
-			pathEnd.log.Info("Found termination condition for connection handshake")
+			pathEnd.log.Info("Found termination condition for connection handshake.")
 			return true
 		}
 	}

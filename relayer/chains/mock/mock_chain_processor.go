@@ -175,7 +175,6 @@ func (mcp *MockChainProcessor) queryCycle(ctx context.Context, persistence *quer
 
 		// now pass foundMessages to the path processors
 		for _, pp := range mcp.pathProcessors {
-			mcp.log.Info("sending messages to path processor", zap.String("chain_id", mcp.chainID))
 			pp.HandleNewData(mcp.chainID, processor.ChainProcessorCacheData{
 				LatestBlock: provider.LatestBlock{
 					Height: uint64(i),
@@ -185,6 +184,7 @@ func (mcp *MockChainProcessor) queryCycle(ctx context.Context, persistence *quer
 				InSync:            mcp.inSync,
 				ChannelStateCache: channelStateCache,
 			})
+			mcp.log.Info("Sent messages to path processor.", zap.String("chain_id", mcp.chainID))
 		}
 		persistence.latestQueriedBlock = i
 	}

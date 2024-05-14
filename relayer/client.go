@@ -49,8 +49,8 @@ func (c *Chain) CreateClients(ctx context.Context,
 		}
 		return nil
 	}, retry.Context(ctx), RtyAtt, RtyDel, RtyErr, retry.OnRetry(func(n uint, err error) {
-		c.log.Info(
-			"get light signed headers",
+		c.log.Debug(
+			"Retrying get light signed headers.",
 			zap.String("src_chain_id", c.ChainID()),
 			zap.Int64("src_height", srch),
 			zap.String("dst_chain_id", dst.ChainID()),

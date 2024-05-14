@@ -116,8 +116,8 @@ func (pcp *PenumbraChainProcessor) latestHeightWithRetry(ctx context.Context) (l
 		latestHeight, err = pcp.chainProvider.QueryLatestHeight(latestHeightQueryCtx)
 		return err
 	}, retry.Context(ctx), retry.Attempts(latestHeightQueryRetries), retry.Delay(latestHeightQueryRetryDelay), retry.LastErrorOnly(true), retry.OnRetry(func(n uint, err error) {
-		pcp.log.Info(
-			"Query latest height",
+		pcp.log.Debug(
+			"Retrying query latest height.",
 			zap.Uint("attempt", n+1),
 			zap.Uint("max_attempts", latestHeightQueryRetries),
 			zap.Error(err),
@@ -302,9 +302,9 @@ func (pcp *PenumbraChainProcessor) queryCycle(ctx context.Context, persistence *
 		if (persistence.latestHeight - persistence.latestQueriedBlock) < inSyncNumBlocksThreshold {
 			pcp.inSync = true
 			firstTimeInSync = true
-			pcp.log.Info("Chain is in sync")
+			pcp.log.Info("Chain in sync.")
 		} else {
-			pcp.log.Info("Chain is not yet in sync",
+			pcp.log.Info("Chain not in sync.",
 				zap.Int64("latest_queried_block", persistence.latestQueriedBlock),
 				zap.Int64("latest_height", persistence.latestHeight),
 			)
