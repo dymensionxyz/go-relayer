@@ -102,12 +102,12 @@ func (cc *PenumbraProvider) LogSuccessTx(res *sdk.TxResponse, msgs []provider.Re
 			}
 		} else {
 			cc.log.Debug(
-				"to convert message to Tx type",
+				"convert message to Tx type",
 				zap.Stringer("type", reflect.TypeOf(m)),
 			)
 		}
 	} else {
-		cc.log.Debug("to unpack response Tx into sdk.Msg", zap.Error(err))
+		cc.log.Debug("unpack response Tx into sdk.Msg", zap.Error(err))
 	}
 
 	// Include the height, msgType, and tx_hash

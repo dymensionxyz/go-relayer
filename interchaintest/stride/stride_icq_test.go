@@ -162,7 +162,7 @@ func TestScenarioStrideICAandICQ(t *testing.T) {
 		Amount:  initBal,
 		Denom:   strideCfg.Denom,
 	})
-	require.NoError(t, err, "to fund stride admin account")
+	require.NoError(t, err, "fund stride admin account")
 
 	logger.Info("TestScenarioStrideICAandICQ [4]")
 

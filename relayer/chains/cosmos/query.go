@@ -333,7 +333,7 @@ func (cc *CosmosProvider) queryParamsSubspaceTime(ctx context.Context, subspace 
 
 	unbondingValue, err := strconv.ParseUint(strings.ReplaceAll(res.Param.Value, `"`, ""), 10, 64)
 	if err != nil {
-		return 0, fmt.Errorf("to parse %s from %s param: %w", key, subspace, err)
+		return 0, fmt.Errorf("parse %s from %s param: %w", key, subspace, err)
 	}
 
 	return time.Duration(unbondingValue), nil

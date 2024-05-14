@@ -1960,7 +1960,7 @@ func (cc *PenumbraProvider) InjectTrustedFields(ctx context.Context, header ibce
 		return err
 	}, retry.Context(ctx), rtyAtt, rtyDel, rtyErr); err != nil {
 		return nil, fmt.Errorf(
-			"to get trusted header, please ensure header at the height %d has not been pruned by the connected node: %w",
+			"get trusted header, please ensure header at the height %d has not been pruned by the connected node: %w",
 			h.TrustedHeight.RevisionHeight, err,
 		)
 	}
