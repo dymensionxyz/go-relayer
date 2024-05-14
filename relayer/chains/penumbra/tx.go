@@ -1813,7 +1813,7 @@ EventLoop:
 			case toHeightTag:
 				timeout, err := clienttypes.ParseHeight(attributeValue)
 				if err != nil {
-					cc.log.Warn("error parsing height timeout",
+					cc.log.Error("error parsing height timeout",
 						zap.String("chain_id", cc.ChainId()),
 						zap.Uint64("sequence", rp.seq),
 						zap.Error(err),
@@ -1824,7 +1824,7 @@ EventLoop:
 			case toTSTag:
 				timeout, err := strconv.ParseUint(attributeValue, 10, 64)
 				if err != nil {
-					cc.log.Warn("error parsing timestamp timeout",
+					cc.log.Error("error parsing timestamp timeout",
 						zap.String("chain_id", cc.ChainId()),
 						zap.Uint64("sequence", rp.seq),
 						zap.Error(err),
@@ -1835,7 +1835,7 @@ EventLoop:
 			case seqTag:
 				seq, err := strconv.ParseUint(attributeValue, 10, 64)
 				if err != nil {
-					cc.log.Warn("error parsing packet sequence",
+					cc.log.Error("error parsing packet sequence",
 						zap.String("chain_id", cc.ChainId()),
 						zap.Error(err),
 					)
