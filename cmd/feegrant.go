@@ -142,7 +142,7 @@ func feegrantConfigureBasicCmd(a *appState) *cobra.Command {
 			ctx := cmd.Context()
 			_, err = prov.EnsureBasicGrants(ctx, memo, gas)
 			if err != nil {
-				return fmt.Errorf(writing grants on chain: '%s'", err.Error())
+				return fmt.Errorf("error writing grants on chain: '%s'", err.Error())
 			}
 
 			// Get latest height from the chain, mark feegrant configuration as verified up to that height.

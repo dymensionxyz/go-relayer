@@ -97,7 +97,7 @@ func (s *System) MustRunWithInput(t *testing.T, in io.Reader, args ...string) Ru
 
 	res := s.RunWithInput(zaptest.NewLogger(t), in, args...)
 	if res.Err != nil {
-		t.Logf(executing %v: %v", args, res.Err)
+		t.Logf("Error executing %v: %v", args, res.Err)
 		t.Logf("Stdout: %q", res.Stdout.String())
 		t.Logf("Stderr: %q", res.Stderr.String())
 		t.FailNow()

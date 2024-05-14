@@ -293,7 +293,7 @@ func (ccp *CosmosChainProcessor) initializeConnectionState(ctx context.Context) 
 	defer cancel()
 	connections, err := ccp.chainProvider.QueryConnections(ctx)
 	if err != nil {
-		return fmt.Errorf(querying connections: %w", err)
+		return fmt.Errorf("error querying connections: %w", err)
 	}
 	for _, c := range connections {
 		ccp.connectionClients[c.Id] = c.ClientId
@@ -314,7 +314,7 @@ func (ccp *CosmosChainProcessor) initializeChannelState(ctx context.Context) err
 
 	channels, err := ccp.chainProvider.QueryChannels(ctx)
 	if err != nil {
-		return fmt.Errorf(querying channels: %w", err)
+		return fmt.Errorf("error querying channels: %w", err)
 	}
 
 	for _, ch := range channels {
@@ -441,7 +441,7 @@ func (ccp *CosmosChainProcessor) queryCycle(
 
 		if err := eg.Wait(); err != nil {
 			ccp.log.Debug(
-				querying block data",
+				"Error querying block data",
 				zap.Int64("height", i),
 				zap.Error(err),
 			)
@@ -542,7 +542,7 @@ func (ccp *CosmosChainProcessor) queryCycle(
 		clientID := pp.RelevantClientID(chainID)
 		clientState, err := ccp.clientState(ctx, clientID)
 		if err != nil {
-			ccp.log.Error(fetching client state",
+			ccp.log.Error("Error fetching client state",
 				zap.String("client_id", clientID),
 				zap.Error(err),
 			)

@@ -776,7 +776,7 @@ $ %s tx connect demo-path --src-port transfer --dst-port transfer --order unorde
 				memo,
 			)
 			if err != nil {
-				return fmt.Errorf(creating clients: %w", err)
+				return fmt.Errorf("error creating clients: %w", err)
 			}
 
 			if clientSrc != "" || clientDst != "" {
@@ -796,7 +796,7 @@ $ %s tx connect demo-path --src-port transfer --dst-port transfer --order unorde
 				pathName,
 			)
 			if err != nil {
-				return fmt.Errorf(creating connections: %w", err)
+				return fmt.Errorf("error creating connections: %w", err)
 			}
 
 			if connectionSrc != "" || connectionDst != "" {
@@ -847,7 +847,7 @@ $ %s tx link-then-start demo-path --timeout 5s`, appName, appName)),
 			lCmd := linkCmd(a)
 
 			for err := lCmd.RunE(cmd, args); err != nil; err = lCmd.RunE(cmd, args) {
-				a.log.Info(running link; retrying", zap.Error(err))
+				a.log.Info("Error running link; retrying", zap.Error(err))
 				select {
 				case <-time.After(time.Second):
 					// Keep going.

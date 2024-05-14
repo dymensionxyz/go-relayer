@@ -22,7 +22,7 @@ func UnrelayedSequences(ctx context.Context, src, dst *Chain, srcChannel *chanty
 
 	srch, dsth, err := QueryLatestHeights(ctx, src, dst)
 	if err != nil {
-		src.log.Error(querying latest heights", zap.Error(err))
+		src.log.Error("Error querying latest heights", zap.Error(err))
 		return rs
 	}
 
@@ -248,7 +248,7 @@ func UnrelayedAcknowledgements(ctx context.Context, src, dst *Chain, srcChannel 
 
 	srch, dsth, err := QueryLatestHeights(ctx, src, dst)
 	if err != nil {
-		src.log.Error(querying latest heights", zap.Error(err))
+		src.log.Error("Error querying latest heights", zap.Error(err))
 		return rs
 	}
 

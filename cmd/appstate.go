@@ -66,14 +66,14 @@ func (a *appState) loadConfigFile(ctx context.Context) error {
 	// read the config file bytes
 	file, err := os.ReadFile(cfgPath)
 	if err != nil {
-		return fmt.Errorf(reading file: %w", err)
+		return fmt.Errorf("error reading file: %w", err)
 	}
 
 	// unmarshall them into the wrapper struct
 	cfgWrapper := &ConfigInputWrapper{}
 	err = yaml.Unmarshal(file, cfgWrapper)
 	if err != nil {
-		return fmt.Errorf(unmarshalling config: %w", err)
+		return fmt.Errorf("error unmarshalling config: %w", err)
 	}
 
 	if a.log == nil {
@@ -88,7 +88,7 @@ func (a *appState) loadConfigFile(ctx context.Context) error {
 
 	// validate runtime configuration
 	if err := newCfg.validateConfig(); err != nil {
-		return fmt.Errorf(parsing chain config: %w", err)
+		return fmt.Errorf("error parsing chain config: %w", err)
 	}
 
 	// save runtime configuration in app state
@@ -205,7 +205,7 @@ func (a *appState) performConfigLockingOperation(ctx context.Context, operation 
 	}
 	defer func() {
 		if err := fileLock.Unlock(); err != nil {
-			a.log.Error(unlocking config file lock, please manually delete",
+			a.log.Error("error unlocking config file lock, please manually delete",
 				zap.String("filepath", lockFilePath),
 			)
 		}
@@ -224,7 +224,7 @@ func (a *appState) performConfigLockingOperation(ctx context.Context, operation 
 
 	// validate config after changes have been made.
 	if err := a.config.validateConfig(); err != nil {
-		return fmt.Errorf(parsing chain config: %w", err)
+		return fmt.Errorf("error parsing chain config: %w", err)
 	}
 
 	// marshal the new config

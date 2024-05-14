@@ -219,7 +219,7 @@ func relayerStartLegacy(
 		if errors.Is(err, context.Canceled) {
 			errCh <- err
 		} else {
-			errCh <- fmt.Errorf(querying all channels on chain{%s}@connection{%s}: %w",
+			errCh <- fmt.Errorf("error querying all channels on chain{%s}@connection{%s}: %w",
 				src.ChainID(), src.ConnectionID(), err)
 		}
 		return

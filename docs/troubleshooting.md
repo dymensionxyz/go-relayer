@@ -101,7 +101,7 @@ index_all_tags = true
 When preparing a transaction for relaying, the amount of gas that the transaction will consume is unknown.  To compute how much gas the transaction will need, the transaction is prepared with 0 gas and delivered as a `/cosmos.tx.v1beta1.Service/Simulate` query to the RPC endpoint.  Recently chains have been creating AnteHandlers in which 0 gas triggers an error case:
 
 ```
-lvl=info msg=building or broadcasting transaction" provider_type=cosmos chain_id=evmos_9001-2 attempt=1 max_attempts=5 error="rpc error: code = InvalidArgument desc = provided fee < minimum global fee (0aevmos < ). Please increase the gas price.: insufficient fee: invalid request"
+lvl=info msg="Error building or broadcasting transaction" provider_type=cosmos chain_id=evmos_9001-2 attempt=1 max_attempts=5 error="rpc error: code = InvalidArgument desc = provided fee < minimum global fee (0aevmos < ). Please increase the gas price.: insufficient fee: invalid request"
 ```
 
 A workaround is available in which the `min-gas-amount` may be set in the chain's configuration to enable simulation with a non-zero amount of gas.

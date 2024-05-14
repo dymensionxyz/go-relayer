@@ -478,7 +478,7 @@ func addChainsFromRegistry(ctx context.Context, a *appState, forceAdd, testnet b
 		chainInfo, err := chainRegistry.GetChain(ctx, testnet, chain)
 		if err != nil {
 			a.log.Warn(
-				retrieving chain",
+				"Error retrieving chain",
 				zap.String("chain", chain),
 				zap.Error(err),
 			)
@@ -489,7 +489,7 @@ func addChainsFromRegistry(ctx context.Context, a *appState, forceAdd, testnet b
 		chainConfig, err := chainInfo.GetChainConfig(ctx, forceAdd, testnet, chain)
 		if err != nil {
 			a.log.Warn(
-				generating chain config",
+				"Error generating chain config",
 				zap.String("chain", chain),
 				zap.Error(err),
 			)
