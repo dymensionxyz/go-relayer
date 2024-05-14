@@ -181,7 +181,7 @@ func getFeePayer(log *zap.Logger, cdc *codec.ProtoCodec, tx *typestx.Tx) string 
 	default:
 		signers, _, err := cdc.GetMsgV1Signers(firstMsg)
 		if err != nil {
-			log.Info("Could not get signers for msg when attempting to get the fee payer", zap.Error(err))
+			log.Error("Could not get signers for msg when attempting to get the fee payer.", zap.Error(err))
 			return ""
 		}
 

@@ -319,7 +319,7 @@ func (cc *CosmosProvider) EnsureBasicGrants(ctx context.Context, memo string, ga
 
 		if !hasGrant && !cc.PCfg.FeeGrants.IsExternalGranter {
 			grantsNeeded++
-			cc.log.Info("Creating feegrant", zap.String("granter", granterAddr), zap.String("grantee", granteeAddr))
+			cc.log.Info("Creating feegrant.", zap.String("granter", granterAddr), zap.String("grantee", granteeAddr))
 
 			grantMsg, err := cc.getMsgGrantBasicAllowance(granterAcc, granteeAcc)
 			if err != nil {

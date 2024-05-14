@@ -371,9 +371,9 @@ func (ccp *CosmosChainProcessor) queryCycle(
 		if (persistence.latestHeight - persistence.latestQueriedBlock) < int64(defaultInSyncNumBlocksThreshold) {
 			ccp.inSync = true
 			firstTimeInSync = true
-			ccp.log.Info("Chain is in sync", zap.Bool("first time", firstTimeInSync))
+			ccp.log.Info("Chain in sync.", zap.Bool("first time", firstTimeInSync))
 		} else {
-			ccp.log.Info("Chain is not yet in sync",
+			ccp.log.Info("Chain not in sync.",
 				zap.Int64("latest_queried_block", persistence.latestQueriedBlock),
 				zap.Int64("latest_height", persistence.latestHeight),
 			)
@@ -491,9 +491,9 @@ func (ccp *CosmosChainProcessor) queryCycle(
 				switch t := m.Info.(type) {
 				case *chains.PacketInfo:
 					if stuckPacket != nil && ccp.chainProvider.ChainId() == stuckPacket.ChainID && int64(stuckPacket.StartHeight) <= i && i <= int64(stuckPacket.EndHeight) {
-						ccp.log.Info("found stuck packet message", zap.Any("seq", t.Sequence), zap.Any("height", t.Height))
+						ccp.log.Info("Found stuck packet message.", zap.Any("seq", t.Sequence), zap.Any("height", t.Height))
 					} else {
-						ccp.log.Debug("found packet message", zap.Any("seq", t.Sequence), zap.Any("height", t.Height))
+						ccp.log.Debug("Found packet message.", zap.Any("seq", t.Sequence), zap.Any("height", t.Height))
 					}
 				}
 				ccp.handleMessage(ctx, m, ibcMessagesCache)
@@ -510,12 +510,12 @@ func (ccp *CosmosChainProcessor) queryCycle(
 			i = persistence.latestHeight
 
 			newLatestQueriedBlock = afterUnstuck
-			ccp.log.Info("Parsed stuck packet height, skipping to current", zap.Any("new latest queried block", newLatestQueriedBlock))
+			ccp.log.Info("Parsed stuck packet height, skipping to current.", zap.Any("new latest queried block", newLatestQueriedBlock))
 		}
 
 		if i%100 == 0 {
 			elapsed := time.Since(startTime)
-			ccp.log.Info("Processed block", zap.Int64("height", i), zap.Duration("elapsed", elapsed), zap.Int64("latest", persistence.latestHeight))
+			ccp.log.Info("Processed block.", zap.Int64("height", i), zap.Duration("elapsed", elapsed), zap.Int64("latest", persistence.latestHeight))
 		}
 	}
 
