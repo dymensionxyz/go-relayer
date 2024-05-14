@@ -483,8 +483,6 @@ func (ccp *CosmosChainProcessor) queryCycle(
 				case *chains.PacketInfo:
 					if stuckPacket != nil && ccp.chainProvider.ChainId() == stuckPacket.ChainID && int64(stuckPacket.StartHeight) <= i && i <= int64(stuckPacket.EndHeight) {
 						ccp.log.Info("Found stuck packet message.", zap.Any("seq", t.Sequence), zap.Any("height", t.Height))
-					} else {
-						ccp.log.Debug("Found packet message.", zap.Any("seq", t.Sequence), zap.Any("height", t.Height))
 					}
 				}
 				ccp.handleMessage(ctx, m, ibcMessagesCache)
