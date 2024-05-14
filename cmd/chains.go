@@ -466,33 +466,33 @@ func addChainsFromRegistry(ctx context.Context, a *appState, forceAdd, testnet b
 
 	for _, chain := range chains {
 		if _, ok := a.config.Chains[chain]; ok {
-			a.log.Warn(
-				"Chain already exists",
+			a.log.Error
+			"Chain already exists.",
 				zap.String("chain", chain),
 				zap.String("source_link", chainRegistry.SourceLink()),
-			)
+		)
 			existed = append(existed, chain)
 			continue
 		}
 
 		chainInfo, err := chainRegistry.GetChain(ctx, testnet, chain)
 		if err != nil {
-			a.log.Warn(
-				"retrieving chain",
+			a.log.Error
+			"Error in get chain.",
 				zap.String("chain", chain),
 				zap.Error(err),
-			)
+		)
 			failed = append(failed, chain)
 			continue
 		}
 
 		chainConfig, err := chainInfo.GetChainConfig(ctx, forceAdd, testnet, chain)
 		if err != nil {
-			a.log.Warn(
-				"generating chain config",
+			a.log.Error
+			"Error in get chain config.",
 				zap.String("chain", chain),
 				zap.Error(err),
-			)
+		)
 			failed = append(failed, chain)
 			continue
 		}
@@ -505,11 +505,11 @@ func addChainsFromRegistry(ctx context.Context, a *appState, forceAdd, testnet b
 			a.homePath, a.debug, chainInfo.ChainName,
 		)
 		if err != nil {
-			a.log.Warn(
-				"build ChainProvider",
+			a.log.Error
+			"build ChainProvider",
 				zap.String("chain_id", chainConfig.ChainID),
 				zap.Error(err),
-			)
+		)
 			failed = append(failed, chain)
 			continue
 		}
@@ -517,11 +517,11 @@ func addChainsFromRegistry(ctx context.Context, a *appState, forceAdd, testnet b
 		// add to config
 		c := relayer.NewChain(a.log, prov, a.debug)
 		if err = a.config.AddChain(c); err != nil {
-			a.log.Warn(
-				"add chain to config",
+			a.log.Error
+			"add chain to config",
 				zap.String("chain", chain),
 				zap.Error(err),
-			)
+		)
 			failed = append(failed, chain)
 			continue
 		}

@@ -458,7 +458,7 @@ func (cc *PenumbraProvider) MsgCreateClient(clientState ibcexported.ClientState,
 	return NewPenumbraMessage(msg), nil
 }
 
-func (cc *PenumbraProvider) SubmitMisbehavior( /*TBD*/ ) (provider.RelayerMessage, error) {
+func (cc *PenumbraProvider) SubmitMisbehavior( /*TBD*/) (provider.RelayerMessage, error) {
 	return nil, nil
 }
 
@@ -1813,32 +1813,35 @@ EventLoop:
 			case toHeightTag:
 				timeout, err := clienttypes.ParseHeight(attributeValue)
 				if err != nil {
-					cc.log.Warn("error parsing height timeout",
+					cc.log.Error
+					"error parsing height timeout",
 						zap.String("chain_id", cc.ChainId()),
 						zap.Uint64("sequence", rp.seq),
 						zap.Error(err),
-					)
+				)
 					continue EventLoop
 				}
 				rp.timeout = timeout
 			case toTSTag:
 				timeout, err := strconv.ParseUint(attributeValue, 10, 64)
 				if err != nil {
-					cc.log.Warn("error parsing timestamp timeout",
+					cc.log.Error
+					"error parsing timestamp timeout",
 						zap.String("chain_id", cc.ChainId()),
 						zap.Uint64("sequence", rp.seq),
 						zap.Error(err),
-					)
+				)
 					continue EventLoop
 				}
 				rp.timeoutStamp = timeout
 			case seqTag:
 				seq, err := strconv.ParseUint(attributeValue, 10, 64)
 				if err != nil {
-					cc.log.Warn("error parsing packet sequence",
+					cc.log.Error
+					"error parsing packet sequence",
 						zap.String("chain_id", cc.ChainId()),
 						zap.Error(err),
-					)
+				)
 					continue EventLoop
 				}
 				rp.seq = seq
@@ -2145,13 +2148,13 @@ func (cc *PenumbraProvider) sdkError(codespace string, code uint32) error {
 // The wait will end after either the asyncTimeout has run out or the asyncCtx exits.
 // If there is no error broadcasting, the asyncCallback will be called with success/failure of the wait for block inclusion.
 func (cc *PenumbraProvider) broadcastTx(
-	ctx context.Context, // context for tx broadcast
-	tx []byte, // raw tx to be broadcasted
+	ctx context.Context,            // context for tx broadcast
+	tx []byte,                      // raw tx to be broadcasted
 	msgs []provider.RelayerMessage, // used for logging only
-	fees sdk.Coins, // used for metrics
+	fees sdk.Coins,                 // used for metrics
 
-	asyncCtx context.Context, // context for async wait for block inclusion after successful tx broadcast
-	asyncTimeout time.Duration, // timeout for waiting for block inclusion
+	asyncCtx context.Context,                               // context for async wait for block inclusion after successful tx broadcast
+	asyncTimeout time.Duration,                             // timeout for waiting for block inclusion
 	asyncCallback func(*provider.RelayerTxResponse, error), // callback for success/fail of the wait for block inclusion
 ) error {
 	res, err := cc.RPCClient.BroadcastTxSync(ctx, tx)

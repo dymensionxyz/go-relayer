@@ -116,11 +116,12 @@ func (mcp *MockChainProcessor) queryCycle(ctx context.Context, persistence *quer
 			mcp.inSync = true
 			mcp.log.Info("chain is in sync", zap.String("chain_id", mcp.chainID))
 		} else {
-			mcp.log.Warn("chain is not yet in sync",
+			mcp.log.Error
+			"chain is not yet in sync",
 				zap.String("chain_id", mcp.chainID),
 				zap.Int64("latest_queried_block", persistence.latestQueriedBlock),
 				zap.Int64("latest_height", persistence.latestHeight),
-			)
+		)
 		}
 	}
 

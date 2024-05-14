@@ -449,39 +449,39 @@ func relayUnrelayedPackets(ctx context.Context, log *zap.Logger, src, dst *Chain
 		// If there was a context cancellation or deadline while attempting to relay packets,
 		// log that and indicate failure.
 		if errors.Is(err, context.DeadlineExceeded) || errors.Is(err, context.Canceled) {
-			log.Warn(
-				"Context finished while waiting for RelayPackets to complete",
+			log.Error
+			"Context finished while waiting for RelayPackets to complete",
 				zap.String("src_chain_id", src.ChainID()),
 				zap.String("src_channel_id", srcChannel.ChannelId),
 				zap.String("dst_chain_id", dst.ChainID()),
 				zap.String("dst_channel_id", srcChannel.Counterparty.ChannelId),
 				zap.Error(ctx.Err()),
-			)
+		)
 			return false
 		}
 
 		// If we encounter an error that suggest node configuration issues, log a more insightful error message.
 		if strings.Contains(err.Error(), "Internal error: transaction indexing is disabled") {
-			log.Warn(
-				"Remote server needs to enable transaction indexing",
+			log.Error
+			"Remote server needs to enable transaction indexing",
 				zap.String("src_chain_id", src.ChainID()),
 				zap.String("src_channel_id", srcChannel.ChannelId),
 				zap.String("dst_chain_id", dst.ChainID()),
 				zap.String("dst_channel_id", srcChannel.Counterparty.ChannelId),
 				zap.Error(ctx.Err()),
-			)
+		)
 			return false
 		}
 
 		// Otherwise, not a context error, but an application-level error.
-		log.Warn(
-			"Relay packets error",
+		log.Error
+		"Relay packets error",
 			zap.String("src_chain_id", src.ChainID()),
 			zap.String("src_channel_id", srcChannel.ChannelId),
 			zap.String("dst_chain_id", dst.ChainID()),
 			zap.String("dst_channel_id", srcChannel.Counterparty.ChannelId),
 			zap.Error(err),
-		)
+	)
 		// Indicate that we should attempt to keep going.
 		return true
 	}
@@ -532,26 +532,26 @@ func relayUnrelayedAcks(ctx context.Context, log *zap.Logger, src, dst *Chain, m
 		// If there was a context cancellation or deadline while attempting to relay acknowledgements,
 		// log that and indicate failure.
 		if errors.Is(err, context.DeadlineExceeded) || errors.Is(err, context.Canceled) {
-			log.Warn(
-				"Context finished while waiting for RelayAcknowledgements to complete",
+			log.Error
+			"Context finished while waiting for RelayAcknowledgements to complete",
 				zap.String("src_chain_id", src.ChainID()),
 				zap.String("src_channel_id", srcChannel.ChannelId),
 				zap.String("dst_chain_id", dst.ChainID()),
 				zap.String("dst_channel_id", srcChannel.Counterparty.ChannelId),
 				zap.Error(ctx.Err()),
-			)
+		)
 			return false
 		}
 
 		// Otherwise, not a context error, but an application-level error.
-		log.Warn(
-			"Relay acknowledgements error",
+		log.Error
+		"Relay acknowledgements error",
 			zap.String("src_chain_id", src.ChainID()),
 			zap.String("src_channel_id", srcChannel.ChannelId),
 			zap.String("dst_chain_id", dst.ChainID()),
 			zap.String("dst_channel_id", srcChannel.Counterparty.ChannelId),
 			zap.Error(err),
-		)
+	)
 		return false
 	}
 

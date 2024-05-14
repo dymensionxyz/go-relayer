@@ -177,7 +177,7 @@ $ %s start demo-path2 --max-tx-size 10`, appName, appName, appName, appName)),
 			// so we don't want to separately monitor the ctx.Done channel,
 			// because we would risk returning before the relayer cleans up.
 			if err := <-rlyErrCh; err != nil && !errors.Is(err, context.Canceled) {
-				a.log.Warn(
+				a.log.Error
 					"Relayer start error",
 					zap.Error(err),
 				)

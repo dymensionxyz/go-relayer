@@ -359,13 +359,13 @@ func (cc *CosmosProvider) sdkError(codespace string, code uint32) error {
 // The wait will end after either the asyncTimeout has run out or the asyncCtx exits.
 // If there is no error broadcasting, the asyncCallback will be called with success/failure of the wait for block inclusion.
 func (cc *CosmosProvider) broadcastTx(
-	ctx context.Context,            // context for tx broadcast
-	tx []byte,                      // raw tx to be broadcasted
+	ctx context.Context, // context for tx broadcast
+	tx []byte, // raw tx to be broadcasted
 	msgs []provider.RelayerMessage, // used for logging only
-	fees sdk.Coins,                 // used for metrics
+	fees sdk.Coins, // used for metrics
 
-	asyncCtx context.Context,                                  // context for async wait for block inclusion after successful tx broadcast
-	asyncTimeout time.Duration,                                // timeout for waiting for block inclusion
+	asyncCtx context.Context, // context for async wait for block inclusion after successful tx broadcast
+	asyncTimeout time.Duration, // timeout for waiting for block inclusion
 	asyncCallbacks []func(*provider.RelayerTxResponse, error), // callback for success/fail of the wait for block inclusion
 ) error {
 	res, err := cc.RPCClient.BroadcastTxSync(ctx, tx)
