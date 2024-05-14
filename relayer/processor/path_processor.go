@@ -301,13 +301,36 @@ func (pp *PathProcessor) handleFlush(ctx context.Context) {
 	flushTimer := pp.flushInterval
 	if err := pp.flush(ctx); err != nil {
 		var se SkippedError
-		if !errors.As(err, &se) {
-			flushTimer = flushFailureRetry
-			pp.log.Error("Flush. Trying again.", zap.Error(err), zap.Duration("until next attempt (seconds)", flushTimer))
+		if errors.As(err, &se) && pp.SkippedPacketsHandlingConfig != nil {
+
+			/*
+				If we have skipped packets for the counterparty to the hub, and they are acks
+				then we may want to do something different
+			*/
+			var counterPartyChain string
+			if pp.pathEnd1.info.ChainID == pp.SkippedPacketsHandlingConfig.HubChainID {
+				counterPartyChain = pp.pathEnd2.info.ChainID
+			}
+			if pp.pathEnd2.info.ChainID == pp.SkippedPacketsHandlingConfig.HubChainID {
+				counterPartyChain = pp.pathEnd1.info.ChainID
+			}
+
+			for chain, chanSkipped := range se.packets {
+				skippedPacketsOnCounterparty := chain == counterPartyChain
+				onlySkippedPacketsOnCounterparty := len(se.packets) == 1
+				doNotComplainAboutSkippedAcks := pp.SkippedPacketsHandlingConfig.IgnoreHubAcksWhenFlushing
+				if skippedPacketsOnCounterparty && onlySkippedPacketsOnCounterparty && doNotComplainAboutSkippedAcks {
+					for channel, skipped := range chanSkipped {
+						if skipped.Recv == 0 && 0 < skipped.Ack {
+						}
+					}
+				}
+			}
+
 			return
 		}
 		flushTimer = flushFailureRetry
-		pp.log.Error("Flush. Trying again.", zap.Error(err), zap.Duration("until next attempt (seconds)", flushTimer))
+		pp.log.Error()
 	}
 	pp.flushTimer.Stop()
 	pp.flushTimer = time.NewTimer(flushTimer)
