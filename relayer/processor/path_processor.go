@@ -296,8 +296,8 @@ func (pp *PathProcessor) HandleNewData(chainID string, cacheData ChainProcessorC
 func (pp *PathProcessor) handleFlush(ctx context.Context) {
 	flushTimer := pp.flushInterval
 	if err := pp.flush(ctx); err != nil {
-		pp.log.Error("Flush.", zap.Error(err))
 		flushTimer = flushFailureRetry
+		pp.log.Error("Flush. Trying again.", zap.Error(err), zap.Time("until next attempt", flushTimer))
 	}
 	pp.flushTimer.Stop()
 	pp.flushTimer = time.NewTimer(flushTimer)
@@ -381,7 +381,7 @@ func (pp *PathProcessor) processAvailableSignals(ctx context.Context, cancel fun
 				pp.maxReceiverSize,
 			)
 		}
-		// Periodic flush to clear out any old packets
+		pp.log.Debug("Flushing due to timer firing.")
 		pp.handleFlush(ctx)
 	}
 	return false

@@ -1436,7 +1436,7 @@ SeqLoop:
 
 	if len(unackedAndWillAck) > 0 {
 		dst.log.Debug(
-			"Will flush MsgAcknowledgement",
+			"",
 			zap.Object("channel", k),
 			zap.Uint64s("sequences", unackedAndWillAck),
 		)
