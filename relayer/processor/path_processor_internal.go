@@ -1562,6 +1562,7 @@ func (pp *PathProcessor) flush(ctx context.Context) error {
 }
 
 type SkippedError struct {
+	// chain id -> channel -> skipped packets
 	packets map[string]map[ChannelKey]skippedPackets
 }
 
