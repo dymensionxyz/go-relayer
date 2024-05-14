@@ -297,7 +297,7 @@ func (pp *PathProcessor) handleFlush(ctx context.Context) {
 	flushTimer := pp.flushInterval
 	if err := pp.flush(ctx); err != nil {
 		flushTimer = flushFailureRetry
-		pp.log.Error("Flush. Trying again.", zap.Error(err), zap.Time("until next attempt", flushTimer))
+		pp.log.Error("Flush. Trying again.", zap.Error(err), zap.Duration("until next attempt", flushTimer))
 	}
 	pp.flushTimer.Stop()
 	pp.flushTimer = time.NewTimer(flushTimer)
