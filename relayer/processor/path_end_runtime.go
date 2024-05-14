@@ -181,12 +181,12 @@ func (pathEnd *pathEndRuntime) mergeMessageCache(
 				newPc := make(PacketSequenceCache)
 				for seq, p := range pCache {
 					if err := checkMemoLimit(p.Data, memoLimit); err != nil {
-						pathEnd.log.Error"Ignoring packet", zap.Error(err))
+						pathEnd.log.Warn("Ignoring packet", zap.Error(err))
 						continue
 					}
 
 					if err := checkMaxReceiverSize(p.Data, maxReceiverSize); err != nil {
-						pathEnd.log.Error"Ignoring packet", zap.Error(err))
+						pathEnd.log.Warn("Ignoring packet", zap.Error(err))
 						continue
 					}
 
@@ -561,7 +561,7 @@ func (pathEnd *pathEndRuntime) shouldSendPacketMessage(message packetIBCMessage,
 	}
 	if !pathEnd.channelStateCache[k].Open {
 		// channel is not open, do not send
-		pathEnd.log.Error"Refusing to relay packet message because channel is not open",
+		pathEnd.log.Warn("Refusing to relay packet message because channel is not open",
 			zap.String("event_type", eventType),
 			zap.Uint64("sequence", sequence),
 			zap.Inline(k),

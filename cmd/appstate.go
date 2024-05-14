@@ -205,7 +205,7 @@ func (a *appState) performConfigLockingOperation(ctx context.Context, operation 
 	}
 	defer func() {
 		if err := fileLock.Unlock(); err != nil {
-			a.log.Error("Unlocking config file lock, please manually delete.",
+			a.log.Error("unlocking config file lock, please manually delete",
 				zap.String("filepath", lockFilePath),
 			)
 		}

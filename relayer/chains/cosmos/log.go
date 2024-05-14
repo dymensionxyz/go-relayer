@@ -79,7 +79,7 @@ func (cc *CosmosProvider) LogFailedTx(res *provider.RelayerTxResponse, err error
 			fields = append(fields, zap.NamedError("sdk_error", sdkErr))
 		}
 		fields = append(fields, zap.Object("response", res))
-		cc.log.Error
+		cc.log.Warn(
 			"Sent transaction but received failure response",
 			fields...,
 		)

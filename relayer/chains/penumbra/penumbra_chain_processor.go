@@ -349,7 +349,7 @@ func (pcp *PenumbraChainProcessor) queryCycle(ctx context.Context, persistence *
 		})
 
 		if err := eg.Wait(); err != nil {
-			pcp.log.Error"Error querying block data", zap.Error(err))
+			pcp.log.Warn("Error querying block data", zap.Error(err))
 			break
 		}
 

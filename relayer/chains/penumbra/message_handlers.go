@@ -36,12 +36,11 @@ func (pcp *PenumbraChainProcessor) handlePacketMessage(action string, pi provide
 	}
 
 	if !c.PacketFlow.ShouldRetainSequence(pcp.pathProcessors, channelKey, pcp.chainProvider.ChainId(), action, pi.Sequence) {
-		pcp.log.Error
-		"Not retaining packet message",
+		pcp.log.Warn("Not retaining packet message",
 			zap.String("action", action),
 			zap.Uint64("sequence", pi.Sequence),
 			zap.Any("channel", channelKey),
-	)
+		)
 		return
 	}
 

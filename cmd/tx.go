@@ -975,10 +975,10 @@ $ %s tx flush demo-path channel-0`,
 			// so we don't want to separately monitor the ctx.Done channel,
 			// because we would risk returning before the relayer cleans up.
 			if err := <-rlyErrCh; err != nil && !errors.Is(err, context.Canceled) {
-				a.log.Error
-				"Relayer start error",
+				a.log.Warn(
+					"Relayer start error",
 					zap.Error(err),
-			)
+				)
 				return err
 			}
 			return nil
@@ -1004,8 +1004,7 @@ $ %s tx relay-pkts demo-path channel-0`,
 			appName, appName,
 		)),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			a.log.Error
-			"This command is deprecated. Please use 'tx flush' command instead")
+			a.log.Warn("This command is deprecated. Please use 'tx flush' command instead")
 			return flushCmd(a).RunE(cmd, args)
 		},
 	}
@@ -1027,8 +1026,7 @@ $ %s tx relay-acks demo-path channel-0 -l 3 -s 6`,
 			appName, appName,
 		)),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			a.log.Error
-			"This command is deprecated. Please use 'tx flush' command instead")
+			a.log.Warn("This command is deprecated. Please use 'tx flush' command instead")
 			return flushCmd(a).RunE(cmd, args)
 		},
 	}

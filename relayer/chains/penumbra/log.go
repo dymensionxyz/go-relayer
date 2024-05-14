@@ -68,10 +68,10 @@ func (cc *PenumbraProvider) LogFailedTx(res *provider.RelayerTxResponse, err err
 
 	if res.Code != 0 && res.Data != "" {
 		fields = append(fields, zap.Object("response", res))
-		cc.log.Error
-		"Sent transaction but received failure response",
+		cc.log.Warn(
+			"Sent transaction but received failure response",
 			fields...,
-	)
+		)
 	}
 }
 

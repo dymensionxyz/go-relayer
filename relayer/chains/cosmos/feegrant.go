@@ -327,7 +327,7 @@ func (cc *CosmosProvider) EnsureBasicGrants(ctx context.Context, memo string, ga
 			}
 			msgs = append(msgs, grantMsg)
 		} else if !hasGrant {
-			cc.log.Error"Missing feegrant", zap.String("external_granter", granterAddr), zap.String("grantee", granteeAddr))
+			cc.log.Warn("Missing feegrant", zap.String("external_granter", granterAddr), zap.String("grantee", granteeAddr))
 		}
 	}
 
@@ -346,7 +346,7 @@ func (cc *CosmosProvider) EnsureBasicGrants(ctx context.Context, memo string, ga
 			if err != nil {
 				return nil, err
 			} else if txResp != nil && txResp.TxResponse != nil && txResp.TxResponse.Code != 0 {
-				cc.log.Error"Feegrant TX failed", zap.String("tx_hash", txResp.TxResponse.TxHash), zap.Uint32("code", txResp.TxResponse.Code))
+				cc.log.Warn("Feegrant TX failed", zap.String("tx_hash", txResp.TxResponse.TxHash), zap.Uint32("code", txResp.TxResponse.Code))
 				return nil, fmt.Errorf("could not configure feegrant for granter %s", granterKey)
 			}
 
