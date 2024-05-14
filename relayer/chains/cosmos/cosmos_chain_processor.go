@@ -103,7 +103,7 @@ func (l latestClientState) update(ctx context.Context, clientInfo chains.ClientI
 		cs, err := ccp.chainProvider.queryTMClientState(ctx, 0, clientInfo.ClientID)
 		if err != nil {
 			ccp.log.Error(
-				"Failed to query client state to get trusting period",
+				"Query client state to get trusting period.",
 				zap.String("client_id", clientInfo.ClientID),
 				zap.Error(err),
 			)
@@ -139,7 +139,7 @@ func (ccp *CosmosChainProcessor) latestHeightWithRetry(ctx context.Context) (lat
 		return err
 	}, retry.Context(ctx), retry.Attempts(latestHeightQueryRetries), retry.Delay(latestHeightQueryRetryDelay), retry.LastErrorOnly(true), retry.OnRetry(func(n uint, err error) {
 		ccp.log.Error(
-			"Failed to query latest height",
+			"Query latest height.",
 			zap.Uint("attempt", n+1),
 			zap.Uint("max_attempts", latestHeightQueryRetries),
 			zap.Error(err),

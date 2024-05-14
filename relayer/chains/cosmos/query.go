@@ -324,7 +324,7 @@ func (cc *CosmosProvider) queryParamsSubspaceTime(ctx context.Context, subspace 
 
 	res, err := queryClient.Params(ctx, &params)
 	if err != nil {
-		return 0, fmt.Errorf("failed to make %s params request: %w", subspace, err)
+		return 0, fmt.Errorf("make %s params request: %w", subspace, err)
 	}
 
 	if res.Param.Value == "" {

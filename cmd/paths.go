@@ -426,7 +426,6 @@ $ %s pth fch`, appName, defaultHome, appName, appName)),
 						regPath = path.Join("testnets", "_IBC", fileName)
 					} else {
 						regPath = path.Join("_IBC", fileName)
-
 					}
 					client, _, err := client.Repositories.DownloadContents(cmd.Context(), "cosmos", "chain-registry", regPath, nil)
 					if err != nil {
@@ -446,7 +445,7 @@ $ %s pth fch`, appName, defaultHome, appName, appName)),
 
 					ibc := &relayer.IBCdata{}
 					if err = json.Unmarshal(b, &ibc); err != nil {
-						return fmt.Errorf("failed to unmarshal: %w ", err)
+						return fmt.Errorf("unmarshal: %w ", err)
 					}
 
 					srcChainName := ibc.Chain1.ChainName
@@ -469,7 +468,7 @@ $ %s pth fch`, appName, defaultHome, appName, appName)),
 					client.Close()
 
 					if err = a.config.AddPath(pthName, newPath); err != nil {
-						return fmt.Errorf("failed to add path %s: %w", pthName, err)
+						return fmt.Errorf("add path %s: %w", pthName, err)
 					}
 					fmt.Fprintf(cmd.ErrOrStderr(), "added:  %s\n", pthName)
 

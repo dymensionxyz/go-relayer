@@ -168,7 +168,7 @@ func (cc *CosmosProvider) SendMessagesToMempool(
 		for _, msg := range msgs {
 			types = append(types, msg.Type())
 		}
-		cc.log.Debug("Sending messages to mempool", zap.Any("types", types), zap.Any("chain", cc.PCfg.ChainID))
+		cc.log.Debug("Sending messages to mempool.", zap.Any("types", types), zap.Any("chain", cc.PCfg.ChainID))
 	}
 
 	txSignerKey, feegranterKeyOrAddr, err := cc.buildSignerConfig(msgs)

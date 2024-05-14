@@ -33,10 +33,11 @@ type dockerErrorDetail struct {
 func uniqueRelayerImageName() (string, error) {
 	uuid, err := uuid.NewRandom()
 	if err != nil {
-		return "", fmt.Errorf("failed to generate uuid %v", err)
+		return "", fmt.Errorf("generate uuid %v", err)
 	}
 	return RelayerImagePrefix + uuid.String()[:6], nil
 }
+
 func BuildRelayerImage(t *testing.T) string {
 	_, b, _, _ := runtime.Caller(0)
 	basepath := filepath.Join(filepath.Dir(b), "..")

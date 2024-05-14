@@ -55,7 +55,7 @@ func QueryClientStates(ctx context.Context,
 			return nil
 		}, retry.Context(egCtx), RtyAtt, RtyDel, RtyErr, retry.OnRetry(func(n uint, err error) {
 			src.log.Info(
-				"Failed to query client state when updating clients",
+				"query client state when updating clients",
 				zap.String("client_id", src.ClientID()),
 				zap.Uint("attempt", n+1),
 				zap.Uint("max_attempts", RtyAttNum),
@@ -74,7 +74,7 @@ func QueryClientStates(ctx context.Context,
 			return nil
 		}, retry.Context(egCtx), RtyAtt, RtyDel, RtyErr, retry.OnRetry(func(n uint, err error) {
 			dst.log.Info(
-				"Failed to query client state when updating clients",
+				"query client state when updating clients",
 				zap.String("client_id", dst.ClientID()),
 				zap.Uint("attempt", n+1),
 				zap.Uint("max_attempts", RtyAttNum),
@@ -110,7 +110,7 @@ func QueryChannel(ctx context.Context, src *Chain, channelID string) (*chantypes
 		return err
 	}, retry.Context(ctx), RtyAtt, RtyDel, RtyErr, retry.OnRetry(func(n uint, err error) {
 		src.log.Info(
-			"Failed to query connection channels",
+			"query connection channels",
 			zap.String("conn_id", src.ConnectionID()),
 			zap.Uint("attempt", n+1),
 			zap.Uint("max_attempts", RtyAttNum),
@@ -153,7 +153,7 @@ func QueryPortChannel(ctx context.Context, src *Chain, portID string) (*chantype
 		return err
 	}, retry.Context(ctx), RtyAtt, RtyDel, RtyErr, retry.OnRetry(func(n uint, err error) {
 		src.log.Info(
-			"Failed to query connection channels",
+			"query connection channels",
 			zap.String("conn_id", src.ConnectionID()),
 			zap.Uint("attempt", n+1),
 			zap.Uint("max_attempts", RtyAttNum),
@@ -322,7 +322,6 @@ func SPrintClientExpiration(chain *Chain, expiration time.Time, clientInfo Clien
 		chain.ClientID(), chain.ChainID(), status, expirationFormatted, remainingTime.Round(time.Second), clientInfo.LatestHeight.GetRevisionHeight(), clientInfo.TrustingPeriod.String(), clientInfo.UnbondingTime.Round(time.Second))
 
 	return legacyOutput
-
 }
 
 // Returns clientExpiration data in JSON format.

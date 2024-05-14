@@ -218,7 +218,7 @@ func createClientCmd(a *appState) *cobra.Command {
 			if err = retry.Do(func() error {
 				srch, dsth, err = relayer.QueryLatestHeights(cmd.Context(), src, dst)
 				if srch == 0 || dsth == 0 || err != nil {
-					return fmt.Errorf("failed to query latest heights: %w", err)
+					return fmt.Errorf("query latest heights: %w", err)
 				}
 				return err
 			}, retry.Context(cmd.Context()), relayer.RtyAtt, relayer.RtyDel, relayer.RtyErr); err != nil {
@@ -240,7 +240,7 @@ func createClientCmd(a *appState) *cobra.Command {
 				relayer.RtyErr,
 				retry.OnRetry(func(n uint, err error) {
 					a.log.Info(
-						"Failed to get light signed header",
+						"get light signed header",
 						zap.String("src_chain_id", src.ChainID()),
 						zap.Int64("src_height", srch),
 						zap.String("dst_chain_id", dst.ChainID()),

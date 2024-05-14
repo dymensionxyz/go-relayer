@@ -112,7 +112,7 @@ func (cc *CosmosProvider) LogSuccessTx(res *sdk.TxResponse, msgs []provider.Rela
 			}
 		} else {
 			cc.log.Debug(
-				"Failed to convert message to Tx type",
+				"convert message to Tx type",
 				zap.Stringer("type", reflect.TypeOf(m)),
 			)
 		}

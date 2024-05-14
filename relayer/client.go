@@ -32,7 +32,7 @@ func (c *Chain) CreateClients(ctx context.Context,
 		var err error
 		srch, dsth, err = QueryLatestHeights(ctx, c, dst)
 		if srch == 0 || dsth == 0 || err != nil {
-			return fmt.Errorf("failed to query latest heights: %w", err)
+			return fmt.Errorf("query latest heights: %w", err)
 		}
 		return nil
 	}, retry.Context(ctx), RtyAtt, RtyDel, RtyErr); err != nil {
@@ -50,7 +50,7 @@ func (c *Chain) CreateClients(ctx context.Context,
 		return nil
 	}, retry.Context(ctx), RtyAtt, RtyDel, RtyErr, retry.OnRetry(func(n uint, err error) {
 		c.log.Info(
-			"Failed to get light signed headers",
+			"get light signed headers",
 			zap.String("src_chain_id", c.ChainID()),
 			zap.Int64("src_height", srch),
 			zap.String("dst_chain_id", dst.ChainID()),
@@ -79,7 +79,7 @@ func (c *Chain) CreateClients(ctx context.Context,
 			overrideUnbondingPeriod, maxClockDrift,
 			customClientTrustingPeriodPercentage, memo)
 		if err != nil {
-			return fmt.Errorf("failed to create client on src chain{%s}: %w", c.ChainID(), err)
+			return fmt.Errorf("create client on src chain{%s}: %w", c.ChainID(), err)
 		}
 		return nil
 	})
@@ -94,7 +94,7 @@ func (c *Chain) CreateClients(ctx context.Context,
 			overrideUnbondingPeriod, maxClockDrift,
 			customClientTrustingPeriodPercentage, memo)
 		if err != nil {
-			return fmt.Errorf("failed to create client on dst chain{%s}: %w", dst.ChainID(), err)
+			return fmt.Errorf("create client on dst chain{%s}: %w", dst.ChainID(), err)
 		}
 		return nil
 	})
@@ -150,7 +150,7 @@ func CreateClient(
 			var err error
 			tp, err = dst.GetTrustingPeriod(ctx, overrideUnbondingPeriod, customClientTrustingPeriodPercentage)
 			if err != nil {
-				return fmt.Errorf("failed to get trusting period for chain{%s}: %w", dst.ChainID(), err)
+				return fmt.Errorf("get trusting period for chain{%s}: %w", dst.ChainID(), err)
 			}
 			if tp == 0 {
 				return retry.Unrecoverable(fmt.Errorf("chain %s reported invalid zero trusting period", dst.ChainID()))
@@ -176,7 +176,7 @@ func CreateClient(
 			var err error
 			ubdPeriod, err = dst.ChainProvider.QueryUnbondingPeriod(ctx)
 			if err != nil {
-				return fmt.Errorf("failed to query unbonding period for chain{%s}: %w", dst.ChainID(), err)
+				return fmt.Errorf("query unbonding period for chain{%s}: %w", dst.ChainID(), err)
 			}
 			return nil
 		}, retry.Context(ctx), RtyAtt, RtyDel, RtyErr); err != nil {
@@ -188,7 +188,7 @@ func CreateClient(
 	// So we build a new client state from dst and attempt to use this for creating the light client on src.
 	clientState, err := dst.ChainProvider.NewClientState(dst.ChainID(), dstUpdateHeader, tp, ubdPeriod, maxClockDrift, allowUpdateAfterExpiry, allowUpdateAfterMisbehaviour)
 	if err != nil {
-		return "", fmt.Errorf("failed to create new client state for chain{%s}: %w", dst.ChainID(), err)
+		return "", fmt.Errorf("create new client state for chain{%s}: %w", dst.ChainID(), err)
 	}
 
 	var clientID string
@@ -199,7 +199,7 @@ func CreateClient(
 		// proposed new client state from dst.
 		clientID, err = findMatchingClient(ctx, src, dst, clientState)
 		if err != nil {
-			return "", fmt.Errorf("failed to find a matching client for the new client state: %w", err)
+			return "", fmt.Errorf("find a matching client for the new client state: %w", err)
 		}
 	}
 
@@ -226,7 +226,7 @@ func CreateClient(
 	// we need to sign with the address from src.
 	createMsg, err := src.ChainProvider.MsgCreateClient(clientState, dstUpdateHeader.ConsensusState())
 	if err != nil {
-		return "", fmt.Errorf("failed to compose CreateClient msg for chain{%s} tracking the state of chain{%s}: %w",
+		return "", fmt.Errorf("compose CreateClient msg for chain{%s} tracking the state of chain{%s}: %w",
 			src.ChainID(), dst.ChainID(), err)
 	}
 
@@ -241,7 +241,7 @@ func CreateClient(
 		res, success, err = src.ChainProvider.SendMessages(ctx, msgs, memo)
 		if err != nil {
 			src.LogFailedTx(res, err, msgs)
-			return fmt.Errorf("failed to send messages on chain{%s}: %w", src.ChainID(), err)
+			return fmt.Errorf("send messages on chain{%s}: %w", src.ChainID(), err)
 		}
 
 		if !success {
@@ -287,7 +287,7 @@ func MsgUpdateClient(
 		return err
 	}, retry.Context(ctx), RtyAtt, RtyDel, RtyErr, retry.OnRetry(func(n uint, err error) {
 		dst.log.Info(
-			"Failed to query client state when updating clients",
+			"query client state when updating clients",
 			zap.String("client_id", dst.ClientID()),
 			zap.Uint("attempt", n+1),
 			zap.Uint("max_attempts", RtyAttNum),
@@ -307,7 +307,7 @@ func MsgUpdateClient(
 			return err
 		}, retry.Context(egCtx), RtyAtt, RtyDel, RtyErr, retry.OnRetry(func(n uint, err error) {
 			src.log.Info(
-				"Failed to query IBC header when building update client message",
+				"query IBC header when building update client message",
 				zap.String("client_id", dst.ClientID()),
 				zap.Uint("attempt", n+1),
 				zap.Uint("max_attempts", RtyAttNum),
@@ -322,7 +322,7 @@ func MsgUpdateClient(
 			return err
 		}, retry.Context(egCtx), RtyAtt, RtyDel, RtyErr, retry.OnRetry(func(n uint, err error) {
 			src.log.Info(
-				"Failed to query IBC header when building update client message",
+				"query IBC header when building update client message",
 				zap.String("client_id", dst.ClientID()),
 				zap.Uint("attempt", n+1),
 				zap.Uint("max_attempts", RtyAttNum),
@@ -342,7 +342,7 @@ func MsgUpdateClient(
 		return err
 	}, retry.Context(ctx), RtyAtt, RtyDel, RtyErr, retry.OnRetry(func(n uint, err error) {
 		src.log.Info(
-			"Failed to build update client header",
+			"build update client header",
 			zap.String("client_id", dst.ClientID()),
 			zap.Uint("attempt", n+1),
 			zap.Uint("max_attempts", RtyAttNum),
@@ -508,7 +508,7 @@ func findMatchingClient(ctx context.Context, src, dst *Chain, newClientState ibc
 		return nil
 	}, retry.Context(ctx), RtyAtt, RtyDel, RtyErr, retry.OnRetry(func(n uint, err error) {
 		src.log.Info(
-			"Failed to query clients",
+			"query clients",
 			zap.String("chain_id", src.ChainID()),
 			zap.Uint("attempt", n+1),
 			zap.Uint("max_attempts", RtyAttNum),

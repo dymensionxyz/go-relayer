@@ -111,12 +111,12 @@ $ %s start demo-path2 --max-tx-size 10`, appName, appName, appName, appName)),
 				ln, err := net.Listen("tcp", debugAddr)
 				if err != nil {
 					a.log.Error(
-						"Failed to listen on debug address. If you have another relayer process open, use --" +
+						"listen on debug address. If you have another relayer process open, use --" +
 							flagDebugAddr +
 							" to pick a different address.",
 					)
 
-					return fmt.Errorf("failed to listen on debug address %q: %w", debugAddr, err)
+					return fmt.Errorf("listen on debug address %q: %w", debugAddr, err)
 				}
 				log := a.log.With(zap.String("sys", "debughttp"))
 				log.Info("Debug server listening", zap.String("addr", debugAddr))

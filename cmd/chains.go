@@ -409,7 +409,7 @@ func addChainFromFile(a *appState, chainName string, file string) error {
 		a.homePath, a.debug, chainName,
 	)
 	if err != nil {
-		return fmt.Errorf("failed to build ChainProvider for %s: %w", file, err)
+		return fmt.Errorf("build ChainProvider for %s: %w", file, err)
 	}
 
 	c := relayer.NewChain(a.log, prov, a.debug)
@@ -449,7 +449,7 @@ func addChainFromURL(a *appState, chainName string, rawurl string) error {
 		a.homePath, a.debug, chainName,
 	)
 	if err != nil {
-		return fmt.Errorf("failed to build ChainProvider for %s: %w", rawurl, err)
+		return fmt.Errorf("build ChainProvider for %s: %w", rawurl, err)
 	}
 
 	c := relayer.NewChain(a.log, prov, a.debug)
@@ -506,7 +506,7 @@ func addChainsFromRegistry(ctx context.Context, a *appState, forceAdd, testnet b
 		)
 		if err != nil {
 			a.log.Warn(
-				"Failed to build ChainProvider",
+				"build ChainProvider",
 				zap.String("chain_id", chainConfig.ChainID),
 				zap.Error(err),
 			)
@@ -518,7 +518,7 @@ func addChainsFromRegistry(ctx context.Context, a *appState, forceAdd, testnet b
 		c := relayer.NewChain(a.log, prov, a.debug)
 		if err = a.config.AddChain(c); err != nil {
 			a.log.Warn(
-				"Failed to add chain to config",
+				"add chain to config",
 				zap.String("chain", chain),
 				zap.Error(err),
 			)

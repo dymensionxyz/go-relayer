@@ -201,7 +201,7 @@ func (a *appState) performConfigLockingOperation(ctx context.Context, operation 
 	fileLock := flock.New(lockFilePath)
 	_, err := fileLock.TryLock()
 	if err != nil {
-		return fmt.Errorf("failed to acquire config lock: %w", err)
+		return fmt.Errorf("acquire config lock: %w", err)
 	}
 	defer func() {
 		if err := fileLock.Unlock(); err != nil {
@@ -214,7 +214,7 @@ func (a *appState) performConfigLockingOperation(ctx context.Context, operation 
 	// load config from file and validate it. don't want to miss
 	// any changes that may have been made while unlocked.
 	if err := a.loadConfigFile(ctx); err != nil {
-		return fmt.Errorf("failed to initialize config from file: %w", err)
+		return fmt.Errorf("initialize config from file: %w", err)
 	}
 
 	// perform the operation that requires config flock.
@@ -236,8 +236,8 @@ func (a *appState) performConfigLockingOperation(ctx context.Context, operation 
 	cfgPath := a.configPath()
 
 	// Overwrite the config file.
-	if err := os.WriteFile(cfgPath, out, 0600); err != nil {
-		return fmt.Errorf("failed to write config file at %s: %w", cfgPath, err)
+	if err := os.WriteFile(cfgPath, out, 0o600); err != nil {
+		return fmt.Errorf("write config file at %s: %w", cfgPath, err)
 	}
 
 	return nil
@@ -277,7 +277,6 @@ func (a *appState) updatePathConfig(
 }
 
 func (a *appState) useKey(chainName, key string) error {
-
 	chain, exists := a.config.Chains[chainName]
 	if !exists {
 		return fmt.Errorf("chain %s not found in config", chainName)
@@ -308,7 +307,6 @@ func (a *appState) useKey(chainName, key string) error {
 }
 
 func (a *appState) useRpcAddr(chainName string, rpcAddr string) error {
-
 	_, exists := a.config.Chains[chainName]
 	if !exists {
 		return fmt.Errorf("chain %s not found in config", chainName)

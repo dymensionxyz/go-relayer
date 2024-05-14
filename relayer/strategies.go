@@ -282,7 +282,7 @@ func relayerStartLegacy(
 			return nil
 		}, retry.Context(ctx), RtyAtt, RtyDel, RtyErr, retry.OnRetry(func(n uint, err error) {
 			src.log.Info(
-				"Failed to query channel for updated state",
+				"query channel for updated state",
 				zap.String("src_chain_id", src.ChainID()),
 				zap.String("src_channel_id", channel.channel.ChannelId),
 				zap.Uint("attempt", n+1),
@@ -323,7 +323,7 @@ func queryChannelsOnConnection(ctx context.Context, src *Chain) ([]*types.Identi
 		return err
 	}, retry.Context(ctx), RtyAtt, RtyDel, RtyErr, retry.OnRetry(func(n uint, err error) {
 		src.log.Info(
-			"Failed to query connection channels",
+			"query connection channels",
 			zap.String("conn_id", src.ConnectionID()),
 			zap.Uint("attempt", n+1),
 			zap.Uint("max_attempts", RtyAttNum),

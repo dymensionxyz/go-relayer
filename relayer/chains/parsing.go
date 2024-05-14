@@ -398,7 +398,7 @@ func (res *ClientICQInfo) MarshalLogObject(enc zapcore.ObjectEncoder) error {
 func (res *ClientICQInfo) ParseAttrs(log *zap.Logger, attrs []sdk.Attribute) {
 	for _, attr := range attrs {
 		if err := res.parseAttribute(attr); err != nil {
-			panic(fmt.Errorf("failed to parse attributes from client ICQ message: %w", err))
+			panic(fmt.Errorf("parse attributes from client ICQ message: %w", err))
 		}
 	}
 }

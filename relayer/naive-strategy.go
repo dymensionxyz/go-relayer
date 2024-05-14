@@ -47,7 +47,7 @@ func UnrelayedSequences(ctx context.Context, src, dst *Chain, srcChannel *chanty
 			}
 		}, retry.Context(ctx), RtyAtt, RtyDel, RtyErr, retry.OnRetry(func(n uint, err error) {
 			src.log.Info(
-				"Failed to query packet commitments",
+				"query packet commitments",
 				zap.String("channel_id", srcChannel.ChannelId),
 				zap.String("port_id", srcChannel.PortId),
 				zap.Uint("attempt", n+1),
@@ -56,7 +56,7 @@ func UnrelayedSequences(ctx context.Context, src, dst *Chain, srcChannel *chanty
 			)
 		})); err != nil {
 			src.log.Error(
-				"Failed to query packet commitments after max retries",
+				"query packet commitments after max retries",
 				zap.String("channel_id", srcChannel.ChannelId),
 				zap.String("port_id", srcChannel.PortId),
 				zap.Uint("attempts", RtyAttNum),
@@ -88,7 +88,7 @@ func UnrelayedSequences(ctx context.Context, src, dst *Chain, srcChannel *chanty
 			}
 		}, retry.Context(ctx), RtyAtt, RtyDel, RtyErr, retry.OnRetry(func(n uint, err error) {
 			dst.log.Info(
-				"Failed to query packet commitments",
+				"query packet commitments",
 				zap.String("channel_id", srcChannel.Counterparty.ChannelId),
 				zap.String("port_id", srcChannel.Counterparty.PortId),
 				zap.Uint("attempt", n+1),
@@ -97,7 +97,7 @@ func UnrelayedSequences(ctx context.Context, src, dst *Chain, srcChannel *chanty
 			)
 		})); err != nil {
 			dst.log.Error(
-				"Failed to query packet commitments after max retries",
+				"query packet commitments after max retries",
 				zap.String("channel_id", srcChannel.Counterparty.ChannelId),
 				zap.String("port_id", srcChannel.Counterparty.PortId),
 				zap.Uint("attempts", RtyAttNum),
@@ -113,9 +113,7 @@ func UnrelayedSequences(ctx context.Context, src, dst *Chain, srcChannel *chanty
 
 	wg.Wait()
 
-	var (
-		srcUnreceivedPackets, dstUnreceivedPackets []uint64
-	)
+	var srcUnreceivedPackets, dstUnreceivedPackets []uint64
 
 	if len(srcPacketSeq) > 0 {
 		wg.Add(1)
@@ -128,7 +126,7 @@ func UnrelayedSequences(ctx context.Context, src, dst *Chain, srcChannel *chanty
 				return err
 			}, retry.Context(ctx), RtyAtt, RtyDel, RtyErr, retry.OnRetry(func(n uint, err error) {
 				dst.log.Info(
-					"Failed to query unreceived packets",
+					"query unreceived packets",
 					zap.String("channel_id", srcChannel.Counterparty.ChannelId),
 					zap.String("port_id", srcChannel.Counterparty.PortId),
 					zap.Uint("attempt", n+1),
@@ -137,7 +135,7 @@ func UnrelayedSequences(ctx context.Context, src, dst *Chain, srcChannel *chanty
 				)
 			})); err != nil {
 				dst.log.Error(
-					"Failed to query unreceived packets after max retries",
+					"query unreceived packets after max retries",
 					zap.String("channel_id", srcChannel.Counterparty.ChannelId),
 					zap.String("port_id", srcChannel.Counterparty.PortId),
 					zap.Uint("attempts", RtyAttNum),
@@ -158,7 +156,7 @@ func UnrelayedSequences(ctx context.Context, src, dst *Chain, srcChannel *chanty
 				return err
 			}, retry.Context(ctx), RtyAtt, RtyDel, RtyErr, retry.OnRetry(func(n uint, err error) {
 				src.log.Info(
-					"Failed to query unreceived packets",
+					"query unreceived packets",
 					zap.String("channel_id", srcChannel.ChannelId),
 					zap.String("port_id", srcChannel.PortId),
 					zap.Uint("attempt", n+1),
@@ -167,7 +165,7 @@ func UnrelayedSequences(ctx context.Context, src, dst *Chain, srcChannel *chanty
 				)
 			})); err != nil {
 				src.log.Error(
-					"Failed to query unreceived packets after max retries",
+					"query unreceived packets after max retries",
 					zap.String("channel_id", srcChannel.ChannelId),
 					zap.String("port_id", srcChannel.PortId),
 					zap.Uint("attempts", RtyAttNum),
@@ -195,7 +193,7 @@ func UnrelayedSequences(ctx context.Context, src, dst *Chain, srcChannel *chanty
 			nextSeqResp, err := dst.ChainProvider.QueryNextSeqRecv(ctx, dsth, srcChannel.Counterparty.ChannelId, srcChannel.Counterparty.PortId)
 			if err != nil {
 				dst.log.Error(
-					"Failed to query next packet receive sequence",
+					"query next packet receive sequence",
 					zap.String("channel_id", srcChannel.Counterparty.ChannelId),
 					zap.String("port_id", srcChannel.Counterparty.PortId),
 					zap.Error(err),
@@ -219,7 +217,7 @@ func UnrelayedSequences(ctx context.Context, src, dst *Chain, srcChannel *chanty
 			nextSeqResp, err := src.ChainProvider.QueryNextSeqRecv(ctx, srch, srcChannel.ChannelId, srcChannel.PortId)
 			if err != nil {
 				src.log.Error(
-					"Failed to query next packet receive sequence",
+					"query next packet receive sequence",
 					zap.String("channel_id", srcChannel.ChannelId),
 					zap.String("port_id", srcChannel.PortId),
 					zap.Error(err),
@@ -275,7 +273,7 @@ func UnrelayedAcknowledgements(ctx context.Context, src, dst *Chain, srcChannel 
 			}
 		}, retry.Context(ctx), RtyAtt, RtyDel, RtyErr); err != nil {
 			src.log.Error(
-				"Failed to query packet acknowledgement commitments after max attempts",
+				"query packet acknowledgement commitments after max attempts",
 				zap.String("channel_id", srcChannel.ChannelId),
 				zap.String("port_id", srcChannel.PortId),
 				zap.Uint("attempts", RtyAttNum),
@@ -306,7 +304,7 @@ func UnrelayedAcknowledgements(ctx context.Context, src, dst *Chain, srcChannel 
 			}
 		}, retry.Context(ctx), RtyAtt, RtyDel, RtyErr); err != nil {
 			dst.log.Error(
-				"Failed to query packet acknowledgement commitments after max attempts",
+				"query packet acknowledgement commitments after max attempts",
 				zap.String("channel_id", srcChannel.Counterparty.ChannelId),
 				zap.String("port_id", srcChannel.Counterparty.PortId),
 				zap.Uint("attempts", RtyAttNum),
@@ -332,7 +330,7 @@ func UnrelayedAcknowledgements(ctx context.Context, src, dst *Chain, srcChannel 
 				return err
 			}, retry.Context(ctx), RtyErr, RtyAtt, RtyDel); err != nil {
 				dst.log.Error(
-					"Failed to query unreceived acknowledgements after max attempts",
+					"query unreceived acknowledgements after max attempts",
 					zap.String("channel_id", srcChannel.Counterparty.ChannelId),
 					zap.String("port_id", srcChannel.Counterparty.PortId),
 					zap.Uint("attempts", RtyAttNum),
@@ -353,7 +351,7 @@ func UnrelayedAcknowledgements(ctx context.Context, src, dst *Chain, srcChannel 
 				return err
 			}, retry.Context(ctx), RtyAtt, RtyDel, RtyErr); err != nil {
 				src.log.Error(
-					"Failed to query unreceived acknowledgements after max attempts",
+					"query unreceived acknowledgements after max attempts",
 					zap.String("channel_id", srcChannel.ChannelId),
 					zap.String("port_id", srcChannel.PortId),
 					zap.Uint("attempts", RtyAttNum),
@@ -542,7 +540,6 @@ func RelayPackets(ctx context.Context, log *zap.Logger, src, dst *Chain, sp Rela
 	}
 
 	return nil
-
 }
 
 // AddMessagesForSequences constructs RecvMsgs and TimeoutMsgs from sequence numbers on a src chain
