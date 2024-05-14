@@ -452,13 +452,6 @@ func (ccp *CosmosChainProcessor) queryCycle(
 			break
 		}
 
-		ccp.log.Debug(
-			"Queried block",
-			zap.Int64("height", i),
-			zap.Int64("latest", persistence.latestHeight),
-			zap.Int64("delta", persistence.latestHeight-i),
-		)
-
 		persistence.retriesAtLatestQueriedBlock = 0
 
 		latestHeader = ibcHeader.(provider.TendermintIBCHeader)
