@@ -465,7 +465,7 @@ func typToEth(typ reflect.Type) string {
 func doRecover(err *error) {
 	if r := recover(); r != nil {
 		if e, ok := r.(error); ok {
-			e = errorsmod.Wrap(e, "panicked with error")
+			e = errorsmod.Wrap(e, "panicked")
 			*err = e
 			return
 		}

@@ -162,7 +162,7 @@ func (c ChainInfo) GetRPCEndpoints(ctx context.Context) (out []string, err error
 			if err != nil {
 				unhealthy += 1
 				c.log.Debug(
-					"Ignoring endpoint due to error",
+					"Ignoring endpoint due to error.",
 					zap.String("endpoint", endpoint),
 					zap.Error(err),
 				)
