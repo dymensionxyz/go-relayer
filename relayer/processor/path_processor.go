@@ -325,6 +325,7 @@ func (pp *PathProcessor) handleFlush(ctx context.Context) {
 						doNotComplainAboutSkippedAcks := pp.SkippedPacketsHandlingConfig.IgnoreHubAcksWhenFlushing
 						if onlySkippedAcks && doNotComplainAboutSkippedAcks {
 							flushTimer = pp.flushInterval // do not retry soon
+							pp.log.Debug("Flush: skipped some acks, but continuing as normal.")
 						}
 					}
 				}
