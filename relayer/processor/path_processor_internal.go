@@ -59,7 +59,7 @@ func (pp *PathProcessor) getMessagesToSend(
 				dstChan, dstPort := m.info.DestChannel, m.info.DestPort
 				res, err := dst.chainProvider.QueryNextSeqRecv(ctx, 0, dstChan, dstPort)
 				if err != nil {
-					dst.log.Error("Failed to query next sequence recv",
+					dst.log.Error("to query next sequence recv",
 						zap.String("channel_id", dstChan),
 						zap.String("port_id", dstPort),
 						zap.Error(err),
@@ -71,7 +71,7 @@ func (pp *PathProcessor) getMessagesToSend(
 				srcChan, srcPort := m.info.SourceChannel, m.info.SourcePort
 				res, err := src.chainProvider.QueryNextSeqAck(ctx, 0, srcChan, srcPort)
 				if err != nil {
-					src.log.Error("Failed to query next sequence ack",
+					src.log.Error("to query next sequence ack",
 						zap.String("channel_id", srcChan),
 						zap.String("port_id", srcPort),
 						zap.Error(err),
@@ -767,7 +767,7 @@ func (pp *PathProcessor) queuePreInitMessages(cancel func()) {
 		eventType, ok := observedEventTypeForDesiredMessage[m.Initial.EventType]
 		if !ok {
 			pp.log.Error(
-				"Failed to queue initial connection message, event type not handled",
+				"to queue initial connection message, event type not handled",
 				zap.String("event_type", m.Initial.EventType),
 			)
 			cancel()
@@ -797,7 +797,7 @@ func (pp *PathProcessor) queuePreInitMessages(cancel func()) {
 		eventType, ok := observedEventTypeForDesiredMessage[m.Initial.EventType]
 		if !ok {
 			pp.log.Error(
-				"Failed to queue initial connection message, event type not handled",
+				"to queue initial connection message, event type not handled",
 				zap.String("event_type", m.Initial.EventType),
 			)
 			cancel()
@@ -828,7 +828,7 @@ func (pp *PathProcessor) queuePreInitMessages(cancel func()) {
 		eventType, ok := observedEventTypeForDesiredMessage[m.Initial.EventType]
 		if !ok {
 			pp.log.Error(
-				"Failed to queue initial channel message, event type not handled",
+				"to queue initial channel message, event type not handled",
 				zap.String("event_type", m.Initial.EventType),
 			)
 			cancel()

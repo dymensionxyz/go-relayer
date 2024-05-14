@@ -359,13 +359,13 @@ func (cc *CosmosProvider) sdkError(codespace string, code uint32) error {
 // The wait will end after either the asyncTimeout has run out or the asyncCtx exits.
 // If there is no error broadcasting, the asyncCallback will be called with success/failure of the wait for block inclusion.
 func (cc *CosmosProvider) broadcastTx(
-	ctx context.Context,            // context for tx broadcast
-	tx []byte,                      // raw tx to be broadcasted
+	ctx context.Context, // context for tx broadcast
+	tx []byte, // raw tx to be broadcasted
 	msgs []provider.RelayerMessage, // used for logging only
-	fees sdk.Coins,                 // used for metrics
+	fees sdk.Coins, // used for metrics
 
-	asyncCtx context.Context,                                  // context for async wait for block inclusion after successful tx broadcast
-	asyncTimeout time.Duration,                                // timeout for waiting for block inclusion
+	asyncCtx context.Context, // context for async wait for block inclusion after successful tx broadcast
+	asyncTimeout time.Duration, // timeout for waiting for block inclusion
 	asyncCallbacks []func(*provider.RelayerTxResponse, error), // callback for success/fail of the wait for block inclusion
 ) error {
 	res, err := cc.RPCClient.BroadcastTxSync(ctx, tx)
@@ -421,7 +421,7 @@ func (cc *CosmosProvider) waitForTx(
 ) {
 	res, err := cc.waitForBlockInclusion(ctx, txHash, waitTimeout)
 	if err != nil {
-		cc.log.Error("Failed to wait for block inclusion", zap.Error(err))
+		cc.log.Error("to wait for block inclusion", zap.Error(err))
 		if len(callbacks) > 0 {
 			for _, cb := range callbacks {
 				// Call each callback in order since waitForTx is already invoked asyncronously
@@ -1325,7 +1325,7 @@ func (cc *CosmosProvider) QueryICQWithProof(ctx context.Context, path string, re
 
 	res, err := cc.QueryABCI(ctx, req)
 	if err != nil {
-		return provider.ICQProof{}, fmt.Errorf("failed to execute interchain query: %w", err)
+		return provider.ICQProof{}, fmt.Errorf("to execute interchain query: %w", err)
 	}
 
 	return provider.ICQProof{
@@ -1513,14 +1513,14 @@ func (cc *CosmosProvider) InjectTrustedFields(ctx context.Context, header ibcexp
 		return err
 	}, retry.Context(ctx), rtyAtt, rtyDel, rtyErr); err != nil {
 		return nil, fmt.Errorf(
-			"failed to get trusted header, please ensure header at the height %d has not been pruned by the connected node: %w",
+			"to get trusted header, please ensure header at the height %d has not been pruned by the connected node: %w",
 			h.TrustedHeight.RevisionHeight, err,
 		)
 	}
 
 	tvProto, err := trustedValidators.ToProto()
 	if err != nil {
-		return nil, fmt.Errorf("failed to convert trusted validators to proto: %w", err)
+		return nil, fmt.Errorf("to convert trusted validators to proto: %w", err)
 	}
 
 	// inject TrustedValidators into header

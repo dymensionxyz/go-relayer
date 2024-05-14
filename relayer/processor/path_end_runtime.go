@@ -488,7 +488,7 @@ func (pathEnd *pathEndRuntime) mergeCacheData(
 	terminate, err := pathEnd.checkForMisbehaviour(ctx, pathEnd.clientState, counterParty)
 	if err != nil {
 		pathEnd.log.Error(
-			"Failed to check for misbehaviour",
+			"to check for misbehaviour",
 			zap.String("client_id", pathEnd.info.ClientID),
 			zap.Error(err),
 		)

@@ -65,7 +65,7 @@ func (cc *CosmosProvider) LogFailedTx(res *provider.RelayerTxResponse, err error
 		// Make a copy since we may continue to the warning
 		errorFields := append(fields, zap.Error(err))
 		cc.log.Error(
-			"Failed sending cosmos transaction",
+			"sending cosmos transaction",
 			errorFields...,
 		)
 
@@ -117,7 +117,7 @@ func (cc *CosmosProvider) LogSuccessTx(res *sdk.TxResponse, msgs []provider.Rela
 			)
 		}
 	} else {
-		cc.log.Debug("Failed to unpack response Tx into sdk.Msg", zap.Error(err))
+		cc.log.Debug("to unpack response Tx into sdk.Msg", zap.Error(err))
 	}
 
 	// Include the height, msgType, and tx_hash

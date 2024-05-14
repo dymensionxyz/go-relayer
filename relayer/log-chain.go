@@ -28,7 +28,7 @@ func logFailedTx(log *zap.Logger, chainID string, res *provider.RelayerTxRespons
 	if err != nil {
 		fields = append(fields, zap.Error(err))
 	}
-	log.Info("Failed sending transaction", fields...)
+	log.Info("sending transaction", fields...)
 
 	if res != nil && res.Code != 0 && res.Data != "" {
 		msgTypes := make([]string, len(msgs))

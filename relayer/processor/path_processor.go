@@ -275,7 +275,7 @@ func (pp *PathProcessor) ProcessBacklogIfReady() {
 	default:
 		// Log that the channel is saturated;
 		// something is wrong if we are retrying this quickly.
-		pp.log.Error("Failed to enqueue path processor retry, retries already scheduled")
+		pp.log.Error("to enqueue path processor retry, retries already scheduled")
 	}
 }
 
@@ -469,13 +469,13 @@ func (pp *PathProcessor) handleLocalhostData(cacheData ChainProcessorCacheData) 
 	for k, v := range cacheData.IBCMessagesCache.PacketFlow {
 		chan1, err := chantypes.ParseChannelSequence(k.ChannelID)
 		if err != nil {
-			pp.log.Error("Failed to parse channel ID int from string", zap.Error(err))
+			pp.log.Error("to parse channel ID int from string", zap.Error(err))
 			continue
 		}
 
 		chan2, err := chantypes.ParseChannelSequence(k.CounterpartyChannelID)
 		if err != nil {
-			pp.log.Error("Failed to parse channel ID int from string", zap.Error(err))
+			pp.log.Error("to parse channel ID int from string", zap.Error(err))
 			continue
 		}
 

@@ -1960,7 +1960,7 @@ func (cc *PenumbraProvider) InjectTrustedFields(ctx context.Context, header ibce
 		return err
 	}, retry.Context(ctx), rtyAtt, rtyDel, rtyErr); err != nil {
 		return nil, fmt.Errorf(
-			"failed to get trusted header, please ensure header at the height %d has not been pruned by the connected node: %w",
+			"to get trusted header, please ensure header at the height %d has not been pruned by the connected node: %w",
 			h.TrustedHeight.RevisionHeight, err,
 		)
 	}
@@ -2198,7 +2198,7 @@ func (cc *PenumbraProvider) waitForTx(
 ) {
 	res, err := cc.waitForBlockInclusion(ctx, txHash, waitTimeout)
 	if err != nil {
-		cc.log.Error("Failed to wait for block inclusion", zap.Error(err))
+		cc.log.Error("to wait for block inclusion", zap.Error(err))
 		if callback != nil {
 			callback(nil, err)
 		}

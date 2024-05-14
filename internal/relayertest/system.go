@@ -131,10 +131,10 @@ func (s *System) MustGetConfig(t *testing.T) (config cmd.ConfigInputWrapper) {
 	t.Helper()
 
 	configBz, err := os.ReadFile(filepath.Join(s.HomeDir, "config", "config.yaml"))
-	require.NoError(t, err, "failed to read config file")
+	require.NoError(t, err, "to read config file")
 
 	err = yaml.Unmarshal(configBz, &config)
-	require.NoError(t, err, "failed to unmarshal config file")
+	require.NoError(t, err, "to unmarshal config file")
 
 	return config
 }

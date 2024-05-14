@@ -564,7 +564,7 @@ func AddMessagesForSequences(
 		)
 		if err != nil {
 			src.log.Info(
-				"Failed to relay packet from sequence",
+				"to relay packet from sequence",
 				zap.String("src_chain_id", src.ChainID()),
 				zap.String("src_channel_id", srcChanID),
 				zap.String("src_port_id", srcPortID),
