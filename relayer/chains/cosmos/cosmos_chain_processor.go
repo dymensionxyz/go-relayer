@@ -399,8 +399,6 @@ func (ccp *CosmosChainProcessor) queryCycle(
 		firstHeightToQuery++
 	}
 
-	startTime := time.Now()
-
 	for i := firstHeightToQuery; i <= persistence.latestHeight; i++ {
 		var (
 			eg        errgroup.Group
