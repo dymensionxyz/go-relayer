@@ -170,19 +170,6 @@ func (mp *messageProcessor) shouldUpdateClientNow(ctx context.Context, src, dst 
 		mp.metrics.SetClientTrustingPeriod(src.info.PathName, dst.info.ChainID, dst.info.ClientID, time.Duration(dst.clientState.TrustingPeriod))
 	}
 
-	mp.log.Debug("should update client now?",
-		zap.String("path_name", src.info.PathName),
-		zap.String("chain_id", dst.info.ChainID),
-		zap.String("client_id", dst.info.ClientID),
-		zap.Int64("trusting_period", dst.clientState.TrustingPeriod.Milliseconds()),
-		zap.Int64("time_since_client_update", time.Since(consensusHeightTime).Milliseconds()),
-		zap.Int64("client_threshold_time", mp.clientUpdateThresholdTime.Milliseconds()),
-		zap.Bool("enough_blocks_passed", enoughBlocksPassed),
-		zap.Bool("past_two_thirds_trusting_period", pastTwoThirdsTrustingPeriod),
-		zap.Bool("past_configured_client_update_threshold", pastConfiguredClientUpdateThreshold),
-		zap.Bool("should_update_client_now", shouldUpdateClientNow),
-	)
-
 	return shouldUpdateClientNow, nil
 }
 
