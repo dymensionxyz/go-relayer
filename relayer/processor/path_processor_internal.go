@@ -1436,15 +1436,9 @@ SeqLoop:
 
 	if len(unackedAndWillAck) > 0 {
 		dst.log.Debug(
-			"",
+			"Will flush an Ack.",
 			zap.Object("channel", k),
 			zap.Uint64s("sequences", unackedAndWillAck),
-		)
-	} else {
-		dst.log.Debug(
-			"No MsgAcknowledgement to flush",
-			zap.String("channel", k.CounterpartyChannelID),
-			zap.String("port", k.CounterpartyPortID),
 		)
 	}
 
