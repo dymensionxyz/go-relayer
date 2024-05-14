@@ -331,7 +331,7 @@ func (pp *PathProcessor) handleFlush(ctx context.Context) {
 			}
 
 		}
-		pp.log.Error()
+		pp.log.Error("Flush. Will try again later.", zap.Error(err), zap.Duration("until next attempt (seconds)", flushTimer))
 	}
 	pp.flushTimer.Stop()
 	pp.flushTimer = time.NewTimer(flushTimer)
