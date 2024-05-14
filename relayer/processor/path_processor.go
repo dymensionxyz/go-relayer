@@ -303,10 +303,10 @@ func (pp *PathProcessor) handleFlush(ctx context.Context) {
 		flushTimer = flushFailureRetry
 		var se SkippedError
 		if errors.As(err, &se) && pp.SkippedPacketsHandlingConfig != nil {
-
 			/*
-				If we have skipped packets for the counterparty to the hub, and they are acks
-				then we may want to do something different
+				An error will have been returned if there are many outstanding packets on any chain which for which an ack has not yet been produced
+				This is normal if using rollups with delayed ack middleware, so we make sure to handle this gracefully:
+				instead of treating this as a failure and retrying after 5 seconds, we may configure to continue without retrying
 			*/
 			var counterPartyChain string
 			if pp.pathEnd1.info.ChainID == pp.SkippedPacketsHandlingConfig.HubChainID {
