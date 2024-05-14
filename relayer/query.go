@@ -54,8 +54,8 @@ func QueryClientStates(ctx context.Context,
 			}
 			return nil
 		}, retry.Context(egCtx), RtyAtt, RtyDel, RtyErr, retry.OnRetry(func(n uint, err error) {
-			src.log.Info(
-				"query client state when updating clients",
+			src.log.Debug(
+				"Retrying query client state when updating clients.",
 				zap.String("client_id", src.ClientID()),
 				zap.Uint("attempt", n+1),
 				zap.Uint("max_attempts", RtyAttNum),
@@ -73,8 +73,8 @@ func QueryClientStates(ctx context.Context,
 			}
 			return nil
 		}, retry.Context(egCtx), RtyAtt, RtyDel, RtyErr, retry.OnRetry(func(n uint, err error) {
-			dst.log.Info(
-				"query client state when updating clients",
+			dst.log.Debug(
+				"Retrying query client state when updating clients.",
 				zap.String("client_id", dst.ClientID()),
 				zap.Uint("attempt", n+1),
 				zap.Uint("max_attempts", RtyAttNum),
@@ -109,8 +109,8 @@ func QueryChannel(ctx context.Context, src *Chain, channelID string) (*chantypes
 		srcChannels, err = src.ChainProvider.QueryConnectionChannels(ctx, srch, src.ConnectionID())
 		return err
 	}, retry.Context(ctx), RtyAtt, RtyDel, RtyErr, retry.OnRetry(func(n uint, err error) {
-		src.log.Info(
-			"query connection channels",
+		src.log.Debug(
+			"Retrying query connection channels.",
 			zap.String("conn_id", src.ConnectionID()),
 			zap.Uint("attempt", n+1),
 			zap.Uint("max_attempts", RtyAttNum),
@@ -152,8 +152,8 @@ func QueryPortChannel(ctx context.Context, src *Chain, portID string) (*chantype
 		srcChannels, err = src.ChainProvider.QueryConnectionChannels(ctx, srch, src.ConnectionID())
 		return err
 	}, retry.Context(ctx), RtyAtt, RtyDel, RtyErr, retry.OnRetry(func(n uint, err error) {
-		src.log.Info(
-			"query connection channels",
+		src.log.Debug(
+			"Retrying query connection channels.",
 			zap.String("conn_id", src.ConnectionID()),
 			zap.Uint("attempt", n+1),
 			zap.Uint("max_attempts", RtyAttNum),

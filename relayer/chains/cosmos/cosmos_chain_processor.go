@@ -138,8 +138,8 @@ func (ccp *CosmosChainProcessor) latestHeightWithRetry(ctx context.Context) (lat
 		latestHeight, err = ccp.chainProvider.QueryLatestHeight(latestHeightQueryCtx)
 		return err
 	}, retry.Context(ctx), retry.Attempts(latestHeightQueryRetries), retry.Delay(latestHeightQueryRetryDelay), retry.LastErrorOnly(true), retry.OnRetry(func(n uint, err error) {
-		ccp.log.Error(
-			"Query latest height.",
+		ccp.log.Debug(
+			"Retrying query latest height.",
 			zap.Uint("attempt", n+1),
 			zap.Uint("max_attempts", latestHeightQueryRetries),
 			zap.Error(err),
@@ -157,8 +157,8 @@ func (ccp *CosmosChainProcessor) nodeStatusWithRetry(ctx context.Context) (statu
 		status, err = ccp.chainProvider.QueryStatus(latestHeightQueryCtx)
 		return err
 	}, retry.Context(ctx), retry.Attempts(latestHeightQueryRetries), retry.Delay(latestHeightQueryRetryDelay), retry.LastErrorOnly(true), retry.OnRetry(func(n uint, err error) {
-		ccp.log.Error(
-			"Query node status.",
+		ccp.log.Debug(
+			"Retrying query node status.",
 			zap.Uint("attempt", n+1),
 			zap.Uint("max_attempts", latestHeightQueryRetries),
 			zap.Error(err),

@@ -46,8 +46,8 @@ func UnrelayedSequences(ctx context.Context, src, dst *Chain, srcChannel *chanty
 				return nil
 			}
 		}, retry.Context(ctx), RtyAtt, RtyDel, RtyErr, retry.OnRetry(func(n uint, err error) {
-			src.log.Info(
-				"Query packet commitments.",
+			src.log.Debug(
+				"Retrying query packet commitments.",
 				zap.String("channel_id", srcChannel.ChannelId),
 				zap.String("port_id", srcChannel.PortId),
 				zap.Uint("attempt", n+1),
@@ -87,8 +87,8 @@ func UnrelayedSequences(ctx context.Context, src, dst *Chain, srcChannel *chanty
 				return nil
 			}
 		}, retry.Context(ctx), RtyAtt, RtyDel, RtyErr, retry.OnRetry(func(n uint, err error) {
-			dst.log.Info(
-				"Query packet commitments.",
+			dst.log.Debug(
+				"Retrying query packet commitments.",
 				zap.String("channel_id", srcChannel.Counterparty.ChannelId),
 				zap.String("port_id", srcChannel.Counterparty.PortId),
 				zap.Uint("attempt", n+1),
@@ -125,8 +125,8 @@ func UnrelayedSequences(ctx context.Context, src, dst *Chain, srcChannel *chanty
 				srcUnreceivedPackets, err = dst.ChainProvider.QueryUnreceivedPackets(ctx, uint64(dsth), srcChannel.Counterparty.ChannelId, srcChannel.Counterparty.PortId, srcPacketSeq)
 				return err
 			}, retry.Context(ctx), RtyAtt, RtyDel, RtyErr, retry.OnRetry(func(n uint, err error) {
-				dst.log.Info(
-					"Query unreceived packets.",
+				dst.log.Debug(
+					"Retrying query unreceived packets.",
 					zap.String("channel_id", srcChannel.Counterparty.ChannelId),
 					zap.String("port_id", srcChannel.Counterparty.PortId),
 					zap.Uint("attempt", n+1),
@@ -155,8 +155,8 @@ func UnrelayedSequences(ctx context.Context, src, dst *Chain, srcChannel *chanty
 				dstUnreceivedPackets, err = src.ChainProvider.QueryUnreceivedPackets(ctx, uint64(srch), srcChannel.ChannelId, srcChannel.PortId, dstPacketSeq)
 				return err
 			}, retry.Context(ctx), RtyAtt, RtyDel, RtyErr, retry.OnRetry(func(n uint, err error) {
-				src.log.Info(
-					"Query unreceived packets.",
+				src.log.Debug(
+					"Retrying query unreceived packets.",
 					zap.String("channel_id", srcChannel.ChannelId),
 					zap.String("port_id", srcChannel.PortId),
 					zap.Uint("attempt", n+1),

@@ -286,8 +286,8 @@ func MsgUpdateClient(
 		dstClientState, err = dst.ChainProvider.QueryClientState(ctx, dsth, dst.ClientID())
 		return err
 	}, retry.Context(ctx), RtyAtt, RtyDel, RtyErr, retry.OnRetry(func(n uint, err error) {
-		dst.log.Info(
-			"query client state when updating clients",
+		dst.log.Debug(
+			"Retrying query client state when updating clients.",
 			zap.String("client_id", dst.ClientID()),
 			zap.Uint("attempt", n+1),
 			zap.Uint("max_attempts", RtyAttNum),
@@ -306,8 +306,8 @@ func MsgUpdateClient(
 			srcHeader, err = src.ChainProvider.QueryIBCHeader(egCtx, srch)
 			return err
 		}, retry.Context(egCtx), RtyAtt, RtyDel, RtyErr, retry.OnRetry(func(n uint, err error) {
-			src.log.Info(
-				"query IBC header when building update client message",
+			src.log.Debug(
+				"Retrying query IBC header when building update client message.",
 				zap.String("client_id", dst.ClientID()),
 				zap.Uint("attempt", n+1),
 				zap.Uint("max_attempts", RtyAttNum),
@@ -321,8 +321,8 @@ func MsgUpdateClient(
 			dstTrustedHeader, err = src.ChainProvider.QueryIBCHeader(egCtx, int64(dstClientState.GetLatestHeight().GetRevisionHeight())+1)
 			return err
 		}, retry.Context(egCtx), RtyAtt, RtyDel, RtyErr, retry.OnRetry(func(n uint, err error) {
-			src.log.Info(
-				"query IBC header when building update client message",
+			src.log.Debug(
+				"Retrying query IBC header when building update client message.",
 				zap.String("client_id", dst.ClientID()),
 				zap.Uint("attempt", n+1),
 				zap.Uint("max_attempts", RtyAttNum),
@@ -341,8 +341,8 @@ func MsgUpdateClient(
 		updateHeader, err = src.ChainProvider.MsgUpdateClientHeader(srcHeader, dstClientState.GetLatestHeight().(clienttypes.Height), dstTrustedHeader)
 		return err
 	}, retry.Context(ctx), RtyAtt, RtyDel, RtyErr, retry.OnRetry(func(n uint, err error) {
-		src.log.Info(
-			"build update client header",
+		src.log.Debug(
+			"Retrying build update client header.",
 			zap.String("client_id", dst.ClientID()),
 			zap.Uint("attempt", n+1),
 			zap.Uint("max_attempts", RtyAttNum),
@@ -507,8 +507,8 @@ func findMatchingClient(ctx context.Context, src, dst *Chain, newClientState ibc
 		}
 		return nil
 	}, retry.Context(ctx), RtyAtt, RtyDel, RtyErr, retry.OnRetry(func(n uint, err error) {
-		src.log.Info(
-			"query clients",
+		src.log.Debug(
+			"Retrying query clients.",
 			zap.String("chain_id", src.ChainID()),
 			zap.Uint("attempt", n+1),
 			zap.Uint("max_attempts", RtyAttNum),
