@@ -1067,7 +1067,7 @@ func (pp *PathProcessor) processLatestMessages(ctx context.Context, cancel func(
 	}
 
 	if pathEnd1Messages.size() != 0 || pathEnd2Messages.size() != 0 {
-		pp.log.Debug("Processing some messages",
+		pp.log.Debug("Processing latest messages",
 			zap.Any("path1ChainID", pp.pathEnd1.info.ChainID),
 			zap.Any("pathEnd1Messages", pathEnd1Messages.debugString()),
 			zap.Any("path2ChainID", pp.pathEnd2.info.ChainID),

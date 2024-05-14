@@ -269,7 +269,7 @@ func (mp *messageProcessor) assembleMsgUpdateClient(ctx context.Context, src, ds
 				clientConsensusHeight.RevisionHeight+1, src.info.ChainID, err)
 		}
 
-		mp.log.Debug("Had to query for client trusted IBC header",
+		mp.log.Debug("Queried for client trusted IBC header.",
 			zap.String("path_name", src.info.PathName),
 			zap.String("chain_id", src.info.ChainID),
 			zap.String("counterparty_chain_id", dst.info.ChainID),
