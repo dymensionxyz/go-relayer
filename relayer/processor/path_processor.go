@@ -300,6 +300,7 @@ func (pp *PathProcessor) HandleNewData(chainID string, cacheData ChainProcessorC
 func (pp *PathProcessor) handleFlush(ctx context.Context) {
 	flushTimer := pp.flushInterval
 	if err := pp.flush(ctx); err != nil {
+		flushTimer = flushFailureRetry
 		var se SkippedError
 		if errors.As(err, &se) && pp.SkippedPacketsHandlingConfig != nil {
 
@@ -318,18 +319,18 @@ func (pp *PathProcessor) handleFlush(ctx context.Context) {
 			for chain, chanSkipped := range se.packets {
 				skippedPacketsOnCounterparty := chain == counterPartyChain
 				onlySkippedPacketsOnCounterparty := len(se.packets) == 1
-				doNotComplainAboutSkippedAcks := pp.SkippedPacketsHandlingConfig.IgnoreHubAcksWhenFlushing
-				if skippedPacketsOnCounterparty && onlySkippedPacketsOnCounterparty && doNotComplainAboutSkippedAcks {
-					for channel, skipped := range chanSkipped {
-						if skipped.Recv == 0 && 0 < skipped.Ack {
+				if skippedPacketsOnCounterparty && onlySkippedPacketsOnCounterparty {
+					for _, skipped := range chanSkipped {
+						onlySkippedAcks := skipped.Recv == 0 && 0 < skipped.Ack
+						doNotComplainAboutSkippedAcks := pp.SkippedPacketsHandlingConfig.IgnoreHubAcksWhenFlushing
+						if onlySkippedAcks && doNotComplainAboutSkippedAcks {
+							flushTimer = pp.flushInterval // do not retry soon
 						}
 					}
 				}
 			}
 
-			return
 		}
-		flushTimer = flushFailureRetry
 		pp.log.Error()
 	}
 	pp.flushTimer.Stop()

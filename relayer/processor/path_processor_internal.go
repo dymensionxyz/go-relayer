@@ -1216,6 +1216,24 @@ type SkippedPacketsHandlingConfig struct {
 	IgnoreHubAcksWhenFlushing bool
 }
 
+type SkippedError struct {
+	// chain id -> channel -> skipped packets
+	packets map[string]map[ChannelKey]skippedPackets
+}
+
+func (s SkippedError) Error() string {
+	sb := strings.Builder{}
+	for chainID, chainSkipped := range s.packets {
+		for channelKey, skipped := range chainSkipped {
+			sb.WriteString(fmt.Sprintf(
+				"{ %s %s %s recv: %d, number of committed packets for which acks need to be relayed: %d } ",
+				chainID, channelKey.ChannelID, channelKey.PortID, skipped.Recv, skipped.Ack,
+			))
+		}
+	}
+	return sb.String()
+}
+
 // queuePendingRecvAndAcks returns the number of packets skipped during a flush (nil if none).
 func (pp *PathProcessor) queuePendingRecvAndAcks(
 	ctx context.Context,
@@ -1559,24 +1577,6 @@ func (pp *PathProcessor) flush(ctx context.Context) error {
 	}
 
 	return nil
-}
-
-type SkippedError struct {
-	// chain id -> channel -> skipped packets
-	packets map[string]map[ChannelKey]skippedPackets
-}
-
-func (s SkippedError) Error() string {
-	sb := strings.Builder{}
-	for chainID, chainSkipped := range s.packets {
-		for channelKey, skipped := range chainSkipped {
-			sb.WriteString(fmt.Sprintf(
-				"{ %s %s %s recv: %d, number of committed packets for which acks need to be relayed: %d } ",
-				chainID, channelKey.ChannelID, channelKey.PortID, skipped.Recv, skipped.Ack,
-			))
-		}
-	}
-	return sb.String()
 }
 
 // shouldTerminateForFlushComplete will determine if the relayer should exit
