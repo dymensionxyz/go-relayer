@@ -155,7 +155,7 @@ func (res *ClientInfo) parseClientAttribute(log *zap.Logger, attr sdk.Attribute)
 	case clienttypes.AttributeKeyConsensusHeight:
 		revisionSplit := strings.Split(attr.Value, "-")
 		if len(revisionSplit) != 2 {
-			log.Error("Error parsing client consensus height",
+			log.Error("parsing client consensus height",
 				zap.String("client_id", res.ClientID),
 				zap.String("value", attr.Value),
 			)
@@ -164,7 +164,7 @@ func (res *ClientInfo) parseClientAttribute(log *zap.Logger, attr sdk.Attribute)
 		revisionNumberString := revisionSplit[0]
 		revisionNumber, err := strconv.ParseUint(revisionNumberString, 10, 64)
 		if err != nil {
-			log.Error("Error parsing client consensus height revision number",
+			log.Error("parsing client consensus height revision number",
 				zap.Error(err),
 			)
 			return
@@ -172,7 +172,7 @@ func (res *ClientInfo) parseClientAttribute(log *zap.Logger, attr sdk.Attribute)
 		revisionHeightString := revisionSplit[1]
 		revisionHeight, err := strconv.ParseUint(revisionHeightString, 10, 64)
 		if err != nil {
-			log.Error("Error parsing client consensus height revision height",
+			log.Error("parsing client consensus height revision height",
 				zap.Error(err),
 			)
 			return
@@ -184,7 +184,7 @@ func (res *ClientInfo) parseClientAttribute(log *zap.Logger, attr sdk.Attribute)
 	case clienttypes.AttributeKeyHeader:
 		data, err := hex.DecodeString(attr.Value)
 		if err != nil {
-			log.Error("Error parsing client header",
+			log.Error("parsing client header",
 				zap.String("header", attr.Value),
 				zap.Error(err),
 			)
@@ -219,7 +219,7 @@ func (res *PacketInfo) parsePacketAttribute(log *zap.Logger, attr sdk.Attribute)
 	case chantypes.AttributeKeySequence:
 		res.Sequence, err = strconv.ParseUint(attr.Value, 10, 64)
 		if err != nil {
-			log.Error("Error parsing packet sequence",
+			log.Error("parsing packet sequence",
 				zap.String("value", attr.Value),
 				zap.Error(err),
 			)
@@ -228,7 +228,7 @@ func (res *PacketInfo) parsePacketAttribute(log *zap.Logger, attr sdk.Attribute)
 	case chantypes.AttributeKeyTimeoutTimestamp:
 		res.TimeoutTimestamp, err = strconv.ParseUint(attr.Value, 10, 64)
 		if err != nil {
-			log.Error("Error parsing packet timestamp",
+			log.Error("parsing packet timestamp",
 				zap.Uint64("sequence", res.Sequence),
 				zap.String("value", attr.Value),
 				zap.Error(err),
@@ -241,7 +241,7 @@ func (res *PacketInfo) parsePacketAttribute(log *zap.Logger, attr sdk.Attribute)
 	case chantypes.AttributeKeyDataHex:
 		data, err := hex.DecodeString(attr.Value)
 		if err != nil {
-			log.Error("Error parsing packet data",
+			log.Error("parsing packet data",
 				zap.Uint64("sequence", res.Sequence),
 				zap.Error(err),
 			)
@@ -254,7 +254,7 @@ func (res *PacketInfo) parsePacketAttribute(log *zap.Logger, attr sdk.Attribute)
 	case chantypes.AttributeKeyAckHex:
 		data, err := hex.DecodeString(attr.Value)
 		if err != nil {
-			log.Error("Error parsing packet ack",
+			log.Error("parsing packet ack",
 				zap.Uint64("sequence", res.Sequence),
 				zap.String("value", attr.Value),
 				zap.Error(err),
@@ -265,7 +265,7 @@ func (res *PacketInfo) parsePacketAttribute(log *zap.Logger, attr sdk.Attribute)
 	case chantypes.AttributeKeyTimeoutHeight:
 		timeoutSplit := strings.Split(attr.Value, "-")
 		if len(timeoutSplit) != 2 {
-			log.Error("Error parsing packet height timeout",
+			log.Error("parsing packet height timeout",
 				zap.Uint64("sequence", res.Sequence),
 				zap.String("value", attr.Value),
 			)
@@ -273,7 +273,7 @@ func (res *PacketInfo) parsePacketAttribute(log *zap.Logger, attr sdk.Attribute)
 		}
 		revisionNumber, err := strconv.ParseUint(timeoutSplit[0], 10, 64)
 		if err != nil {
-			log.Error("Error parsing packet timeout height revision number",
+			log.Error("parsing packet timeout height revision number",
 				zap.Uint64("sequence", res.Sequence),
 				zap.String("value", timeoutSplit[0]),
 				zap.Error(err),
@@ -282,7 +282,7 @@ func (res *PacketInfo) parsePacketAttribute(log *zap.Logger, attr sdk.Attribute)
 		}
 		revisionHeight, err := strconv.ParseUint(timeoutSplit[1], 10, 64)
 		if err != nil {
-			log.Error("Error parsing packet timeout height revision height",
+			log.Error("parsing packet timeout height revision height",
 				zap.Uint64("sequence", res.Sequence),
 				zap.String("value", timeoutSplit[1]),
 				zap.Error(err),

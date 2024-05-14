@@ -201,7 +201,7 @@ func (r *Relayer) GetConnections(ctx context.Context, _ ibc.RelayerExecReporter,
 		err := json.Unmarshal([]byte(connection), &connectionOutput)
 		if err != nil {
 			r.log().Error(
-				"Error parsing connection json",
+				"parsing connection json",
 				zap.Error(err),
 			)
 

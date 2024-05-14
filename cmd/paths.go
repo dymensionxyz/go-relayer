@@ -440,7 +440,7 @@ $ %s pth fch`, appName, defaultHome, appName, appName)),
 
 					b, err := io.ReadAll(client)
 					if err != nil {
-						return fmt.Errorf("error reading response body: %w", err)
+						return fmt.Errorf("reading response body: %w", err)
 					}
 
 					ibc := &relayer.IBCdata{}
