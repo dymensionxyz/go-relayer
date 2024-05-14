@@ -173,7 +173,7 @@ func (cc *CosmosProvider) SendMessagesToMempool(
 
 	txSignerKey, feegranterKeyOrAddr, err := cc.buildSignerConfig(msgs)
 	if err != nil {
-		return err
+		return fmt.Errorf("build signer config: %w", err)
 	}
 
 	sequenceGuard := ensureSequenceGuard(cc, txSignerKey)
@@ -187,7 +187,7 @@ func (cc *CosmosProvider) SendMessagesToMempool(
 			cc.handleAccountSequenceMismatchError(sequenceGuard, err)
 		}
 
-		return err
+		return fmt.Errorf("build messages: %w", err)
 	}
 
 	if err := cc.broadcastTx(ctx, txBytes, msgs, fees, asyncCtx, defaultBroadcastWaitTimeout, asyncCallbacks); err != nil {
@@ -195,7 +195,7 @@ func (cc *CosmosProvider) SendMessagesToMempool(
 			cc.handleAccountSequenceMismatchError(sequenceGuard, err)
 		}
 
-		return err
+		return fmt.Errorf("broadcast tx: %w", err)
 	}
 
 	cc.log.Debug("Transaction successfully sent to mempool", zap.String("chain", cc.PCfg.ChainID))
@@ -375,7 +375,7 @@ func (cc *CosmosProvider) broadcastTx(
 		if isErr && res == nil {
 			// There are some cases where BroadcastTxSync will return an error but the associated
 			// ResultBroadcastTx will be nil.
-			return err
+			return fmt.Errorf("broadcast tx sync: res is nil but got an err: %w", err)
 		}
 		rlyResp := &provider.RelayerTxResponse{
 			TxHash:    res.Hash.String(),
@@ -386,7 +386,7 @@ func (cc *CosmosProvider) broadcastTx(
 		if isFailed {
 			err = cc.sdkError(res.Codespace, res.Code)
 			if err == nil {
-				err = fmt.Errorf("transaction failed to execute: codespace: %s, code: %d, log: %s", res.Codespace, res.Code, res.Log)
+				err = fmt.Errorf("broadcast tx sync faiure code: execute: codespace: %s, code: %d, log: %s", res.Codespace, res.Code, res.Log)
 			}
 		}
 		cc.LogFailedTx(rlyResp, err, msgs)
@@ -394,12 +394,16 @@ func (cc *CosmosProvider) broadcastTx(
 	}
 	address, err := cc.Address()
 	if err != nil {
-		return fmt.Errorf("failed to get relayer bech32 wallet address: %w", err)
+		return fmt.Errorf("get relayer bech32 wallet address: %w", err)
 	}
 	cc.UpdateFeesSpent(cc.ChainId(), cc.Key(), address, fees)
 
-	// TODO: maybe we need to check if the node has tx indexing enabled?
-	// if not, we need to find a new way to block until inclusion in a block
+	/*
+		TODO(dym): look at this TODO from original authors:
+			"""TODO: maybe we need to check if the node has tx indexing enabled?
+			if not, we need to find a new way to block until inclusion in a block"""
+		Relevant for us?
+	*/
 
 	go cc.waitForTx(asyncCtx, res.Hash, msgs, asyncTimeout, asyncCallbacks)
 

@@ -448,7 +448,7 @@ func (mp *messageProcessor) sendBatchMessages(
 		}
 	}
 
-	dst.log.Debug("Will relay messages", fields...)
+	dst.log.Debug("sendBatchMessages: will relay messages", fields...)
 
 	callback := func(_ *provider.RelayerTxResponse, err error) {
 		for _, t := range batch {
