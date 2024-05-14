@@ -1187,8 +1187,6 @@ func queryPacketCommitments(
 	mu sync.Locker,
 ) func() error {
 	return func() error {
-		pathEnd.log.Debug("Flushing", zap.String("channel", k.ChannelID), zap.String("port", k.PortID))
-
 		c, err := pathEnd.chainProvider.QueryPacketCommitments(ctx, pathEnd.latestBlock.Height, k.ChannelID, k.PortID)
 		if err != nil {
 			return err
