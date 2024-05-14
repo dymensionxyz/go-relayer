@@ -122,7 +122,7 @@ func (c *Chain) SendTransferMsg(
 	if err := result.Error(); err != nil {
 		if result.PartiallySent() {
 			c.log.Info(
-				"Partial success when sending transfer",
+				"Partial success when sending transfer.",
 				zap.String("src_chain_id", c.ChainID()),
 				zap.String("dst_chain_id", dst.ChainID()),
 				zap.Object("send_result", result),
@@ -131,7 +131,7 @@ func (c *Chain) SendTransferMsg(
 		return err
 	} else if result.SuccessfullySent() {
 		c.log.Info(
-			"Successfully sent a transfer",
+			"Successfully sent a transfer.",
 			zap.String("src_chain_id", c.ChainID()),
 			zap.String("dst_chain_id", dst.ChainID()),
 			zap.Object("send_result", result),

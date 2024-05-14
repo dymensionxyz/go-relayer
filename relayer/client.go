@@ -105,7 +105,7 @@ func (c *Chain) CreateClients(ctx context.Context,
 	}
 
 	c.log.Info(
-		"Clients created",
+		"Created clients.",
 		zap.String("src_client_id", c.PathEnd.ClientID),
 		zap.String("src_chain_id", c.ChainID()),
 		zap.String("dst_client_id", dst.PathEnd.ClientID),
@@ -263,7 +263,7 @@ func CreateClient(
 	src.PathEnd.ClientID = clientID
 
 	src.log.Info(
-		"Client Created",
+		"Created client.",
 		zap.String("src_chain_id", src.ChainID()),
 		zap.String("src_client_id", src.PathEnd.ClientID),
 		zap.String("dst_chain_id", dst.ChainID()),
@@ -394,7 +394,7 @@ func UpdateClients(
 	if err := result.Error(); err != nil {
 		if result.PartiallySent() {
 			src.log.Info(
-				"Partial success when updating clients",
+				"Partial success when updating clients.",
 				zap.String("src_chain_id", src.ChainID()),
 				zap.String("dst_chain_id", dst.ChainID()),
 				zap.Object("send_result", result),
@@ -404,7 +404,7 @@ func UpdateClients(
 	}
 
 	src.log.Info(
-		"Clients updated",
+		"Updated clients.",
 		zap.String("src_chain_id", src.ChainID()),
 		zap.String("src_client", src.PathEnd.ClientID),
 

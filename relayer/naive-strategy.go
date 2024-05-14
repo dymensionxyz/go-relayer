@@ -428,7 +428,7 @@ func RelayAcknowledgements(ctx context.Context, log *zap.Logger, src, dst *Chain
 
 	if !msgs.Ready() {
 		log.Info(
-			"No acknowledgements to relay",
+			"No acknowledgements to relay.",
 			zap.String("src_chain_id", src.ChainID()),
 			zap.String("src_port_id", srcChannel.PortId),
 			zap.String("dst_chain_id", dst.ChainID()),
@@ -446,7 +446,7 @@ func RelayAcknowledgements(ctx context.Context, log *zap.Logger, src, dst *Chain
 	if err := result.Error(); err != nil {
 		if result.PartiallySent() {
 			log.Info(
-				"Partial success when relaying acknowledgements",
+				"Partial success when relaying acknowledgements.",
 				zap.String("src_chain_id", src.ChainID()),
 				zap.String("src_port_id", srcChannel.PortId),
 				zap.String("dst_chain_id", dst.ChainID()),
@@ -503,7 +503,7 @@ func RelayPackets(ctx context.Context, log *zap.Logger, src, dst *Chain, sp Rela
 
 	if !msgs.Ready() {
 		log.Info(
-			"No packets to relay",
+			"No packets to relay.",
 			zap.String("src_chain_id", src.ChainID()),
 			zap.String("src_port_id", srcChannel.PortId),
 			zap.String("dst_chain_id", dst.ChainID()),
@@ -521,7 +521,7 @@ func RelayPackets(ctx context.Context, log *zap.Logger, src, dst *Chain, sp Rela
 	if err := result.Error(); err != nil {
 		if result.PartiallySent() {
 			log.Info(
-				"Partial success when relaying packets",
+				"Partial success when relaying packets.",
 				zap.String("src_chain_id", src.ChainID()),
 				zap.String("src_port_id", srcChannel.PortId),
 				zap.String("dst_chain_id", dst.ChainID()),
@@ -564,7 +564,7 @@ func AddMessagesForSequences(
 		)
 		if err != nil {
 			src.log.Info(
-				"relay packet from sequence",
+				"Relay packet from sequence.",
 				zap.String("src_chain_id", src.ChainID()),
 				zap.String("src_channel_id", srcChanID),
 				zap.String("src_port_id", srcPortID),

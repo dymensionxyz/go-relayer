@@ -298,7 +298,7 @@ func relayerStartLegacy(
 		if queryChannelResp.Channel.State != types.OPEN {
 			delete(srcOpenChannels, channel.channel.ChannelId)
 			src.log.Info(
-				"Channel is no longer in open state",
+				"Channel is no longer in open state.",
 				zap.String("chain_id", src.ChainID()),
 				zap.String("channel_id", channel.channel.ChannelId),
 				zap.String("channel_state", queryChannelResp.Channel.State.String()),
@@ -429,7 +429,7 @@ func relayUnrelayedPackets(ctx context.Context, log *zap.Logger, src, dst *Chain
 
 	if len(sp.Src) > 0 {
 		src.log.Info(
-			"Unrelayed source packets",
+			"Unrelayed source packets.",
 			zap.String("src_chain_id", src.ChainID()),
 			zap.String("src_channel_id", srcChannel.ChannelId),
 			zap.Uint64s("seqs", sp.Src),
@@ -438,7 +438,7 @@ func relayUnrelayedPackets(ctx context.Context, log *zap.Logger, src, dst *Chain
 
 	if len(sp.Dst) > 0 {
 		src.log.Info(
-			"Unrelayed destination packets",
+			"Unrelayed destination packets.",
 			zap.String("dst_chain_id", dst.ChainID()),
 			zap.String("dst_channel_id", srcChannel.Counterparty.ChannelId),
 			zap.Uint64s("seqs", sp.Dst),
@@ -512,7 +512,7 @@ func relayUnrelayedAcks(ctx context.Context, log *zap.Logger, src, dst *Chain, m
 
 	if len(ap.Src) > 0 {
 		log.Info(
-			"Unrelayed source acknowledgements",
+			"Unrelayed source acknowledgements.",
 			zap.String("src_chain_id", src.ChainID()),
 			zap.String("src_channel_id", srcChannel.ChannelId),
 			zap.Uint64s("acks", ap.Src),
@@ -521,7 +521,7 @@ func relayUnrelayedAcks(ctx context.Context, log *zap.Logger, src, dst *Chain, m
 
 	if len(ap.Dst) > 0 {
 		log.Info(
-			"Unrelayed destination acknowledgements",
+			"Unrelayed destination acknowledgements.",
 			zap.String("dst_chain_id", dst.ChainID()),
 			zap.String("dst_channel_id", srcChannel.Counterparty.ChannelId),
 			zap.Uint64s("acks", ap.Dst),
