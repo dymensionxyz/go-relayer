@@ -63,9 +63,10 @@ func (c *Chain) CreateOpenChannels(
 		DefaultMaxMsgLength,
 		0,
 		0,
+		nil,
 	)
 
-	c.log.Info("Starting event processor for channel handshake",
+	c.log.Info("Starting event processor for channel handshake.",
 		zap.String("src_chain_id", c.PathEnd.ChainID),
 		zap.String("src_port_id", srcPortID),
 		zap.String("dst_chain_id", dst.PathEnd.ChainID),
@@ -139,12 +140,13 @@ func (c *Chain) CloseChannel(
 			DefaultMaxMsgLength,
 			0,
 			0,
+			nil,
 		)).
 		WithInitialBlockHistory(0).
 		WithMessageLifecycle(&processor.FlushLifecycle{}).
 		Build()
 
-	c.log.Info("Starting event processor for flush before channel close",
+	c.log.Info("Starting event processor for flush before channel close.",
 		zap.String("src_chain_id", c.PathEnd.ChainID),
 		zap.String("src_port_id", srcPortID),
 		zap.String("dst_chain_id", dst.PathEnd.ChainID),
@@ -157,7 +159,7 @@ func (c *Chain) CloseChannel(
 	ctx, cancel := context.WithTimeout(ctx, processorTimeout)
 	defer cancel()
 
-	c.log.Info("Starting event processor for channel close",
+	c.log.Info("Starting event processor for channel close.",
 		zap.String("src_chain_id", c.PathEnd.ChainID),
 		zap.String("src_port_id", srcPortID),
 		zap.String("dst_chain_id", dst.PathEnd.ChainID),
@@ -180,6 +182,7 @@ func (c *Chain) CloseChannel(
 			DefaultMaxMsgLength,
 			0,
 			0,
+			nil,
 		)).
 		WithInitialBlockHistory(0).
 		WithMessageLifecycle(&processor.ChannelCloseLifecycle{
