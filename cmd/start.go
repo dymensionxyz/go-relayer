@@ -161,23 +161,7 @@ $ %s start demo-path2 --max-tx-size 10`, appName, appName, appName, appName)),
 				return err
 			}
 
-			rlyErrCh := relayer.StartRelayer(
-				cmd.Context(),
-				a.log,
-				chains,
-				paths,
-				maxMsgLength,
-				a.config.Global.MaxReceiverSize,
-				a.config.Global.ICS20MemoLimit,
-				a.config.memo(cmd),
-				clientUpdateThresholdTime,
-				flushInterval,
-				nil,
-				processorType,
-				initialBlockHistory,
-				prometheusMetrics,
-				stuckPacket,
-			)
+			rlyErrCh := relayer.StartRelayer(cmd.Context(), a.log, chains, paths, maxMsgLength, a.config.Global.MaxReceiverSize, a.config.Global.ICS20MemoLimit, a.config.memo(cmd), clientUpdateThresholdTime, flushInterval, nil, processorType, initialBlockHistory, prometheusMetrics, stuckPacket, noFlush)
 
 			// Block until the error channel sends a message.
 			// The context being canceled will cause the relayer to stop,
