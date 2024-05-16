@@ -298,6 +298,7 @@ func (pp *PathProcessor) HandleNewData(chainID string, cacheData ChainProcessorC
 
 func (pp *PathProcessor) handleFlush(ctx context.Context) {
 	if pp.noFlush {
+		pp.log.Debug("Not flushing - disabled.")
 		return
 	}
 	flushTimer := pp.flushInterval
