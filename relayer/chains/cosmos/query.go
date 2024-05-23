@@ -321,7 +321,6 @@ func (cc *CosmosProvider) queryParamsSubspaceTime(ctx context.Context, subspace 
 	params := proposal.QueryParamsRequest{Subspace: subspace, Key: key}
 
 	res, err := queryClient.Params(ctx, &params)
-
 	if err != nil {
 		return 0, fmt.Errorf("make %s params request: %w", subspace, err)
 	}
@@ -340,14 +339,13 @@ func (cc *CosmosProvider) queryParamsSubspaceTime(ctx context.Context, subspace 
 
 // QueryUnbondingPeriod returns the unbonding period of the chain
 func (cc *CosmosProvider) QueryUnbondingPeriod(ctx context.Context) (time.Duration, error) {
-
 	// Attempt ICS query
 	consumerUnbondingPeriod, consumerErr := cc.queryParamsSubspaceTime(ctx, "ccvconsumer", "UnbondingPeriod")
 	if consumerErr == nil {
 		return consumerUnbondingPeriod, nil
 	}
 
-	//Attempt Staking query.
+	// Attempt Staking query.
 	unbondingPeriod, stakingParamsErr := cc.queryParamsSubspaceTime(ctx, "staking", "UnbondingTime")
 	if stakingParamsErr == nil {
 		return unbondingPeriod, nil
@@ -359,7 +357,6 @@ func (cc *CosmosProvider) QueryUnbondingPeriod(ctx context.Context) (time.Durati
 	res, err := queryClient.Params(ctx, &req)
 	if err == nil {
 		return res.Params.UnbondingTime, nil
-
 	}
 
 	return 0,
