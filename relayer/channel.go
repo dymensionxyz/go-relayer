@@ -63,7 +63,6 @@ func (c *Chain) CreateOpenChannels(
 		DefaultMaxMsgLength,
 		0,
 		0,
-		nil,
 	)
 
 	c.log.Info("Starting event processor for channel handshake.",
