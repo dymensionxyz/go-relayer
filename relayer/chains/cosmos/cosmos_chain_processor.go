@@ -62,7 +62,7 @@ func NewCosmosChainProcessor(
 	metrics *processor.PrometheusMetrics,
 ) *CosmosChainProcessor {
 	return &CosmosChainProcessor{
-		log:                  log.With(zap.String("chain_name", provider.ChainName()), zap.String("chain_id", provider.ChainId())),
+		log:                  log.With(zap.String("chain_id", provider.ChainId())),
 		chainProvider:        provider,
 		latestClientState:    make(latestClientState),
 		connectionStateCache: make(processor.ConnectionStateCache),
@@ -479,17 +479,15 @@ func (ccp *CosmosChainProcessor) queryCycle(
 			messages := chains.IbcMessagesFromEvents(ccp.log, tx.Events, chainID, heightUint64)
 
 			for _, m := range messages {
-<<<<<<< HEAD
-=======
 				switch t := m.Info.(type) {
 				case *chains.PacketInfo:
 					if stuckPacket != nil && ccp.chainProvider.ChainId() == stuckPacket.ChainID && int64(stuckPacket.StartHeight) <= i && i <= int64(stuckPacket.EndHeight) {
 						ccp.log.Info("Found stuck packet message.", zap.Any("seq", t.Sequence), zap.Any("height", t.Height))
 					}
 				}
->>>>>>> 3b58ac3 (fix(normal operation): make normal relaying work again (#25))
 				ccp.handleMessage(ctx, m, ibcMessagesCache)
 			}
+
 		}
 
 		newLatestQueriedBlock = i
@@ -501,17 +499,7 @@ func (ccp *CosmosChainProcessor) queryCycle(
 			i = persistence.latestHeight
 
 			newLatestQueriedBlock = afterUnstuck
-<<<<<<< HEAD
-			// newLatestQueriedBlock = persistence.latestHeight // this line fixes it, but why?
-			ccp.log.Info("Parsed stuck packet height, skipping to current", zap.Any("new latest queried block", persistence.latestHeight))
-		}
-
-		if i%100 == 0 {
-			elapsed := time.Since(startTime)
-			ccp.log.Info("Processed block", zap.Int64("height", i), zap.Duration("elapsed", elapsed), zap.Int64("latest", persistence.latestHeight))
-=======
 			ccp.log.Info("Parsed stuck packet height, skipping to current.", zap.Any("new latest queried block", newLatestQueriedBlock))
->>>>>>> 3b58ac3 (fix(normal operation): make normal relaying work again (#25))
 		}
 	}
 
@@ -538,10 +526,6 @@ func (ccp *CosmosChainProcessor) queryCycle(
 				zap.Error(err),
 			)
 			continue
-		}
-
-		if stuckPacket != nil && ccp.chainProvider.ChainId() == stuckPacket.ChainID {
-			ccp.log.Info("sending new data to the path processor", zap.Bool("inSync", ccp.inSync))
 		}
 
 		pp.HandleNewData(chainID, processor.ChainProcessorCacheData{
