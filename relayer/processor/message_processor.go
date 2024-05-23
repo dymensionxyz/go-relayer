@@ -233,20 +233,13 @@ func (mp *messageProcessor) assembleMessage(
 	mp.trackMessage(msg.tracker(assembled), i)
 	wg.Done()
 	if err != nil {
-<<<<<<< HEAD
-		dst.log.Error(fmt.Sprintf("Error assembling %s message", msg.msgType()),
-=======
-		dst.log.Error(fmt.Sprintf("Assemble message: %s.", msg.msgType()),
->>>>>>> 3b58ac3 (fix(normal operation): make normal relaying work again (#25))
+		dst.log.Error(fmt.Sprintf("Assemble message: %s", msg.msgType()),
 			zap.Object("msg", msg),
 			zap.Error(err),
 		)
 		return
 	}
-<<<<<<< HEAD
 	dst.log.Debug(fmt.Sprintf("Assembled %s message", msg.msgType()), zap.Object("msg", msg))
-=======
->>>>>>> 3b58ac3 (fix(normal operation): make normal relaying work again (#25))
 }
 
 // assembleMsgUpdateClient uses the ChainProvider from both pathEnds to assemble the client update header
@@ -273,11 +266,11 @@ func (mp *messageProcessor) assembleMsgUpdateClient(ctx context.Context, src, ds
 
 		header, err := src.chainProvider.QueryIBCHeader(ctx, int64(clientConsensusHeight.RevisionHeight+1))
 		if err != nil {
-			return fmt.Errorf("getting IBC header at height: %d for chain_id: %s, %w",
+			return fmt.Errorf("query IBC header at height: %d for chain_id: %s, %w",
 				clientConsensusHeight.RevisionHeight+1, src.info.ChainID, err)
 		}
 
-		mp.log.Debug("Queried for client trusted IBC header.",
+		mp.log.Debug("Queried for client trusted IBC header",
 			zap.String("path_name", src.info.PathName),
 			zap.String("chain_id", src.info.ChainID),
 			zap.String("counterparty_chain_id", dst.info.ChainID),
@@ -386,7 +379,7 @@ func (mp *messageProcessor) sendClientUpdate(
 	msgs := []provider.RelayerMessage{mp.msgUpdateClient}
 
 	if err := dst.chainProvider.SendMessagesToMempool(broadcastCtx, msgs, mp.memo, ctx, nil); err != nil {
-		mp.log.Error("Sending client update message.",
+		mp.log.Error("Sending client update message",
 			zap.String("path_name", src.info.PathName),
 			zap.String("src_chain_id", src.info.ChainID),
 			zap.String("dst_chain_id", dst.info.ChainID),
@@ -507,11 +500,7 @@ func (mp *messageProcessor) sendBatchMessages(
 		if errors.Is(err, chantypes.ErrRedundantTx) {
 			return
 		}
-<<<<<<< HEAD
-		mp.log.Error("Error sending messages", errFields...)
-=======
-		mp.log.Error("Sending messages from batch.", errFields...)
->>>>>>> 3b58ac3 (fix(normal operation): make normal relaying work again (#25))
+		mp.log.Error("Sending messages from batch to mempool.", errFields...)
 		return
 	}
 	dst.log.Debug("Message broadcast completed", fields...)
