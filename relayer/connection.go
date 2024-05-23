@@ -44,7 +44,6 @@ func (c *Chain) CreateOpenConnections(
 		DefaultMaxMsgLength,
 		0,
 		0,
-		nil,
 	)
 
 	var connectionSrc, connectionDst string

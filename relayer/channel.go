@@ -139,7 +139,6 @@ func (c *Chain) CloseChannel(
 			DefaultMaxMsgLength,
 			0,
 			0,
-			nil,
 		)).
 		WithInitialBlockHistory(0).
 		WithMessageLifecycle(&processor.FlushLifecycle{}).
@@ -181,7 +180,6 @@ func (c *Chain) CloseChannel(
 			DefaultMaxMsgLength,
 			0,
 			0,
-			nil,
 		)).
 		WithInitialBlockHistory(0).
 		WithMessageLifecycle(&processor.ChannelCloseLifecycle{

@@ -952,9 +952,6 @@ $ %s tx flush demo-path channel-0`,
 			ctx, cancel := context.WithTimeout(cmd.Context(), flushTimeout)
 			defer cancel()
 
-<<<<<<< HEAD
-			rlyErrCh := relayer.StartRelayer(ctx, a.log, chains, paths, maxMsgLength, a.config.Global.MaxReceiverSize, a.config.Global.ICS20MemoLimit, a.config.memo(cmd), 0, 0, &processor.FlushLifecycle{}, relayer.ProcessorEvents, 0, nil, stuckPacket, false)
-=======
 			rlyErrCh := relayer.StartRelayer(
 				ctx,
 				a.log,
@@ -971,9 +968,8 @@ $ %s tx flush demo-path channel-0`,
 				0,
 				nil,
 				stuckPacket,
-				nil,
+				false,
 			)
->>>>>>> 3b58ac3 (fix(normal operation): make normal relaying work again (#25))
 
 			// Block until the error channel sends a message.
 			// The context being canceled will cause the relayer to stop,

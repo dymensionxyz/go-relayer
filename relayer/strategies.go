@@ -49,6 +49,7 @@ func StartRelayer(
 	initialBlockHistory uint64,
 	metrics *processor.PrometheusMetrics,
 	stuckPacket *processor.StuckPacket,
+	noFlush bool,
 ) chan error {
 	// prevent incorrect bech32 address prefixed addresses when calling AccAddress.String()
 	sdk.SetAddrCacheEnabled(false)
@@ -110,6 +111,7 @@ func StartRelayer(
 			errorChan,
 			metrics,
 			stuckPacket,
+			noFlush,
 		)
 		return errorChan
 	case ProcessorLegacy:
@@ -185,10 +187,10 @@ func relayerStartEventProcessor(
 				memo,
 				clientUpdateThresholdTime,
 				flushInterval,
+				noFlush,
 				maxMsgLength,
 				memoLimit,
 				maxReceiverSize,
-				noFlush
 			))
 	}
 
