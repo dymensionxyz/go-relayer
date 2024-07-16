@@ -76,7 +76,7 @@ func NewCosmosChainProcessor(
 const (
 	queryTimeout                = 5 * time.Second
 	queryStateTimeout           = 60 * time.Second
-	blockResultsQueryTimeout    = 2 * time.Minute
+	blockResultsQueryTimeout    = 60 * time.Minute
 	latestHeightQueryRetryDelay = 1 * time.Second
 	latestHeightQueryRetries    = 5
 
