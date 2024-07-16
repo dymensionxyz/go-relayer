@@ -434,6 +434,7 @@ func (pp *PathProcessor) Run(ctx context.Context, cancel func()) {
 
 		// process latest message cache state from both pathEnds
 		if err := pp.processLatestMessages(ctx, cancel); err != nil {
+			// The original relayer code has so many potential errors here that it doesn't bother logging
 			pp.log.Debug("ERROR processing latest messages.", zap.Error(err))
 			// in case of IBC message send errors, schedule retry after durationErrorRetry
 			if retryTimer != nil {
