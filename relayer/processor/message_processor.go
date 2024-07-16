@@ -114,9 +114,7 @@ func (mp *messageProcessor) processMessages(
 
 	mp.assembleMessages(ctx, messages, src, dst)
 
-	if mp.trackAndSendMessages(ctx, src, dst, needsClientUpdate); err != nil {
-		return fmt.Errorf("track and send messages: %w", err)
-	}
+	mp.trackAndSendMessages(ctx, src, dst, needsClientUpdate)
 
 	return nil
 }
