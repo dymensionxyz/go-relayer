@@ -421,7 +421,7 @@ func (ccp *CosmosChainProcessor) queryCycle(
 				ccp.metrics.IncBlockQueryFailure(chainID, "RPC Client")
 			}
 
-			return err
+			return fmt.Errorf("block results: %w", err)
 		})
 
 		eg.Go(func() (err error) {
@@ -433,7 +433,7 @@ func (ccp *CosmosChainProcessor) queryCycle(
 				ccp.metrics.IncBlockQueryFailure(chainID, "IBC Header")
 			}
 
-			return err
+			return fmt.Errorf("query ibc header: %w", err)
 		})
 
 		if err := eg.Wait(); err != nil {
@@ -458,17 +458,17 @@ func (ccp *CosmosChainProcessor) queryCycle(
 
 		latestHeader = ibcHeader.(provider.TendermintIBCHeader)
 
-		heightUint64 := uint64(heightToQuery)
+		heightToQueryU := uint64(heightToQuery)
 
 		ccp.latestBlock = provider.LatestBlock{
-			Height: heightUint64,
+			Height: heightToQueryU,
 			Time:   latestHeader.SignedHeader.Time,
 		}
 
-		ibcHeaderCache[heightUint64] = latestHeader
+		ibcHeaderCache[heightToQueryU] = latestHeader
 		ppChanged = true
 
-		messages := chains.IbcMessagesFromEvents(ccp.log, blockRes.FinalizeBlockEvents, chainID, heightUint64)
+		messages := chains.IbcMessagesFromEvents(ccp.log, blockRes.FinalizeBlockEvents, chainID, heightToQueryU)
 
 		for _, m := range messages {
 			ccp.handleMessage(ctx, m, ibcMessagesCache)
@@ -480,7 +480,7 @@ func (ccp *CosmosChainProcessor) queryCycle(
 				continue
 			}
 
-			messages := chains.IbcMessagesFromEvents(ccp.log, tx.Events, chainID, heightUint64)
+			messages := chains.IbcMessagesFromEvents(ccp.log, tx.Events, chainID, heightToQueryU)
 
 			for _, m := range messages {
 				switch t := m.Info.(type) {
