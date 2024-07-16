@@ -434,14 +434,14 @@ func (ccp *CosmosChainProcessor) queryCycle(
 
 		if err := eg.Wait(); err != nil {
 			ccp.log.Debug(
-				"querying block data",
+				"Querying block data.",
 				zap.Int64("height", i),
 				zap.Error(err),
 			)
 
 			persistence.retriesAtLatestQueriedBlock++
 			if persistence.retriesAtLatestQueriedBlock >= blockMaxRetries {
-				ccp.log.Error("Reached max retries querying for block, skipping", zap.Int64("height", i))
+				ccp.log.Error("Reached max retries querying for block, skipping.", zap.Int64("height", i))
 				// skip this block. now depends on flush to pickup anything missed in the block.
 				persistence.latestQueriedBlock = i
 				persistence.retriesAtLatestQueriedBlock = 0
