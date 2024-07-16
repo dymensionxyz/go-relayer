@@ -74,11 +74,11 @@ func NewCosmosChainProcessor(
 }
 
 const (
-	queryTimeout                = 5 * time.Second
-	queryStateTimeout           = 60 * time.Second
-	blockResultsQueryTimeout    = 60 * time.Minute
-	latestHeightQueryRetryDelay = 1 * time.Second
-	latestHeightQueryRetries    = 5
+	queryTimeout                    = 5 * time.Second
+	queryStateTimeout               = 60 * time.Second
+	defaultBlockResultsQueryTimeout = 2 * time.Minute
+	latestHeightQueryRetryDelay     = 1 * time.Second
+	latestHeightQueryRetries        = 5
 
 	defaultMinQueryLoopDuration      = 1 * time.Second
 	defaultBalanceUpdateWaitDuration = 60 * time.Second
@@ -218,6 +218,10 @@ func (ccp *CosmosChainProcessor) Run(ctx context.Context, initialBlockHistory ui
 	if minQueryLoopDuration == 0 {
 		minQueryLoopDuration = defaultMinQueryLoopDuration
 	}
+	if ccp.chainProvider.PCfg.BlockResultsQueryTimeout == 0 {
+		ccp.chainProvider.PCfg.BlockResultsQueryTimeout = defaultBlockResultsQueryTimeout
+	}
+	ccp.log.Debug("Block results query timeout value.", zap.Any("timeout", ccp.chainProvider.PCfg.BlockResultsQueryTimeout))
 
 	// this will be used for persistence across query cycle loop executions
 	persistence := queryCyclePersistence{
@@ -409,7 +413,7 @@ func (ccp *CosmosChainProcessor) queryCycle(
 		heightToQuery := heightToQuery
 
 		eg.Go(func() (err error) {
-			queryCtx, cancelQueryCtx := context.WithTimeout(ctx, blockResultsQueryTimeout)
+			queryCtx, cancelQueryCtx := context.WithTimeout(ctx, ccp.chainProvider.PCfg.BlockResultsQueryTimeout)
 			defer cancelQueryCtx()
 
 			blockRes, err = ccp.chainProvider.RPCClient.BlockResults(queryCtx, &heightToQuery)
