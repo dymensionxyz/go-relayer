@@ -1468,7 +1468,10 @@ func (cc *CosmosProvider) QueryIBCHeader(ctx context.Context, h int64) (provider
 	lightBlock, err := cc.LightProvider.LightBlock(ctx, h)
 	if err != nil {
 		if errors.Is(err, cometprovider.ErrLightBlockNotFound) {
-			return nil, fmt.Errorf("light provider: light block: %w", gerr.ErrNotFound)
+			err = fmt.Errorf("%w:%w", err, gerr.ErrNotFound)
+		}
+		if errors.Is(err, cometprovider.ErrHeightTooHigh) {
+			err = fmt.Errorf("%w:%w", err, gerr.ErrOutOfRange)
 		}
 		return nil, fmt.Errorf("light provider light block: %w", err)
 	}

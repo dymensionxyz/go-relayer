@@ -259,13 +259,13 @@ func (mp *messageProcessor) assembleMsgUpdateClient(ctx context.Context, src, ds
 	if !trustedConsensusHeight.EQ(clientConsensusHeight) {
 		deltaConsensusHeight := int64(clientConsensusHeight.RevisionHeight) - int64(trustedConsensusHeight.RevisionHeight)
 		if trustedConsensusHeight.RevisionHeight != 0 && deltaConsensusHeight <= clientConsensusHeightUpdateThresholdBlocks {
-			return fmt.Errorf("observed client trusted height: %d does not equal latest client state height: %d",
+			return fmt.Errorf("observed client trusted height does not equal latest client state height: trusted: %d: latest %d",
 				trustedConsensusHeight.RevisionHeight, clientConsensusHeight.RevisionHeight)
 		}
 
 		header, err := src.chainProvider.QueryIBCHeader(ctx, int64(clientConsensusHeight.RevisionHeight+1))
 		if err != nil {
-			return fmt.Errorf("query IBC header at height: %d for chain_id: %s, %w",
+			return fmt.Errorf("query IBC header at height: %d: chain_id: %s, %w",
 				clientConsensusHeight.RevisionHeight+1, src.info.ChainID, err)
 		}
 
