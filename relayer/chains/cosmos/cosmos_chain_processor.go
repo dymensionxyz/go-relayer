@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"math/big"
+	"strings"
 	"time"
 
 	"github.com/avast/retry-go/v4"
@@ -17,6 +18,7 @@ import (
 	"github.com/cosmos/relayer/v2/relayer/chains"
 	"github.com/cosmos/relayer/v2/relayer/processor"
 	"github.com/cosmos/relayer/v2/relayer/provider"
+	"github.com/danwt/gerr/gerr"
 	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
 )
@@ -429,6 +431,9 @@ func (ccp *CosmosChainProcessor) queryCycle(
 			if err != nil && ccp.metrics != nil {
 				ccp.metrics.IncBlockQueryFailure(chainID, "RPC Client")
 			}
+			if err != nil && strings.Contains(err.Error(), "unmarshal") {
+				err = fmt.Errorf("%w:%w", gerr.ErrDataLoss, err)
+			}
 			if err != nil {
 				return fmt.Errorf("block results: elapsed: %s: %w", time.Since(x), err)
 			}
@@ -452,12 +457,14 @@ func (ccp *CosmosChainProcessor) queryCycle(
 		})
 
 		if err := eg.Wait(); err != nil {
-			ccp.log.Debug(
+			ccp.log.DPanic(
 				"Querying block data.",
 				zap.Int64("height", heightToQuery),
 				zap.Error(err),
 			)
-
+			if errors.Is(err, gerr.ErrDataLoss) {
+				persistence.retriesAtLatestQueriedBlock = blockMaxRetries
+			}
 			persistence.retriesAtLatestQueriedBlock++
 			if persistence.retriesAtLatestQueriedBlock >= blockMaxRetries {
 				ccp.log.Error("Reached max retries querying for block, skipping.", zap.Int64("height", heightToQuery))
