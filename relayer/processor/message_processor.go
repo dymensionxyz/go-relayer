@@ -114,7 +114,7 @@ func (mp *messageProcessor) processMessages(
 
 	mp.assembleMessages(ctx, messages, src, dst)
 
-	if err := mp.trackAndSendMessages(ctx, src, dst, needsClientUpdate); err != nil {
+	if mp.trackAndSendMessages(ctx, src, dst, needsClientUpdate); err != nil {
 		return fmt.Errorf("track and send messages: %w", err)
 	}
 
@@ -240,7 +240,7 @@ func (mp *messageProcessor) assembleMessage(
 		)
 		return
 	}
-	dst.log.Debug(fmt.Sprintf("Assembled %s message", msg.msgType()), zap.Object("msg", msg))
+	dst.log.Debug(fmt.Sprintf("Assembled message: %s", msg.msgType()), zap.Object("msg", msg))
 }
 
 // assembleMsgUpdateClient uses the ChainProvider from both pathEnds to assemble the client update header
@@ -318,11 +318,7 @@ func (mp *messageProcessor) assembleMsgUpdateClient(ctx context.Context, src, ds
 // trackAndSendMessages will increment attempt counters for each message and send each message.
 // Messages will be batched if the broadcast mode is configured to 'batch' and there was not an error
 // in a previous batch.
-func (mp *messageProcessor) trackAndSendMessages(
-	ctx context.Context,
-	src, dst *pathEndRuntime,
-	needsClientUpdate bool,
-) error {
+func (mp *messageProcessor) trackAndSendMessages(ctx context.Context, src, dst *pathEndRuntime, needsClientUpdate bool) {
 	broadcastBatch := dst.chainProvider.ProviderConfig().BroadcastMode() == provider.BroadcastModeBatch
 	var batch []messageToTrack
 
@@ -350,17 +346,11 @@ func (mp *messageProcessor) trackAndSendMessages(
 		go mp.sendBatchMessages(ctx, src, dst, batch)
 	}
 
-	if mp.assembledCount() > 0 {
-		return nil
-	}
-
-	if needsClientUpdate && mp.msgUpdateClient != nil {
+	if mp.assembledCount() == 0 && needsClientUpdate && mp.msgUpdateClient != nil {
 		go mp.sendClientUpdate(ctx, src, dst)
-		return nil
 	}
 
-	// only msgUpdateClient, don't need to send
-	return errors.New("all messages failed to assemble")
+	return
 }
 
 // sendClientUpdate will send an isolated client update message.
