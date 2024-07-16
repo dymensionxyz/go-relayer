@@ -1464,7 +1464,7 @@ func (cc *CosmosProvider) QueryIBCHeader(ctx context.Context, h int64) (provider
 
 	lightBlock, err := cc.LightProvider.LightBlock(ctx, h)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("light provider light block: %w", err)
 	}
 
 	return provider.TendermintIBCHeader{

@@ -413,7 +413,7 @@ func (pp *PathProcessor) Run(ctx context.Context, cancel func()) {
 			}
 		}
 
-		pp.log.Debug("path processor run: are the chains in sync? ", zap.Bool("pathEnd1", pp.pathEnd1.inSync), zap.Bool("pathEnd2", pp.pathEnd2.inSync))
+		pp.log.Debug("Path processor run: are the chains in sync? ", zap.Bool("pathEnd1", pp.pathEnd1.inSync), zap.Bool("pathEnd2", pp.pathEnd2.inSync))
 		if !pp.pathEnd1.inSync || !pp.pathEnd2.inSync {
 			continue
 		}
@@ -434,7 +434,7 @@ func (pp *PathProcessor) Run(ctx context.Context, cancel func()) {
 
 		// process latest message cache state from both pathEnds
 		if err := pp.processLatestMessages(ctx, cancel); err != nil {
-			pp.log.Debug("ERROR process latest messages", zap.Error(err))
+			pp.log.Debug("ERROR processing latest messages.", zap.Error(err))
 			// in case of IBC message send errors, schedule retry after durationErrorRetry
 			if retryTimer != nil {
 				retryTimer.Stop()
