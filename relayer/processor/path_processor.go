@@ -2,12 +2,14 @@ package processor
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"time"
 
 	chantypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
 	ibcexported "github.com/cosmos/ibc-go/v8/modules/core/exported"
 	"github.com/cosmos/relayer/v2/relayer/provider"
+	"github.com/danwt/gerr/gerr"
 	"go.uber.org/zap"
 )
 
@@ -435,7 +437,12 @@ func (pp *PathProcessor) Run(ctx context.Context, cancel func()) {
 		// process latest message cache state from both pathEnds
 		if err := pp.processLatestMessages(ctx, cancel); err != nil {
 			// The original relayer code has so many potential errors here that it doesn't bother logging
-			pp.log.Debug("ERROR processing latest messages.", zap.Error(err))
+			// we will log when we know it's bad.
+			if errors.Is(err, gerr.ErrNotFound) {
+				pp.log.Error("Process latest messages", zap.Error(err))
+			} else {
+				pp.log.Debug("ERROR processing latest messages.", zap.Error(err))
+			}
 			// in case of IBC message send errors, schedule retry after durationErrorRetry
 			if retryTimer != nil {
 				retryTimer.Stop()

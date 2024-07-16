@@ -13,6 +13,9 @@ import (
 	"sync"
 	"time"
 
+	cometprovider "github.com/cometbft/cometbft/light/provider"
+	"github.com/danwt/gerr/gerr"
+
 	sdkerrors "cosmossdk.io/errors"
 	sdkmath "cosmossdk.io/math"
 	"cosmossdk.io/store/rootmulti"
@@ -1464,6 +1467,9 @@ func (cc *CosmosProvider) QueryIBCHeader(ctx context.Context, h int64) (provider
 
 	lightBlock, err := cc.LightProvider.LightBlock(ctx, h)
 	if err != nil {
+		if errors.Is(err, cometprovider.ErrLightBlockNotFound) {
+			return nil, fmt.Errorf("light provider: light block: %w", gerr.ErrNotFound)
+		}
 		return nil, fmt.Errorf("light provider light block: %w", err)
 	}
 
