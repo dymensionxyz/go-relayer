@@ -359,8 +359,6 @@ func (mp *messageProcessor) sendClientUpdate(
 	broadcastCtx, cancel := context.WithTimeout(ctx, messageSendTimeout)
 	defer cancel()
 
-	dst.log.Debug("Will relay client update")
-
 	dst.lastClientUpdateHeightMu.Lock()
 	dst.lastClientUpdateHeight = dst.latestBlock.Height
 	dst.lastClientUpdateHeightMu.Unlock()
@@ -368,7 +366,7 @@ func (mp *messageProcessor) sendClientUpdate(
 	msgs := []provider.RelayerMessage{mp.msgUpdateClient}
 
 	if err := dst.chainProvider.SendMessagesToMempool(broadcastCtx, msgs, mp.memo, ctx, nil); err != nil {
-		mp.log.Error("Sending client update message",
+		mp.log.Error("Send client update message.",
 			zap.String("path_name", src.info.PathName),
 			zap.String("src_chain_id", src.info.ChainID),
 			zap.String("dst_chain_id", dst.info.ChainID),
@@ -380,7 +378,7 @@ func (mp *messageProcessor) sendClientUpdate(
 		mp.metricParseTxFailureCatagory(err, src)
 		return
 	}
-	dst.log.Debug("Client update broadcast completed")
+	dst.log.Debug("Client updated.", zap.Any("remote", src.info.ChainID))
 }
 
 type PathProcessorMessageResp struct {
