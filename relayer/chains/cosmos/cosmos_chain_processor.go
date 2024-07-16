@@ -413,6 +413,7 @@ func (ccp *CosmosChainProcessor) queryCycle(
 		heightToQuery := heightToQuery
 
 		eg.Go(func() (err error) {
+			x := time.Now()
 			queryCtx, cancelQueryCtx := context.WithTimeout(ctx, ccp.chainProvider.PCfg.BlockResultsQueryTimeout)
 			defer cancelQueryCtx()
 
@@ -420,8 +421,10 @@ func (ccp *CosmosChainProcessor) queryCycle(
 			if err != nil && ccp.metrics != nil {
 				ccp.metrics.IncBlockQueryFailure(chainID, "RPC Client")
 			}
-
-			return fmt.Errorf("block results: %w", err)
+			if err != nil {
+				return fmt.Errorf("block results: elapsed: %s: %w", time.Since(x), err)
+			}
+			return nil
 		})
 
 		eg.Go(func() (err error) {
@@ -433,7 +436,10 @@ func (ccp *CosmosChainProcessor) queryCycle(
 				ccp.metrics.IncBlockQueryFailure(chainID, "IBC Header")
 			}
 
-			return fmt.Errorf("query ibc header: %w", err)
+			if err != nil {
+				return fmt.Errorf("query ibc header: %w", err)
+			}
+			return nil
 		})
 
 		if err := eg.Wait(); err != nil {
