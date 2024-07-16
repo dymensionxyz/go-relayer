@@ -218,10 +218,6 @@ func (ccp *CosmosChainProcessor) Run(ctx context.Context, initialBlockHistory ui
 	if minQueryLoopDuration == 0 {
 		minQueryLoopDuration = defaultMinQueryLoopDuration
 	}
-	if ccp.chainProvider.PCfg.BlockResultsQueryTimeout == 0 {
-		ccp.chainProvider.PCfg.BlockResultsQueryTimeout = defaultBlockResultsQueryTimeout
-	}
-	ccp.log.Debug("Block results query timeout value.", zap.Any("timeout", ccp.chainProvider.PCfg.BlockResultsQueryTimeout))
 
 	// this will be used for persistence across query cycle loop executions
 	persistence := queryCyclePersistence{
@@ -422,7 +418,7 @@ func (ccp *CosmosChainProcessor) queryCycle(
 				for {
 					select {
 					case <-t.C:
-						ccp.log.Debug("Long running block results query is still ongoing", zap.Any("elapsed", time.Since(y)))
+						ccp.log.Debug("Long running block results query is still ongoing", zap.Any("elapsed", time.Since(y)), zap.Any("chain", chainID))
 					case <-c:
 						t.Stop()
 						return
