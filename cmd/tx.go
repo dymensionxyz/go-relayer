@@ -805,20 +805,29 @@ $ %s tx connect demo-path --src-port transfer --dst-port transfer --order unorde
 				}
 			}
 
+			_ = srcPort
+			_ = dstPort
+			_ = order
+			_ = version
+
+			return nil
 			// create channel if it isn't already created
-			return c[src].CreateOpenChannels(
-				cmd.Context(),
-				c[dst],
-				retries,
-				to,
-				srcPort,
-				dstPort,
-				order,
-				version,
-				override,
-				memo,
-				pathName,
-			)
+			/*
+				return c[src].CreateOpenChannels(
+					cmd.Context(),
+					c[dst],
+					retries,
+					to,
+					srcPort,
+					dstPort,
+					order,
+					version,
+					override,
+					memo,
+					pathName,
+				)
+
+			*/
 		},
 	}
 	cmd = timeoutFlag(a.viper, cmd)
