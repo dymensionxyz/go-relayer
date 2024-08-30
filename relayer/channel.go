@@ -20,6 +20,7 @@ import (
 func (c *Chain) blockUntilClientIsCanonical(ctx context.Context) error {
 	expClient := c.PathEnd.ClientID
 	rollappID := "rollappevm_1234-1" // TODO:
+	c.log.Info("Blocking until client is canonical.")
 	return retry.Do(func() error {
 		gotClient, err := QueryCanonicalClient(ctx, c, rollappID) // TODO: check if ctx has deadline
 		if err != nil {

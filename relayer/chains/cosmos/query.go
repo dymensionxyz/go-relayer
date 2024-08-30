@@ -341,7 +341,7 @@ func (cc *CosmosProvider) queryParamsSubspaceTime(ctx context.Context, subspace 
 	return time.Duration(unbondingValue), nil
 }
 
-func (pc CosmosProviderConfig) QueryCanonicalLightClient(ctx context.Context, rollappID string) (string, error) {
+func (cc *CosmosProvider) QueryCanonicalLightClient(ctx context.Context, rollappID string) (string, error) {
 	// Define the URL for the GET request
 	template := "http://localhost:1318/dymensionxyz/dymension/lightclient/lightclient/%s"
 	url := fmt.Sprintf(template, rollappID)
