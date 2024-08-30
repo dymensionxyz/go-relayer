@@ -4,8 +4,11 @@ import (
 	"context"
 	"encoding/binary"
 	"encoding/hex"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
+	"net/http"
 	"strconv"
 	"strings"
 	"sync"
@@ -339,8 +342,36 @@ func (cc *CosmosProvider) queryParamsSubspaceTime(ctx context.Context, subspace 
 }
 
 func (pc CosmosProviderConfig) QueryCanonicalLightClient(ctx context.Context, rollappID string) (string, error) {
-	// TODO implement me
-	panic("implement me")
+	// Define the URL for the GET request
+	template := "http://localhost:1318/dymensionxyz/dymension/lightclient/lightclient/%s"
+	url := fmt.Sprintf(template, rollappID)
+
+	// Create a new HTTP GET request
+	resp, err := http.Get(url)
+	if err != nil {
+		return "", fmt.Errorf("get: %w", err)
+	}
+	defer resp.Body.Close()
+
+	// Read the response body
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return "", fmt.Errorf("read: %w", err)
+	}
+
+	type Response struct {
+		ClientID string `json:"client_id"`
+	}
+
+	// Create an instance of the Response struct
+	var response Response
+
+	// Decode the JSON data into the struct
+	err = json.Unmarshal(body, &response)
+	if err != nil {
+		return "", fmt.Errorf("unmarshal: body: %s: %w", body, err)
+	}
+	return response.ClientID, nil
 }
 
 // QueryUnbondingPeriod returns the unbonding period of the chain

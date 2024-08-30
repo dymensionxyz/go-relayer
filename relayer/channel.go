@@ -34,7 +34,7 @@ func (c *Chain) blockUntilClientIsCanonical(ctx context.Context) error {
 		retry.Attempts(0), // forever
 		retry.Delay(20*time.Second),
 		retry.OnRetry(func(n uint, err error) {
-			// TODO: log
+			c.log.Info("Query canonical client", zap.Any("attempt", n), zap.Error(err))
 		}),
 	)
 }
@@ -74,7 +74,7 @@ func (c *Chain) CreateOpenChannels(
 
 	err := c.blockUntilClientIsCanonical(ctx)
 	if err != nil {
-		return err
+		return fmt.Errorf("blockUntilClientIsCanonical: %w", err)
 	}
 
 	// Timeout is per message. Four channel handshake messages, allowing maxRetries for each.
