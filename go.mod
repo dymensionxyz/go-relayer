@@ -215,5 +215,9 @@ replace (
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
 	github.com/tendermint/tendermint => github.com/cometbft/cometbft v0.34.29
 	github.com/osmosis-labs/osmosis/v15 => github.com/dymensionxyz/osmosis/v15 v15.2.1-0.20240627111157-f2243f47cdb3
+	 //github.com/cosmos/cosmos-sdk/store => cosmossdk.io/store v1.1.0
+	 //github.com/cosmos/cosmos-sdk => cosmossdk.io v0.33.2
+		//github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7
+
 
 )
