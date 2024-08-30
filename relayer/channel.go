@@ -5,12 +5,39 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/avast/retry-go/v4"
 	chantypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
 	host "github.com/cosmos/ibc-go/v8/modules/core/24-host"
 	"github.com/cosmos/relayer/v2/relayer/processor"
 	"github.com/cosmos/relayer/v2/relayer/provider"
 	"go.uber.org/zap"
 )
+
+// Adhering to the dymension canonical light client protocol, we wait
+// until the client has been designated canonical on the Hub.
+// Assumes c is the Hub.
+// Blocks the thread
+func (c *Chain) blockUntilClientIsCanonical(ctx context.Context) error {
+	expClient := c.PathEnd.ClientID
+	rollappID := "rollappevm_1234-1" // TODO:
+	return retry.Do(func() error {
+		gotClient, err := QueryCanonicalClient(ctx, c, rollappID) // TODO: check if ctx has deadline
+		if err != nil {
+			// TODO: disambiguate more errors
+			return retry.Unrecoverable(err)
+		}
+		if gotClient != "" && gotClient != expClient {
+			return retry.Unrecoverable(fmt.Errorf("different canonical client set: %s", gotClient))
+		}
+		return nil
+	},
+		retry.Attempts(0), // forever
+		retry.Delay(20*time.Second),
+		retry.OnRetry(func(n uint, err error) {
+			// TODO: log
+		}),
+	)
+}
 
 // CreateOpenChannels runs the channel creation messages on timeout until they pass.
 func (c *Chain) CreateOpenChannels(
@@ -43,6 +70,11 @@ func (c *Chain) CreateOpenChannels(
 		if err == nil && channel != nil {
 			return fmt.Errorf("channel {%s} with port {%s} already exists on chain {%s}", channel.ChannelId, channel.PortId, dst.ChainID())
 		}
+	}
+
+	err := c.blockUntilClientIsCanonical(ctx)
+	if err != nil {
+		return err
 	}
 
 	// Timeout is per message. Four channel handshake messages, allowing maxRetries for each.

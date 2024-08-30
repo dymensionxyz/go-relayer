@@ -27,9 +27,10 @@ import (
 )
 
 var (
-	_ provider.ChainProvider  = &CosmosProvider{}
-	_ provider.KeyProvider    = &CosmosProvider{}
-	_ provider.ProviderConfig = &CosmosProviderConfig{}
+	_ provider.ChainProvider             = &CosmosProvider{}
+	_ provider.KeyProvider               = &CosmosProvider{}
+	_ provider.ProviderConfig            = &CosmosProviderConfig{}
+	_ provider.DymensionHubQueryProvider = &CosmosProviderConfig{}
 )
 
 const (

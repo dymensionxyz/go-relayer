@@ -338,6 +338,11 @@ func (cc *CosmosProvider) queryParamsSubspaceTime(ctx context.Context, subspace 
 	return time.Duration(unbondingValue), nil
 }
 
+func (pc CosmosProviderConfig) QueryCanonicalLightClient(ctx context.Context, rollappID string) (string, error) {
+	// TODO implement me
+	panic("implement me")
+}
+
 // QueryUnbondingPeriod returns the unbonding period of the chain
 func (cc *CosmosProvider) QueryUnbondingPeriod(ctx context.Context) (time.Duration, error) {
 	// Attempt ICS query
