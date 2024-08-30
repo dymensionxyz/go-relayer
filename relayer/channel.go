@@ -20,7 +20,6 @@ import (
 func (c *Chain) blockUntilClientIsCanonical(ctx context.Context) error {
 	expClient := c.PathEnd.ClientID
 	rollappID := "rollappevm_1234-1" // TODO:
-	c.log.Info("Blocking until client is canonical.")
 	return retry.Do(func() error {
 		gotClient, err := QueryCanonicalClient(ctx, c, rollappID) // TODO: check if ctx has deadline
 		if err != nil {
@@ -73,10 +72,12 @@ func (c *Chain) CreateOpenChannels(
 		}
 	}
 
+	c.log.Info("Blocking until client is canonical.")
 	err := c.blockUntilClientIsCanonical(ctx)
 	if err != nil {
 		return fmt.Errorf("blockUntilClientIsCanonical: %w", err)
 	}
+	c.log.Info("Client is canonical. Continuing.")
 
 	// Timeout is per message. Four channel handshake messages, allowing maxRetries for each.
 	processorTimeout := timeout * 4 * time.Duration(maxRetries)
