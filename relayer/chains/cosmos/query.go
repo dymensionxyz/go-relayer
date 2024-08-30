@@ -35,7 +35,6 @@ import (
 	"github.com/cosmos/relayer/v2/relayer/chains"
 	"github.com/cosmos/relayer/v2/relayer/provider"
 	"github.com/danwt/gerr/gerr"
-	lightclienttypes "github.com/dymensionxyz/dymension/v3/x/lightclient/types"
 	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc/metadata"
@@ -340,7 +339,6 @@ func (cc *CosmosProvider) queryParamsSubspaceTime(ctx context.Context, subspace 
 }
 
 func (pc CosmosProviderConfig) QueryCanonicalLightClient(ctx context.Context, rollappID string) (string, error) {
-	qC := lightclienttypes.NewQueryClient(pc)
 	// TODO implement me
 	panic("implement me")
 }
