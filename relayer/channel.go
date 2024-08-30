@@ -2,6 +2,7 @@ package relayer
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"time"
 
@@ -19,22 +20,27 @@ import (
 // Blocks the thread
 func (c *Chain) blockUntilClientIsCanonical(ctx context.Context) error {
 	expClient := c.PathEnd.ClientID
-	rollappID := "rollappevm_1234-1" // TODO:
+	rollappID := "rollappevm_1234-1"                                                                          // TODO:
+	c.log.Info("blockUntilClientIsCanonical comparing to expected", zap.Any("expected client id", expClient)) // TODO: debug
 	return retry.Do(func() error {
-		gotClient, err := QueryCanonicalClient(ctx, c, rollappID) // TODO: check if ctx has deadline
+		gotClient, err := QueryCanonicalClient(ctx, c, rollappID)                                     // TODO: check if ctx has deadline
+		c.log.Info("query canonical client got client", zap.Any("client", gotClient), zap.Error(err)) // TODO: debug
+		if gotClient == expClient {
+			return nil
+		}
 		if err != nil {
 			// TODO: disambiguate more errors
 			return retry.Unrecoverable(err)
 		}
-		if gotClient != "" && gotClient != expClient {
+		if gotClient != "" {
 			return retry.Unrecoverable(fmt.Errorf("different canonical client set: %s", gotClient))
 		}
-		return nil
+		return errors.New("canonical client not set")
 	},
 		retry.Attempts(0), // forever
 		retry.Delay(20*time.Second),
 		retry.OnRetry(func(n uint, err error) {
-			c.log.Info("Query canonical client", zap.Any("attempt", n), zap.Error(err))
+			c.log.Info("Query canonical client.", zap.Any("attempt", n), zap.Error(err))
 		}),
 	)
 }
