@@ -16,7 +16,7 @@
 
 - assumes src is Dymension hub
 - does not create channels until rollapp light client on Hub is canonical
-- accepts argument
+- accepts argument `http-addr` in config.yaml for http RPC queries (regular, not EVM). If empty, derives from RPC addr.
 - stuck packet search now syncs correctly
 - will no longer unnecessarily wait for a block to elapse before syncing (good for slow chains)
 - recommended to use fast query loop for fast rollapp chains (`min-loop-duration: 100ms`)
