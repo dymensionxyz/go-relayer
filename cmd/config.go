@@ -441,7 +441,7 @@ func (iw *ProviderConfigYAMLWrapper) UnmarshalYAML(n *yaml.Node) error {
 	case "penumbra":
 		iw.Value = new(penumbra.PenumbraProviderConfig)
 	default:
-		return fmt.Errorf("%s is an invalid chain type, check your config file", iw.Type)
+		return fmt.Errorf("invalid chain type, check your config file: %s", iw.Type)
 	}
 
 	return obj.Wrapper.Decode(iw.Value)

@@ -1599,7 +1599,8 @@ func (cc *CosmosProvider) NewClientState(
 	trust := tmclient.NewFractionFromTm(light.DefaultTrustLevel)
 
 	if cc.PCfg.DymRollapp {
-		trust = tmclient.NewFractionFromTm(cmtmath.Fraction{Numerator: 1, Denominator: 1})
+		// TODO: remove the need
+		trust = tmclient.NewFractionFromTm(cmtmath.Fraction{Numerator: 1, Denominator: 3})
 	}
 
 	revisionNumber := clienttypes.ParseChainID(dstChainID)
