@@ -18,7 +18,7 @@ import (
 // until the client has been designated canonical on the Hub.
 // Assumes c is the Hub.
 // Blocks the thread
-func (c *Chain) blockUntilClientIsCanonical(ctx context.Context) error {
+func (c *Chain) blockUntilClientIsCanonical(ctx context.Context, rollappID string) error {
 	expClient := c.PathEnd.ClientID
 	c.log.Info("blockUntilClientIsCanonical comparing to expected", zap.Any("expected client id", expClient)) // TODO: debug
 	return retry.Do(func() error {
@@ -78,7 +78,7 @@ func (c *Chain) CreateOpenChannels(
 	}
 
 	c.log.Info("Blocking until client is canonical.")
-	err := c.blockUntilClientIsCanonical(ctx)
+	err := c.blockUntilClientIsCanonical(ctx, dst.ChainID())
 	if err != nil {
 		return fmt.Errorf("blockUntilClientIsCanonical: %w", err)
 	}
