@@ -13,8 +13,6 @@ import (
 	"sync"
 	"time"
 
-	cmtmath "github.com/cometbft/cometbft/libs/math"
-
 	sdkerrors "cosmossdk.io/errors"
 	sdkmath "cosmossdk.io/math"
 	"cosmossdk.io/store/rootmulti"
@@ -1597,11 +1595,6 @@ func (cc *CosmosProvider) NewClientState(
 	allowUpdateAfterMisbehaviour bool,
 ) (ibcexported.ClientState, error) {
 	trust := tmclient.NewFractionFromTm(light.DefaultTrustLevel)
-
-	if cc.PCfg.DymRollapp {
-		// TODO: remove the need
-		trust = tmclient.NewFractionFromTm(cmtmath.Fraction{Numerator: 1, Denominator: 3})
-	}
 
 	revisionNumber := clienttypes.ParseChainID(dstChainID)
 
