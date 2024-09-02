@@ -85,6 +85,8 @@ func (c *Chain) CreateOpenChannels(
 			return fmt.Errorf("blockUntilClientIsCanonical: %w", err)
 		}
 		c.log.Info("Client is canonical. Continuing.")
+	} else {
+		c.log.Info("Continuing without querying for canonical status of client.")
 	}
 
 	// Timeout is per message. Four channel handshake messages, allowing maxRetries for each.
