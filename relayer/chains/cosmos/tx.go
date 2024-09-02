@@ -13,6 +13,8 @@ import (
 	"sync"
 	"time"
 
+	cmtmath "github.com/cometbft/cometbft/libs/math"
+
 	sdkerrors "cosmossdk.io/errors"
 	sdkmath "cosmossdk.io/math"
 	"cosmossdk.io/store/rootmulti"
@@ -1594,12 +1596,18 @@ func (cc *CosmosProvider) NewClientState(
 	allowUpdateAfterExpiry,
 	allowUpdateAfterMisbehaviour bool,
 ) (ibcexported.ClientState, error) {
+	trust := tmclient.NewFractionFromTm(light.DefaultTrustLevel)
+
+	if cc.PCfg.DymRollapp {
+		trust = tmclient.NewFractionFromTm(cmtmath.Fraction{Numerator: 1, Denominator: 1})
+	}
+
 	revisionNumber := clienttypes.ParseChainID(dstChainID)
 
 	// Create the ClientState we want on 'c' tracking 'dst'
 	return &tmclient.ClientState{
 		ChainId:         dstChainID,
-		TrustLevel:      tmclient.NewFractionFromTm(light.DefaultTrustLevel),
+		TrustLevel:      trust,
 		TrustingPeriod:  dstTrustingPeriod,
 		UnbondingPeriod: dstUbdPeriod,
 		MaxClockDrift:   maxClockDrift,
