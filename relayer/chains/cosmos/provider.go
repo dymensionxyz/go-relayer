@@ -99,7 +99,7 @@ func (pc CosmosProviderConfig) GetHttpAddr() (string, error) {
 		parts := strings.Split(rpc, ":")
 		if 2 <= len(parts) {
 			host := parts[len(parts)-2]
-			return fmt.Sprintf("http:%s:1338", host), nil
+			return fmt.Sprintf("http:%s:1318", host), nil
 		}
 		return "", errors.New("http addr not specified in cfg and cannot derive from rpc addr")
 	}
