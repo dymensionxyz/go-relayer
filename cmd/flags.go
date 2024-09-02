@@ -483,6 +483,20 @@ func noFlushFlag(v *viper.Viper, cmd *cobra.Command) *cobra.Command {
 	return cmd
 }
 
+func rollappFlag(v *viper.Viper, cmd *cobra.Command) *cobra.Command {
+	cmd.Flags().Bool(
+		"rollapp",
+		false,
+		"Are you relaying between the Dymension Hub and a Dymension rollapp?",
+	)
+
+	if err := v.BindPFlag("rollapp", cmd.Flags().Lookup("rollapp")); err != nil {
+		panic(err)
+	}
+
+	return cmd
+}
+
 func memoFlag(v *viper.Viper, cmd *cobra.Command) *cobra.Command {
 	cmd.Flags().String(flagMemo, "", "a memo to include in relayed packets")
 	if err := v.BindPFlag(flagMemo, cmd.Flags().Lookup(flagMemo)); err != nil {
