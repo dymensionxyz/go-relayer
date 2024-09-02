@@ -342,9 +342,13 @@ func (cc *CosmosProvider) queryParamsSubspaceTime(ctx context.Context, subspace 
 }
 
 func (cc *CosmosProvider) QueryCanonicalLightClient(ctx context.Context, rollappID string) (string, error) {
+	httpBase, err := cc.PCfg.GetHttpAddr()
+	if err != nil {
+		return "", fmt.Errorf("cfg get http addr err: %w", err)
+	}
 	// Define the URL for the GET request
-	template := "http://localhost:1318/dymensionxyz/dymension/lightclient/lightclient/%s"
-	url := fmt.Sprintf(template, rollappID)
+	template := "%s/dymensionxyz/dymension/lightclient/lightclient/%s"
+	url := fmt.Sprintf(template, httpBase, rollappID)
 
 	// Create a new HTTP GET request
 	resp, err := http.Get(url)
