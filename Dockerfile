@@ -1,4 +1,4 @@
-FROM --platform=$BUILDPLATFORM golang:1.21-alpine3.17 AS build-env
+FROM --platform=$BUILDPLATFORM golang:1.22-alpine3.19 AS build-env
 
 RUN apk add --update --no-cache curl make git libc-dev bash gcc linux-headers eudev-dev
 
@@ -23,7 +23,7 @@ RUN if [ "${TARGETARCH}" = "arm64" ] && [ "${BUILDARCH}" != "arm64" ]; then \
 RUN if [ -d "/go/bin/linux_${TARGETARCH}" ]; then mv /go/bin/linux_${TARGETARCH}/* /go/bin/; fi
 
 # Build final image from scratch
-FROM alpine:3.17
+FROM alpine:3.19
 
 # Install chain binaries
 COPY --from=build-env /bin/rly /bin
