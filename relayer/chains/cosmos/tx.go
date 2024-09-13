@@ -662,7 +662,7 @@ func (cc *CosmosProvider) buildMessages(
 		_, adjusted, err = cc.CalculateGas(ctx, txf, txSignerKey, cMsgs...)
 		if err != nil {
 			// if rollapp, we can hardcode gas (calculation can fail if there is no existing account)
-			if cc.isRollapp {
+			if cc.PCfg.DymRollapp {
 				adjusted = defaultRollappGas
 			} else {
 				return nil, 0, sdk.Coins{}, err
@@ -1673,7 +1673,7 @@ func (cc *CosmosProvider) PrepareFactory(txf tx.Factory, signingKey string) (tx.
 		WithFromAddress(from)
 
 	// if rollapp, we know that the account might not exist at this point
-	if !cc.isRollapp {
+	if !cc.PCfg.DymRollapp {
 		// Set the account number and sequence on the transaction factory and retry if fail
 		if err = retry.Do(func() error {
 			return txf.AccountRetriever().EnsureExists(cliCtx, from)
@@ -1688,7 +1688,7 @@ func (cc *CosmosProvider) PrepareFactory(txf tx.Factory, signingKey string) (tx.
 		if err = retry.Do(func() error {
 			num, seq, err = txf.AccountRetriever().GetAccountNumberSequence(cliCtx, from)
 			// if rollapp, we know that the account might not exist at this point
-			if err != nil && !cc.isRollapp {
+			if err != nil && !cc.PCfg.DymRollapp {
 				return err
 			}
 			return nil

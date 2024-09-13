@@ -135,7 +135,6 @@ func (pc CosmosProviderConfig) NewProvider(log *zap.Logger, homepath string, deb
 		Input:          os.Stdin,
 		Output:         os.Stdout,
 		walletStateMap: map[string]*WalletState{},
-		isRollapp:      pc.DymRollapp,
 
 		// TODO: this is a bit of a hack, we should probably have a better way to inject modules
 		Cdc: MakeCodec(pc.Modules, pc.ExtraCodecs, pc.AccountPrefix, pc.AccountPrefix+"valoper"),
@@ -164,9 +163,6 @@ type CosmosProvider struct {
 	// the purpose of the map is to lock on the signer from TX creation through submission,
 	// thus making TX sequencing errors less likely.
 	walletStateMap map[string]*WalletState
-
-	// for hacking around the fact that we want to avoid having to pay fees
-	isRollapp bool
 
 	// metrics to monitor the provider
 	TotalFees   sdk.Coins
