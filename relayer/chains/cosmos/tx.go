@@ -631,11 +631,13 @@ func (cc *CosmosProvider) buildMessages(
 		txf = txf.WithMemo(memo)
 	}
 
-	sequence = txf.Sequence()
-	cc.updateNextAccountSequence(sequenceGuard, sequence)
-	if sequence < sequenceGuard.NextAccountSequence {
-		sequence = sequenceGuard.NextAccountSequence
-		txf = txf.WithSequence(sequence)
+	// this accounts for the creation of the account in the ante handler
+	if sequence = txf.Sequence(); sequence > 0 {
+		cc.updateNextAccountSequence(sequenceGuard, sequence)
+		if sequence < sequenceGuard.NextAccountSequence {
+			sequence = sequenceGuard.NextAccountSequence
+			txf = txf.WithSequence(sequence)
+		}
 	}
 
 	// Cannot feegrant your own TX
