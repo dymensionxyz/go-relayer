@@ -405,6 +405,8 @@ func (ccp *CosmosChainProcessor) queryCycle(
 		firstHeightToQuery++
 	}
 
+	ccp.log.Info("Starting query cycle", zap.Any("chain", chainID), zap.Any("first height", firstHeightToQuery))
+
 	for heightToQuery := firstHeightToQuery; heightToQuery <= persistence.latestHeight; heightToQuery++ {
 		var (
 			eg        errgroup.Group
@@ -425,7 +427,8 @@ func (ccp *CosmosChainProcessor) queryCycle(
 				for {
 					select {
 					case <-t.C:
-						ccp.log.Debug("Long running block results query is still ongoing", zap.Any("elapsed", time.Since(y)), zap.Any("chain", chainID), zap.Any("height", h))
+						ccp.log.Debug("Long running block results query is still ongoing",
+							zap.Any("elapsed", time.Since(y)), zap.Any("chain", chainID), zap.Any("height", h))
 					case <-c:
 						t.Stop()
 						return
