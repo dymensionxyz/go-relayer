@@ -190,11 +190,17 @@ func (s *rotationSolver) broadcastUpdates(ctx c.Context, msgs []provider.Relayer
 	defer cancel()
 	cbs := make([]func(*provider.RelayerTxResponse, error), 0)
 	cbs = append(cbs, func(r *provider.RelayerTxResponse, err error) {
+		ok := true
 		if err != nil {
 			s.log.Error("Broadcast rotation solver update", zap.Error(err))
+			ok = false
 		}
 		if r.Code != 0 {
 			s.log.Error("Broadcast rotation solver update", zap.Any("code", r.Code))
+			ok = false
+		}
+		if ok {
+			s.log.Info("Rotation solver TX accepted.")
 		}
 	})
 	return s.hub.chainProvider.SendMessagesToMempool(broadcastCtx, msgs, " ", ctx, cbs)
