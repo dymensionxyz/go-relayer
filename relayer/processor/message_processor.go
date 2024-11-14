@@ -5,6 +5,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strings"
 	"sync"
 	"time"
 
@@ -110,7 +111,9 @@ func (mp *messageProcessor) processMessages(
 
 		// need to update dst with a more recent view of src first?
 		needsClientUpdate, err = mp.shouldUpdateClientNow(ctx, src, dst)
-		if err != nil {
+		if errors.Is(err, errCantFindLightBlockOnCounterpartyForLatestClientHeight) {
+			mp.log.Error("Should update client now.", zap.Error(err))
+		} else if err != nil {
 			return fmt.Errorf("should update client now: %w", err)
 		}
 
@@ -135,6 +138,8 @@ func isLocalhostClient(srcClientID, dstClientID string) bool {
 	return false
 }
 
+var errCantFindLightBlockOnCounterpartyForLatestClientHeight = errors.New("cant find light block on counterparty for latest client height")
+
 // shouldUpdateClientNow determines if an update client message should be sent
 // even if there are no messages to be sent now. It will not be attempted if
 // there has not been enough blocks since the last client update attempt.
@@ -146,6 +151,12 @@ func (mp *messageProcessor) shouldUpdateClientNow(ctx context.Context, src, dst 
 	if dst.clientState.ConsensusTime.IsZero() {
 		height := int64(dst.clientState.LatestHeight.RevisionHeight)
 		h, err := src.chainProvider.QueryIBCHeader(ctx, height)
+		needle := "light block not found"
+		if err != nil && strings.Contains(err.Error(), needle) {
+			// DYMENSION hack
+			return true, errors.Join(err, errCantFindLightBlockOnCounterpartyForLatestClientHeight)
+
+		}
 		if err != nil {
 			return false, fmt.Errorf("query ibc header: chain id: %s: height: %d: %w", src.chainProvider.ChainId(), height, err)
 		}
