@@ -418,20 +418,21 @@ func (ccp *CosmosChainProcessor) queryCycle(
 			// there is no need for an explicit timeout here, since the rpc client already embeds a timeout
 			x := time.Now()
 			c := make(chan struct{})
+			h := heightToQuery
 			go func() {
 				t := time.NewTicker(30 * time.Second)
 				y := time.Now()
 				for {
 					select {
 					case <-t.C:
-						ccp.log.Debug("Long running block results query is still ongoing", zap.Any("elapsed", time.Since(y)), zap.Any("chain", chainID))
+						ccp.log.Debug("Long running block results query is still ongoing", zap.Any("elapsed", time.Since(y)), zap.Any("chain", chainID), zap.Any("height", h))
 					case <-c:
 						t.Stop()
 						return
 					}
 				}
 			}()
-			blockRes, err = ccp.chainProvider.RPCClient.BlockResults(ctx, &heightToQuery)
+			blockRes, err = ccp.chainProvider.RPCClient.BlockResults(ctx, &h)
 			if err != nil && ccp.metrics != nil {
 				ccp.metrics.IncBlockQueryFailure(chainID, "RPC Client")
 			}
