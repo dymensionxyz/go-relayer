@@ -265,7 +265,7 @@ func (cc *CosmosProvider) SendMsgsWith(ctx context.Context, msgs []sdk.Msg, memo
 	rand.Seed(time.Now().UnixNano())
 	feegrantKeyAcc, _ := cc.GetKeyAddressForKey(feegranterKey)
 
-	txf, err := cc.PrepareFactory(cc.TxFactory(), signingKey)
+	txf, err := cc.PrepareFactory(cc.TxFactory(), signingKey, false)
 	if err != nil {
 		return nil, err
 	}
@@ -709,6 +709,7 @@ func (cc *CosmosProvider) handleAccountSequenceMismatchError(sequenceGuard *Wall
 	if sequenceGuard == nil {
 		panic("sequence guard not configured")
 	}
+	cc.log.Debug("Forcing requery")
 	sequenceGuard.ForceRequery = true
 
 	matches := accountSeqRegex.FindStringSubmatch(err.Error())
@@ -1682,19 +1683,14 @@ func (cc *CosmosProvider) PrepareFactory(txf tx.Factory, signingKey string, forc
 		WithCodec(cc.Cdc.Marshaler).
 		WithFromAddress(from)
 
-	accountExists := true
-	if err = retry.Do(func() error {
-		return txf.AccountRetriever().EnsureExists(cliCtx, from)
-	}, rtyAtt, rtyDel, rtyErr); err != nil {
-		accountExists = false
-		if !cc.PCfg.DymRollapp {
-			// for the hub, we know it must exist
+	// for rollapp, it's OK to not exist yet, due to whitelist relayers
+	if !cc.PCfg.DymRollapp {
+		if err = retry.Do(func() error {
+			return txf.AccountRetriever().EnsureExists(cliCtx, from)
+		}, rtyAtt, rtyDel, rtyErr); err != nil {
 			return txf, err
 		}
-		// for rollapp, it's OK, due to whitelist relayers
 	}
-
-	forceRequery = forceRequery && accountExists
 
 	// TODO: why this code? this may potentially require another query when we don't want one
 	initNum, initSeq := txf.AccountNumber(), txf.Sequence()
@@ -1702,12 +1698,19 @@ func (cc *CosmosProvider) PrepareFactory(txf tx.Factory, signingKey string, forc
 		if err = retry.Do(func() error {
 			num, seq, err = txf.AccountRetriever().GetAccountNumberSequence(cliCtx, from)
 			// if rollapp, we know that the account might not exist at this point
-			if err != nil && !cc.PCfg.DymRollapp {
-				return err
+			if err != nil && !cc.PCfg.DymRollapp && !forceRequery {
+				return fmt.Errorf("get acc num seq: num %d: seq %d: addr: %s", num, seq, from)
 			}
 			return nil
 		}, rtyAtt, rtyDel, rtyErr); err != nil {
 			return txf, err
+		}
+
+		if forceRequery {
+			cc.log.Debug("Force account number and sequence requery.",
+				zap.Any("from", from),
+				zap.Any("num", num),
+				zap.Any("seq", seq))
 		}
 
 		if initNum == 0 || forceRequery {
