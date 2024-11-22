@@ -229,7 +229,3 @@ func (s *rotationSolver) broadcastUpdates(ctx c.Context, msgs []provider.Relayer
 	})
 	return s.hub.chainProvider.SendMessagesToMempool(broadcastCtx, msgs, " ", ctx, cbs)
 }
-
-func (s *rotationSolver) maybeForceUpdate(ctx c.Context) error {
-
-}
