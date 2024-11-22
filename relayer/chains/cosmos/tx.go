@@ -186,6 +186,10 @@ func (cc *CosmosProvider) SendMessagesToMempool(
 	if err != nil {
 		// Account sequence mismatch errors can happen on the simulated transaction also.
 		if strings.Contains(err.Error(), legacyerrors.ErrWrongSequence.Error()) {
+			cc.log.Debug("Wrong sequence used.",
+				zap.String("chain", cc.PCfg.ChainID),
+				zap.Any("seq", sequence),
+			)
 			cc.handleAccountSequenceMismatchError(sequenceGuard, err)
 		}
 
@@ -194,6 +198,10 @@ func (cc *CosmosProvider) SendMessagesToMempool(
 
 	if err := cc.broadcastTx(ctx, txBytes, msgs, fees, asyncCtx, defaultBroadcastWaitTimeout, asyncCallbacks); err != nil {
 		if strings.Contains(err.Error(), legacyerrors.ErrWrongSequence.Error()) {
+			cc.log.Debug("Wrong sequence used.",
+				zap.String("chain", cc.PCfg.ChainID),
+				zap.Any("seq", sequence),
+			)
 			cc.handleAccountSequenceMismatchError(sequenceGuard, err)
 		}
 
