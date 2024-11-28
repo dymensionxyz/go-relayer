@@ -417,7 +417,7 @@ type ChainProvider interface {
 	SetRpcAddr(rpcAddr string) error
 }
 
-type DymensionHubQueryProvider interface {
+type DymensionHubProvider interface {
 	QueryCanonicalLightClient(ctx context.Context, rollappID string) (string, error)
 }
 

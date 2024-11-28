@@ -22,7 +22,7 @@ func (c *Chain) blockUntilClientIsCanonical(ctx context.Context, rollappID strin
 	expClient := c.PathEnd.ClientID
 	c.log.Info("blockUntilClientIsCanonical comparing to expected", zap.Any("expected client id", expClient)) // TODO: debug
 	return retry.Do(func() error {
-		gotClient, err := QueryCanonicalClient(ctx, c, rollappID)                                     // TODO: check if ctx has deadline
+		gotClient, err := TrySetCanonicalClient(ctx, c, rollappID)                                    // TODO: check if ctx has deadline
 		c.log.Info("query canonical client got client", zap.Any("client", gotClient), zap.Error(err)) // TODO: debug
 		if gotClient == expClient {
 			return nil
