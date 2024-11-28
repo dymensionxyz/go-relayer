@@ -720,6 +720,24 @@ func (cc *CosmosProvider) handleAccountSequenceMismatchError(sequenceGuard *Wall
 	sequenceGuard.NextAccountSequence = nextSeq
 }
 
+func (cc *CosmosProvider) TrySetCanonicalClient(ctx context.Context, clientID string) (string, error) {
+	// old http query canonical client code is here https://github.com/dymensionxyz/go-relayer/blob/7405c3f4331e7c62683368b5ed89419c9bceedf8/relayer/chains/cosmos/query.go#L345-L378
+	signer, err := cc.Address()
+	if err != nil {
+		return nil, err
+	}
+	msg := &clienttypes.M{
+		ClientState:    anyClientState,
+		ConsensusState: anyConsensusState,
+		Signer:         signer,
+	}
+	cc.log.Info("MsgCreateClient", zap.Any("target chain", cc.PCfg.ChainID), zap.Any("msg", msg))
+
+	return NewCosmosMessage(msg, func(signer string) {
+		msg.Signer = signer
+	}), nil
+}
+
 // MsgCreateClient creates an sdk.Msg to update the client on src with consensus state from dst
 func (cc *CosmosProvider) MsgCreateClient(
 	clientState ibcexported.ClientState,
