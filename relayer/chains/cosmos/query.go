@@ -393,18 +393,16 @@ func (cc *CosmosProvider) QueryUnbondingPeriod(ctx context.Context) (time.Durati
 		return consumerUnbondingPeriod, nil
 	}
 
-	// Attempt Staking query.
-	unbondingPeriod, stakingParamsErr := cc.queryParamsSubspaceTime(ctx, "staking", "UnbondingTime")
-	if stakingParamsErr == nil {
-		return unbondingPeriod, nil
-	}
-
-	// Fallback
 	req := stakingtypes.QueryParamsRequest{}
 	queryClient := stakingtypes.NewQueryClient(cc)
 	res, err := queryClient.Params(ctx, &req)
 	if err == nil {
 		return res.Params.UnbondingTime, nil
+	}
+	
+	unbondingPeriod, stakingParamsErr := cc.queryParamsSubspaceTime(ctx, "staking", "UnbondingTime")
+	if stakingParamsErr == nil {
+		return unbondingPeriod, nil
 	}
 
 	return 0,
