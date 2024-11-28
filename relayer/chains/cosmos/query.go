@@ -382,9 +382,10 @@ func (cc *CosmosProvider) QueryCanonicalLightClient(ctx context.Context, rollapp
 func (cc *CosmosProvider) QueryUnbondingPeriod(ctx context.Context) (time.Duration, error) {
 	if cc.PCfg.DymRollapp {
 		ret, err := cc.queryParamsSubspaceTime(ctx, "sequencers", "UnbondingTime")
-		if err == nil {
-			return ret, nil
+		if err != nil {
+			return 0, fmt.Errorf("query unbonding period from sequencers module on rollapp: %w", err)
 		}
+		return ret, nil
 	}
 
 	// Attempt ICS query
@@ -394,12 +395,14 @@ func (cc *CosmosProvider) QueryUnbondingPeriod(ctx context.Context) (time.Durati
 	}
 
 	// Dymension change: query keeper first, then params subspace
-
 	req := stakingtypes.QueryParamsRequest{}
 	queryClient := stakingtypes.NewQueryClient(cc)
 	res, err := queryClient.Params(ctx, &req)
 	if err == nil {
 		return res.Params.UnbondingTime, nil
+	} else {
+		//return 0, fmt.Errorf("query unbonding period from staking keeper: %w", err)
+		cc.log.Error("Query unbonding period from staking keeper.", zap.Error(err))
 	}
 
 	unbondingPeriod, stakingParamsErr := cc.queryParamsSubspaceTime(ctx, "staking", "UnbondingTime")
