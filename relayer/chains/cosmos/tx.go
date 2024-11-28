@@ -44,10 +44,12 @@ import (
 	ibcexported "github.com/cosmos/ibc-go/v8/modules/core/exported"
 	tmclient "github.com/cosmos/ibc-go/v8/modules/light-clients/07-tendermint"
 	localhost "github.com/cosmos/ibc-go/v8/modules/light-clients/09-localhost"
+	"github.com/cosmos/relayer/v2/relayer/chains/cosmos/dym"
 	strideicqtypes "github.com/cosmos/relayer/v2/relayer/chains/cosmos/stride"
 	"github.com/cosmos/relayer/v2/relayer/ethermint"
 	"github.com/cosmos/relayer/v2/relayer/provider"
 	"github.com/danwt/gerr/gerr"
+	"github.com/dymensionxyz/gerr-cosmos/gerrc"
 	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -720,22 +722,44 @@ func (cc *CosmosProvider) handleAccountSequenceMismatchError(sequenceGuard *Wall
 	sequenceGuard.NextAccountSequence = nextSeq
 }
 
-func (cc *CosmosProvider) TrySetCanonicalClient(ctx context.Context, clientID string) (string, error) {
+func (cc *CosmosProvider) TrySetCanonicalClient(ctx context.Context, clientID string) error {
 	// old http query canonical client code is here https://github.com/dymensionxyz/go-relayer/blob/7405c3f4331e7c62683368b5ed89419c9bceedf8/relayer/chains/cosmos/query.go#L345-L378
 	signer, err := cc.Address()
 	if err != nil {
-		return nil, err
+		return fmt.Errorf("relayer bech32 wallet address: %w", err)
 	}
-	msg := &clienttypes.M{
-		ClientState:    anyClientState,
-		ConsensusState: anyConsensusState,
-		Signer:         signer,
+	msg := &dym.MsgSetCanonicalClient{
+		ClientId: clientID,
+		Signer:   signer,
 	}
-	cc.log.Info("MsgCreateClient", zap.Any("target chain", cc.PCfg.ChainID), zap.Any("msg", msg))
 
-	return NewCosmosMessage(msg, func(signer string) {
+	m := NewCosmosMessage(msg, func(signer string) {
 		msg.Signer = signer
-	}), nil
+	})
+
+	res, ok, err := cc.SendMessage(ctx, m, "")
+
+	var code uint32
+	var data string
+	var txHash string
+	var height int64
+	var errs string
+
+	if res != nil {
+		code = res.Code
+		data = res.Data
+		txHash = res.TxHash
+		height = res.Height
+	}
+	if err != nil {
+		errs = err.Error()
+	}
+	if !ok || err != nil {
+		return gerrc.ErrUnknown.Wrapf(
+			"send message: %s: code: %d, data: %s, txHash: %s, height: %d", errs, code, data, txHash, height,
+		)
+	}
+	return nil
 }
 
 // MsgCreateClient creates an sdk.Msg to update the client on src with consensus state from dst
