@@ -27,6 +27,7 @@ func (c *Chain) blockUntilClientIsCanonical(ctx context.Context) error {
 			needle := "not at least one cons state matches the rollapp state" // hacky :(
 			if !strings.Contains(err.Error(), needle) {
 				// something really wrong
+				c.log.Info("BlockUntilClientIsCanonical try set canonical client.", zap.Error(err))
 				return retry.Unrecoverable(err)
 			}
 			// just need to wait for sequencer to catch up
