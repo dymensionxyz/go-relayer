@@ -401,8 +401,7 @@ func (cc *CosmosProvider) QueryUnbondingPeriod(ctx context.Context) (time.Durati
 	if err == nil {
 		return res.Params.UnbondingTime, nil
 	} else {
-		//return 0, fmt.Errorf("query unbonding period from staking keeper: %w", err)
-		cc.log.Error("Query unbonding period from staking keeper.", zap.Error(err))
+		cc.log.Error("Query unbonding period from staking keeper.", zap.Error(err), zap.String("chain-id", cc.ChainId()))
 	}
 
 	unbondingPeriod, stakingParamsErr := cc.queryParamsSubspaceTime(ctx, "staking", "UnbondingTime")
