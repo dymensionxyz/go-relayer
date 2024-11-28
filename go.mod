@@ -42,6 +42,8 @@ require (
 	google.golang.org/grpc v1.64.0
 	gopkg.in/yaml.v2 v2.4.0
 	gopkg.in/yaml.v3 v3.0.1
+		github.com/dymensionxyz/dymension/v3 v3.1.0-rc03.0.20240905113548-004462d5f45b
+
 )
 
 require (
@@ -214,4 +216,8 @@ require (
 	pgregory.net/rapid v1.1.0 // indirect
 	rsc.io/tmplfunc v0.0.3 // indirect
 	sigs.k8s.io/yaml v1.4.0 // indirect
+)
+
+replace (
+github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
 )
