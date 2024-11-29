@@ -24,7 +24,7 @@ func NewMsgUpdateState(signer, client string) *MsgSetCanonicalClient {
 }
 
 func (msg *MsgSetCanonicalClient) Route() string {
-	return "lightclient"
+	return ModuleName
 }
 
 func (msg *MsgSetCanonicalClient) Type() string {

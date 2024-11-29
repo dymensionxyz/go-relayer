@@ -1,5 +1,5 @@
 syntax = "proto3";
-package dym.lightclient;
+package dymensionxyz.dymension.lightclient;
 
 import "cosmos/msg/v1/msg.proto";
 import "gogoproto/gogo.proto";

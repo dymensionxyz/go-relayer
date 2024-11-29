@@ -44,7 +44,6 @@ import (
 	ibcexported "github.com/cosmos/ibc-go/v8/modules/core/exported"
 	tmclient "github.com/cosmos/ibc-go/v8/modules/light-clients/07-tendermint"
 	localhost "github.com/cosmos/ibc-go/v8/modules/light-clients/09-localhost"
-	_ "github.com/cosmos/relayer/v2/relayer/chains/cosmos/dym/lightclient"
 	dymtypes "github.com/cosmos/relayer/v2/relayer/chains/cosmos/dym/lightclient/types"
 	strideicqtypes "github.com/cosmos/relayer/v2/relayer/chains/cosmos/stride"
 	"github.com/cosmos/relayer/v2/relayer/ethermint"
@@ -1897,11 +1896,11 @@ func (cc *CosmosProvider) QueryABCI(ctx context.Context, req abci.RequestQuery) 
 
 	result, err := cc.RPCClient.ABCIQueryWithOptions(ctx, req.Path, req.Data, opts)
 	if err != nil {
-		return abci.ResponseQuery{}, err
+		return abci.ResponseQuery{}, fmt.Errorf("abci query with options: %w", err)
 	}
 
 	if !result.Response.IsOK() {
-		return abci.ResponseQuery{}, sdkErrorToGRPCError(result.Response)
+		return abci.ResponseQuery{}, fmt.Errorf("abci query with options res: %s", sdkErrorToGRPCError(result.Response))
 	}
 
 	// data from trusted node or subspace query doesn't need verification
