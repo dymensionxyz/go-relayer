@@ -1858,7 +1858,10 @@ func (cc *CosmosProvider) CalculateGas(ctx context.Context, txf tx.Factory, sign
 	}
 
 	gas, err := cc.AdjustEstimatedGas(simRes.GasInfo.GasUsed)
-	return simRes, gas, fmt.Errorf("adjust estimated gas: %w", err)
+	if err != nil {
+		return simRes, gas, fmt.Errorf("adjust estimated gas: %w", err)
+	}
+	return simRes, gas, nil
 }
 
 // TxFactory instantiates a new tx factory with the appropriate configuration settings for this chain.

@@ -7,7 +7,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
-	lctypes "github.com/cosmos/relayer/v2/relayer/chains/cosmos/dym/lightclient/types"
+	"github.com/cosmos/relayer/v2/relayer/chains/cosmos/dym/lightclient/types"
 	"github.com/gorilla/mux"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/spf13/cobra"
@@ -32,21 +32,21 @@ func NewAppModuleBasic(cdc codec.BinaryCodec) AppModuleBasic {
 
 // Name returns the module's name.
 func (AppModuleBasic) Name() string {
-	return "lightclient"
+	return types.ModuleName
 }
 
 func (AppModuleBasic) RegisterCodec(cdc *codec.LegacyAmino) {
-	lctypes.RegisterLegacyAminoCodec(cdc)
+	types.RegisterLegacyAminoCodec(cdc)
 }
 
 func (AppModuleBasic) RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
-	lctypes.RegisterLegacyAminoCodec(cdc)
+	types.RegisterLegacyAminoCodec(cdc)
 	//RegisterCodec(cdc)
 }
 
 // RegisterInterfaces registers the module's interface types
 func (a AppModuleBasic) RegisterInterfaces(reg cdctypes.InterfaceRegistry) {
-	lctypes.RegisterInterfaces(reg)
+	types.RegisterInterfaces(reg)
 }
 
 // DefaultGenesis returns the module's default genesis state.
