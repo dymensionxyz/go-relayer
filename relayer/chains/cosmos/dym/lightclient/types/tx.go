@@ -16,13 +16,6 @@ var (
 	_ legacytx.LegacyMsg = &MsgSetCanonicalClient{}
 )
 
-func NewMsgUpdateState(signer, client string) *MsgSetCanonicalClient {
-	return &MsgSetCanonicalClient{
-		Signer:   signer,
-		ClientId: client,
-	}
-}
-
 func (msg *MsgSetCanonicalClient) Route() string {
 	return ModuleName
 }
