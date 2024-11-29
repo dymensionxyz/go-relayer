@@ -674,7 +674,7 @@ func (cc *CosmosProvider) buildMessages(
 			if cc.PCfg.DymRollapp {
 				adjusted = defaultRollappGas
 			} else {
-				return nil, 0, sdk.Coins{}, err
+				return nil, 0, sdk.Coins{}, fmt.Errorf("calculate gas: %w", err)
 			}
 		}
 	}
@@ -1820,7 +1820,7 @@ func (cc *CosmosProvider) SetWithExtensionOptions(txf tx.Factory) (tx.Factory, e
 func (cc *CosmosProvider) CalculateGas(ctx context.Context, txf tx.Factory, signingKey string, msgs ...sdk.Msg) (txtypes.SimulateResponse, uint64, error) {
 	keyInfo, err := cc.Keybase.Key(signingKey)
 	if err != nil {
-		return txtypes.SimulateResponse{}, 0, err
+		return txtypes.SimulateResponse{}, 0, fmt.Errorf("keybase key: %w", err)
 	}
 
 	var txBytes []byte
@@ -1828,7 +1828,7 @@ func (cc *CosmosProvider) CalculateGas(ctx context.Context, txf tx.Factory, sign
 		var err error
 		txBytes, err = BuildSimTx(keyInfo, txf, msgs...)
 		if err != nil {
-			return err
+			return fmt.Errorf("build sim tx: %w", err)
 		}
 		return nil
 	}, retry.Context(ctx), rtyAtt, rtyDel, rtyErr); err != nil {
@@ -1845,7 +1845,7 @@ func (cc *CosmosProvider) CalculateGas(ctx context.Context, txf tx.Factory, sign
 		var err error
 		res, err = cc.QueryABCI(ctx, simQuery)
 		if err != nil {
-			return err
+			return fmt.Errorf("query abci: %w", err)
 		}
 		return nil
 	}, retry.Context(ctx), rtyAtt, rtyDel, rtyErr); err != nil {
@@ -1858,7 +1858,7 @@ func (cc *CosmosProvider) CalculateGas(ctx context.Context, txf tx.Factory, sign
 	}
 
 	gas, err := cc.AdjustEstimatedGas(simRes.GasInfo.GasUsed)
-	return simRes, gas, err
+	return simRes, gas, fmt.Errorf("adjust estimated gas: %w", err)
 }
 
 // TxFactory instantiates a new tx factory with the appropriate configuration settings for this chain.
@@ -1948,14 +1948,14 @@ func isQueryStoreWithProof(path string) bool {
 func BuildSimTx(info *keyring.Record, txf tx.Factory, msgs ...sdk.Msg) ([]byte, error) {
 	txb, err := txf.BuildUnsignedTx(msgs...)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("build unsigned tx: %w", err)
 	}
 
 	var pk cryptotypes.PubKey = &secp256k1.PubKey{} // use default public key type
 
 	pk, err = info.GetPubKey()
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("get pubkey: %w", err)
 	}
 
 	// Create an empty signature literal as the ante handler will populate with a
@@ -1968,7 +1968,7 @@ func BuildSimTx(info *keyring.Record, txf tx.Factory, msgs ...sdk.Msg) ([]byte, 
 		Sequence: txf.Sequence(),
 	}
 	if err := txb.SetSignatures(sig); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("set signatures: %w", err)
 	}
 
 	protoProvider, ok := txb.(protoTxProvider)
