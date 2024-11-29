@@ -29,6 +29,7 @@ import (
 	"github.com/cosmos/ibc-go/v8/modules/apps/transfer"
 	ibc "github.com/cosmos/ibc-go/v8/modules/core"
 
+	dymlightclient "github.com/cosmos/relayer/v2/relayer/chains/cosmos/dym/lightclient"
 	cosmosmodule "github.com/cosmos/relayer/v2/relayer/chains/cosmos/module"
 	"github.com/cosmos/relayer/v2/relayer/chains/cosmos/stride"
 	ethermintcodecs "github.com/cosmos/relayer/v2/relayer/codecs/ethermint"
@@ -60,6 +61,7 @@ var ModuleBasics = []module.AppModuleBasic{
 	cosmosmodule.AppModuleBasic{},
 	stride.AppModuleBasic{},
 	ibcfee.AppModuleBasic{},
+	dymlightclient.AppModuleBasic{},
 }
 
 type Codec struct {
