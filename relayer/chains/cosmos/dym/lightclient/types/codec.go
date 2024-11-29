@@ -1,4 +1,4 @@
-package dym
+package types
 
 import (
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -13,7 +13,7 @@ var (
 )
 
 func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
-	cdc.RegisterConcrete(&MsgSetCanonicalClient{}, "/dym.lightclient.SetCanonicalClient", nil)
+	cdc.RegisterConcrete(&MsgSetCanonicalClient{}, "/dym.lightclient.MsgSetCanonicalClient", nil)
 }
 
 func RegisterInterfaces(registry codectypes.InterfaceRegistry) {

@@ -4,7 +4,7 @@ package dym.lightclient;
 import "cosmos/msg/v1/msg.proto";
 import "gogoproto/gogo.proto";
 
-option go_package = "github.com/cosmos/relayer/relayer/chains/cosmos/dym";
+option go_package = "github.com/cosmos/relayer/relayer/chains/cosmos/dym/lightclient/types";
 
 
 // verify a client state and its consensus states against the rollapp

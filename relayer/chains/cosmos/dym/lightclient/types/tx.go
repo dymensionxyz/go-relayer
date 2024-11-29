@@ -1,4 +1,4 @@
-package dym
+package types
 
 import (
 	errorsmod "cosmossdk.io/errors"

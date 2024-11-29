@@ -44,7 +44,8 @@ import (
 	ibcexported "github.com/cosmos/ibc-go/v8/modules/core/exported"
 	tmclient "github.com/cosmos/ibc-go/v8/modules/light-clients/07-tendermint"
 	localhost "github.com/cosmos/ibc-go/v8/modules/light-clients/09-localhost"
-	"github.com/cosmos/relayer/v2/relayer/chains/cosmos/dym"
+	_ "github.com/cosmos/relayer/v2/relayer/chains/cosmos/dym/lightclient"
+	dymtypes "github.com/cosmos/relayer/v2/relayer/chains/cosmos/dym/lightclient/types"
 	strideicqtypes "github.com/cosmos/relayer/v2/relayer/chains/cosmos/stride"
 	"github.com/cosmos/relayer/v2/relayer/ethermint"
 	"github.com/cosmos/relayer/v2/relayer/provider"
@@ -728,7 +729,7 @@ func (cc *CosmosProvider) TrySetCanonicalClient(ctx context.Context, clientID st
 	if err != nil {
 		return fmt.Errorf("relayer bech32 wallet address: %w", err)
 	}
-	msg := &dym.MsgSetCanonicalClient{
+	msg := &dymtypes.MsgSetCanonicalClient{
 		ClientId: clientID,
 		Signer:   signer,
 	}
