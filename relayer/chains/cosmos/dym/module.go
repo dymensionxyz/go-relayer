@@ -34,12 +34,13 @@ func (AppModuleBasic) Name() string {
 	return "lightclient"
 }
 
-func (AppModuleBasic) RegisterCodec(cdc *codec.LegacyAmino) {
-	RegisterCodec(cdc)
-}
+//func (AppModuleBasic) RegisterCodec(cdc *codec.LegacyAmino) {
+//	RegisterCodec(cdc)
+//}
 
 func (AppModuleBasic) RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
-	RegisterCodec(cdc)
+	RegisterLegacyAminoCodec(cdc)
+	//RegisterCodec(cdc)
 }
 
 // RegisterInterfaces registers the module's interface types

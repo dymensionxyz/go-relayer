@@ -3,11 +3,17 @@ package dym
 import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
+	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-func RegisterCodec(cdc *codec.LegacyAmino) {
-	cdc.RegisterConcrete(&MsgSetCanonicalClient{}, "lightclient/SetCanonicalClient", nil)
+var (
+	amino     = codec.NewLegacyAmino()
+	ModuleCdc = codec.NewAminoCodec(amino)
+)
+
+func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
+	cdc.RegisterConcrete(&MsgSetCanonicalClient{}, "/dym.lightclient.SetCanonicalClient", nil)
 }
 
 func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
@@ -16,17 +22,14 @@ func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 	)
 }
 
-var (
-	Amino     = codec.NewLegacyAmino()
-	ModuleCdc = codec.NewAminoCodec(Amino)
-)
-
 func init() {
-	RegisterCodec(Amino)
+	//RegisterCodec(Amino)
 	// Register all Amino interfaces and concrete types on the authz Amino codec so that this can later be
 	// used to properly serialize MsgGrant and MsgExec instances
-	sdk.RegisterLegacyAminoCodec(Amino)
+	RegisterLegacyAminoCodec(amino)
+	//sdk.RegisterLegacyAminoCodec(amino)
+	cryptocodec.RegisterCrypto(amino)
 	//RegisterCodec(authzcodec.Amino)
 
-	Amino.Seal()
+	amino.Seal()
 }
