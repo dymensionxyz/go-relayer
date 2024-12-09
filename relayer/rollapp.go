@@ -3,6 +3,7 @@ package relayer
 import (
 	"context"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/cosmos/relayer/v2/relayer/provider"
@@ -18,10 +19,18 @@ func SendGenesisTransfer(
 	override bool,
 	memo string,
 	pathName string,
-	channelID string,
 ) error {
 
-	hub, ok := hubC.
+	hub, ok := hubC.ChainProvider.(provider.DymensionHubProvider)
+	if !ok {
+		return errors.New("not dymension hub provider")
+	}
+
+	channelID, err := hub.GetCanonicalChan(ctx, raC.Chainid)
+	if err != nil {
+		return fmt.Errorf("get canonical chan: %w", err)
+	}
+
 	ra, ok := raC.ChainProvider.(provider.RollappProvider)
 	if !ok {
 		return errors.New("not rollapp provider")

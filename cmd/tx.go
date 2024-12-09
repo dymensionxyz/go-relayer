@@ -599,13 +599,12 @@ $ %s tx chan demo-path --timeout 5s --max-retries 10`,
 
 func sendGenesisTransfer(a *appState) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "rollapp-send-genesis-transfer <path> <channel>",
+		Use:     "rollapp-send-genesis-transfer <path>",
 		Aliases: []string{},
 		Short:   "Send a genesis transfer from the rollapp to the hub.",
-		Args:    withUsage(cobra.ExactArgs(2)),
+		Args:    withUsage(cobra.ExactArgs(1)),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			pathName := args[0]
-			channelID := args[1]
 
 			c, src, dst, err := a.config.ChainsFromPath(pathName)
 			if err != nil {
@@ -659,8 +658,8 @@ func sendGenesisTransfer(a *appState) *cobra.Command {
 			// create channel if it isn't already created
 			return relayer.SendGenesisTransfer(
 				cmd.Context(),
-				c[src],
-				c[dst],
+				c[src], // must be hub
+				c[dst], // must be rollapp
 				retries,
 				to,
 				srcPort,
@@ -670,7 +669,6 @@ func sendGenesisTransfer(a *appState) *cobra.Command {
 				override,
 				a.config.memo(cmd),
 				pathName,
-				channelID,
 			)
 		},
 	}
