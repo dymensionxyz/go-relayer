@@ -599,7 +599,7 @@ $ %s tx chan demo-path --timeout 5s --max-retries 10`,
 
 func sendGenesisTransfer(a *appState) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "rollapp send-genesis-transfer",
+		Use:     "rollapp-send-genesis-transfer <path> <channel>",
 		Aliases: []string{},
 		Short:   "Send a genesis transfer from the rollapp to the hub.",
 		Args:    withUsage(cobra.ExactArgs(2)),
