@@ -20,6 +20,8 @@ func SendGenesisTransfer(
 	pathName string,
 	channelID string,
 ) error {
+
+	hub, ok := hubC.
 	ra, ok := raC.ChainProvider.(provider.RollappProvider)
 	if !ok {
 		return errors.New("not rollapp provider")
