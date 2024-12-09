@@ -8,18 +8,15 @@ import (
 	"github.com/dymensionxyz/gerr-cosmos/gerrc"
 )
 
-var (
-	_ sdk.Msg = (*MsgSendTransfer)(nil)
-)
+var _ sdk.Msg = (*MsgSendTransfer)(nil)
 
 const (
 	TypeMsgSendTransfer = "send_transfer"
 )
 
-var (
-	_ sdk.Msg = &MsgSendTransfer{}
-	//_ legacytx.LegacyMsg = &MsgSendTransfer{}
-)
+var _ sdk.Msg = &MsgSendTransfer{}
+
+//_ legacytx.LegacyMsg = &MsgSendTransfer{}
 
 //func (msg *MsgSetCanonicalClient) Route() string {
 //	return ModuleName

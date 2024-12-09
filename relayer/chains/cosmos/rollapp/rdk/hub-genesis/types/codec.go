@@ -15,7 +15,6 @@ func RegisterInterfaces(registry cdctypes.InterfaceRegistry) {
 		(*sdk.Msg)(nil),
 		&MsgSendTransfer{},
 	)
-
 }
 
 func init() {

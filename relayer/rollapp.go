@@ -20,7 +20,6 @@ func SendGenesisTransfer(
 	memo string,
 	pathName string,
 ) error {
-
 	hub, ok := hubC.ChainProvider.(provider.DymensionHubProvider)
 	if !ok {
 		return errors.New("not dymension hub provider")
