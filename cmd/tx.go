@@ -49,6 +49,7 @@ Most of these commands take a [path] argument. Make sure:
 		upgradeClientsCmd(a),
 		createConnectionCmd(a),
 		createChannelCmd(a),
+		sendGenesisTransfer(a),
 		closeChannelCmd(a),
 		lineBreakCommand(),
 		registerCounterpartyCmd(a),
@@ -584,6 +585,92 @@ $ %s tx chan demo-path --timeout 5s --max-retries 10`,
 				a.config.memo(cmd),
 				pathName,
 				isRollapp(c[src], c[dst]),
+			)
+		},
+	}
+
+	cmd = timeoutFlag(a.viper, cmd)
+	cmd = retryFlag(a.viper, cmd)
+	cmd = overrideFlag(a.viper, cmd)
+	cmd = channelParameterFlags(a.viper, cmd)
+	cmd = memoFlag(a.viper, cmd)
+	return cmd
+}
+
+func sendGenesisTransfer(a *appState) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:     "rollapp send-genesis-transfer",
+		Aliases: []string{},
+		Short:   "Send a genesis transfer from the rollapp to the hub.",
+		Args:    withUsage(cobra.ExactArgs(2)),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			pathName := args[0]
+			channelID := args[1]
+
+			c, src, dst, err := a.config.ChainsFromPath(pathName)
+			if err != nil {
+				return err
+			}
+
+			override, err := cmd.Flags().GetBool(flagOverride)
+			if err != nil {
+				return err
+			}
+
+			srcPort, err := cmd.Flags().GetString(flagSrcPort)
+			if err != nil {
+				return err
+			}
+
+			dstPort, err := cmd.Flags().GetString(flagDstPort)
+			if err != nil {
+				return err
+			}
+
+			order, err := cmd.Flags().GetString(flagOrder)
+			if err != nil {
+				return err
+			}
+
+			version, err := cmd.Flags().GetString(flagVersion)
+			if err != nil {
+				return err
+			}
+
+			to, err := getTimeout(cmd)
+			if err != nil {
+				return err
+			}
+
+			retries, err := cmd.Flags().GetUint64(flagMaxRetries)
+			if err != nil {
+				return err
+			}
+
+			// ensure that keys exist
+			if exists := c[src].ChainProvider.KeyExists(c[src].ChainProvider.Key()); !exists {
+				return fmt.Errorf("key %s not found on src chain %s", c[src].ChainProvider.Key(), c[src].ChainID())
+			}
+
+			if exists := c[dst].ChainProvider.KeyExists(c[dst].ChainProvider.Key()); !exists {
+				return fmt.Errorf("key %s not found on dst chain %s", c[dst].ChainProvider.Key(), c[dst].ChainID())
+			}
+
+			// create channel if it isn't already created
+			return relayer.SendGenesisTransfer(
+				cmd.Context(),
+				c[src],
+				c[dst],
+				retries,
+				to,
+				srcPort,
+				dstPort,
+				order,
+				version,
+				override,
+				a.config.memo(cmd),
+				pathName,
+				channelID,
 			)
 		},
 	}

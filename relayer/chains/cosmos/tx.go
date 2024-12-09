@@ -45,6 +45,8 @@ import (
 	tmclient "github.com/cosmos/ibc-go/v8/modules/light-clients/07-tendermint"
 	localhost "github.com/cosmos/ibc-go/v8/modules/light-clients/09-localhost"
 	dymtypes "github.com/cosmos/relayer/v2/relayer/chains/cosmos/dym/lightclient/types"
+	rdktypes "github.com/cosmos/relayer/v2/relayer/chains/cosmos/rollapp/rdk/hubgenesis/types"
+
 	strideicqtypes "github.com/cosmos/relayer/v2/relayer/chains/cosmos/stride"
 	"github.com/cosmos/relayer/v2/relayer/ethermint"
 	"github.com/cosmos/relayer/v2/relayer/provider"
@@ -735,6 +737,46 @@ func (cc *CosmosProvider) TrySetCanonicalClient(ctx context.Context, clientID st
 
 	m := NewCosmosMessage(msg, func(signer string) {
 		msg.Signer = signer
+	})
+
+	res, ok, err := cc.SendMessage(ctx, m, "")
+
+	var code uint32
+	var data string
+	var txHash string
+	var height int64
+	var errs string
+
+	if res != nil {
+		code = res.Code
+		data = res.Data
+		txHash = res.TxHash
+		height = res.Height
+	}
+	if err != nil {
+		errs = err.Error()
+	}
+	if !ok || err != nil {
+		return gerrc.ErrUnknown.Wrapf(
+			"send message: %s: code: %d, data: %s, txHash: %s, height: %d", errs, code, data, txHash, height,
+		)
+	}
+	return nil
+}
+
+func (cc *CosmosProvider) TrySendGenesisTransfer(ctx context.Context, channelID string) error {
+	// old http query canonical client code is here https://github.com/dymensionxyz/go-relayer/blob/7405c3f4331e7c62683368b5ed89419c9bceedf8/relayer/chains/cosmos/query.go#L345-L378
+	signer, err := cc.Address()
+	if err != nil {
+		return fmt.Errorf("relayer bech32 wallet address: %w", err)
+	}
+	msg := &rdktypes.MsgSendTransfer{
+		ChannelId: channelID,
+		Relayer:   signer,
+	}
+
+	m := NewCosmosMessage(msg, func(signer string) {
+		msg.Relayer = signer
 	})
 
 	res, ok, err := cc.SendMessage(ctx, m, "")
