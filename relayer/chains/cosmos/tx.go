@@ -365,13 +365,13 @@ func (cc *CosmosProvider) sdkError(codespace string, code uint32) error {
 // The wait will end after either the asyncTimeout has run out or the asyncCtx exits.
 // If there is no error broadcasting, the asyncCallback will be called with success/failure of the wait for block inclusion.
 func (cc *CosmosProvider) broadcastTx(
-	ctx context.Context, // context for tx broadcast
-	tx []byte, // raw tx to be broadcasted
+	ctx context.Context,            // context for tx broadcast
+	tx []byte,                      // raw tx to be broadcasted
 	msgs []provider.RelayerMessage, // used for logging only
-	fees sdk.Coins, // used for metrics
+	fees sdk.Coins,                 // used for metrics
 
-	asyncCtx context.Context, // context for async wait for block inclusion after successful tx broadcast
-	asyncTimeout time.Duration, // timeout for waiting for block inclusion
+	asyncCtx context.Context,                                  // context for async wait for block inclusion after successful tx broadcast
+	asyncTimeout time.Duration,                                // timeout for waiting for block inclusion
 	asyncCallbacks []func(*provider.RelayerTxResponse, error), // callback for success/fail of the wait for block inclusion
 ) error {
 	res, err := cc.RPCClient.BroadcastTxSync(ctx, tx)
@@ -765,7 +765,6 @@ func (cc *CosmosProvider) TrySetCanonicalClient(ctx context.Context, clientID st
 }
 
 func (cc *CosmosProvider) TrySendGenesisTransfer(ctx context.Context, channelID string) error {
-	// old http query canonical client code is here https://github.com/dymensionxyz/go-relayer/blob/7405c3f4331e7c62683368b5ed89419c9bceedf8/relayer/chains/cosmos/query.go#L345-L378
 	signer, err := cc.Address()
 	if err != nil {
 		return fmt.Errorf("relayer bech32 wallet address: %w", err)
