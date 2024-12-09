@@ -24,6 +24,5 @@ func SendGenesisTransfer(
 	if !ok {
 		return errors.New("not rollapp provider")
 	}
-	var channelID string
 	return ra.TrySendGenesisTransfer(ctx, channelID)
 }

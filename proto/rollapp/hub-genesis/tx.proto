@@ -4,7 +4,7 @@ package rollapp.hub_genesis;
 import "cosmos/msg/v1/msg.proto";
 import "google/protobuf/any.proto";
 
-option go_package = "github.com/cosmos/relayer/relayer/chains/cosmos/rollapp/rdk/hubgenesis/types";
+option go_package = "github.com/cosmos/relayer/relayer/chains/cosmos/rollapp/rdk/hub-genesis/types";
 
 
 service Msg {
