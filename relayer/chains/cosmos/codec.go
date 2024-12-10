@@ -95,7 +95,7 @@ func MakeCodec(moduleBasics []module.AppModuleBasic, extraCodecs []string, accBe
 		// hub
 		dymtypes.RegisterInterfaces(encodingConfig.InterfaceRegistry)
 		encodingConfig.Amino.RegisterConcrete(&dymtypes.MsgSetCanonicalClient{}, "/lightclient.SetCanonicalClient", nil)
-		// rollapp
+		// rollapp TODO: finish
 		rdktypes.RegisterInterfaces(encodingConfig.InterfaceRegistry)
 		// encodingConfig.Amino.RegisterConcrete(&rdktypes.MsgSendTransfer{}, "/lightclient.SetCanonicalClient", nil)
 	}

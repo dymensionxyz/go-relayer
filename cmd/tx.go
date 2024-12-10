@@ -611,41 +611,6 @@ func sendGenesisTransfer(a *appState) *cobra.Command {
 				return err
 			}
 
-			override, err := cmd.Flags().GetBool(flagOverride)
-			if err != nil {
-				return err
-			}
-
-			srcPort, err := cmd.Flags().GetString(flagSrcPort)
-			if err != nil {
-				return err
-			}
-
-			dstPort, err := cmd.Flags().GetString(flagDstPort)
-			if err != nil {
-				return err
-			}
-
-			order, err := cmd.Flags().GetString(flagOrder)
-			if err != nil {
-				return err
-			}
-
-			version, err := cmd.Flags().GetString(flagVersion)
-			if err != nil {
-				return err
-			}
-
-			to, err := getTimeout(cmd)
-			if err != nil {
-				return err
-			}
-
-			retries, err := cmd.Flags().GetUint64(flagMaxRetries)
-			if err != nil {
-				return err
-			}
-
 			// ensure that keys exist
 			if exists := c[src].ChainProvider.KeyExists(c[src].ChainProvider.Key()); !exists {
 				return fmt.Errorf("key %s not found on src chain %s", c[src].ChainProvider.Key(), c[src].ChainID())
@@ -660,15 +625,6 @@ func sendGenesisTransfer(a *appState) *cobra.Command {
 				cmd.Context(),
 				c[src], // must be hub
 				c[dst], // must be rollapp
-				retries,
-				to,
-				srcPort,
-				dstPort,
-				order,
-				version,
-				override,
-				a.config.memo(cmd),
-				pathName,
 			)
 		},
 	}

@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"time"
 
 	"github.com/cosmos/relayer/v2/relayer/provider"
 )
@@ -13,12 +12,6 @@ func SendGenesisTransfer(
 	ctx context.Context,
 	hubC *Chain,
 	raC *Chain,
-	maxRetries uint64,
-	timeout time.Duration,
-	srcPortID, dstPortID, order, version string,
-	override bool,
-	memo string,
-	pathName string,
 ) error {
 	hub, ok := hubC.ChainProvider.(provider.DymensionHubProvider)
 	if !ok {
