@@ -293,6 +293,7 @@ func SendGenesisTransfer(
 	hubC provider.ChainProvider,
 	raC provider.ChainProvider,
 ) error {
+
 	hub, ok := hubC.(provider.DymensionHubProvider)
 	if !ok {
 		return errors.New("not dymension hub provider")
@@ -317,6 +318,7 @@ func (pathEnd *pathEndRuntime) handleDymensionCallbacks(ctx context.Context, cou
 		if !ok {
 			return
 		}
+		pathEnd.log.Debug("Handling dymension callbacks: open confirm.")
 		err := SendGenesisTransfer(ctx, counterParty.chainProvider, pathEnd.chainProvider)
 		if err != nil {
 			pathEnd.log.Error("Send rollapp genesis transfer to hub. Operator should retry using CLI.", zap.Error(err))
