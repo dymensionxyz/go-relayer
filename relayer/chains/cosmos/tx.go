@@ -735,33 +735,9 @@ func (cc *CosmosProvider) TrySetCanonicalClient(ctx context.Context, clientID st
 		Signer:   signer,
 	}
 
-	m := NewCosmosMessage(msg, func(signer string) {
+	return cc.simpleSend(ctx, msg, func(signer string) {
 		msg.Signer = signer
 	})
-
-	res, ok, err := cc.SendMessage(ctx, m, "")
-
-	var code uint32
-	var data string
-	var txHash string
-	var height int64
-	var errs string
-
-	if res != nil {
-		code = res.Code
-		data = res.Data
-		txHash = res.TxHash
-		height = res.Height
-	}
-	if err != nil {
-		errs = err.Error()
-	}
-	if !ok || err != nil {
-		return gerrc.ErrUnknown.Wrapf(
-			"send message: %s: code: %d, data: %s, txHash: %s, height: %d", errs, code, data, txHash, height,
-		)
-	}
-	return nil
 }
 
 func (cc *CosmosProvider) TrySendGenesisTransfer(ctx context.Context, channelID string) error {
@@ -771,13 +747,16 @@ func (cc *CosmosProvider) TrySendGenesisTransfer(ctx context.Context, channelID 
 	}
 	msg := &rdktypes.MsgSendTransfer{
 		ChannelId: channelID,
-		Relayer:   signer,
+		Signer:    signer,
 	}
 
-	m := NewCosmosMessage(msg, func(signer string) {
-		msg.Relayer = signer
+	return cc.simpleSend(ctx, msg, func(signer string) {
+		msg.Signer = signer
 	})
+}
 
+func (cc *CosmosProvider) simpleSend(ctx context.Context, msg sdk.Msg, f func(string)) error {
+	m := NewCosmosMessage(msg, f)
 	res, ok, err := cc.SendMessage(ctx, m, "")
 
 	var code uint32

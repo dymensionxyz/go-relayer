@@ -8,34 +8,21 @@ import (
 	"github.com/dymensionxyz/gerr-cosmos/gerrc"
 )
 
-var _ sdk.Msg = (*MsgSendTransfer)(nil)
-
-const (
-	TypeMsgSendTransfer = "send_transfer"
+var (
+	_ sdk.Msg = (*MsgSendTransfer)(nil)
 )
 
-var _ sdk.Msg = &MsgSendTransfer{}
-
-//_ legacytx.LegacyMsg = &MsgSendTransfer{}
-
-//func (msg *MsgSetCanonicalClient) Route() string {
-//	return ModuleName
-//}
-//
-//func (msg *MsgSetCanonicalClient) Type() string {
-//	return MsgSendTransfer
-//}
-
 func (m *MsgSendTransfer) GetSigners() []sdk.AccAddress {
-	a, _ := sdk.AccAddressFromBech32(m.Relayer)
-	return []sdk.AccAddress{a}
+	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Signer)}
 }
 
 func (m *MsgSendTransfer) ValidateBasic() error {
-	_, err := sdk.AccAddressFromBech32(m.Relayer)
+	_, err := sdk.AccAddressFromBech32(m.Signer)
 	if err != nil {
 		return errorsmod.Wrap(errors.Join(gerrc.ErrInvalidArgument, err), "get relayer addr from bech32")
 	}
-	// TODO: anything?
+	if m.ChannelId == "" {
+		return errorsmod.Wrap(gerrc.ErrInvalidArgument, "channel id is empty")
+	}
 	return nil
 }
