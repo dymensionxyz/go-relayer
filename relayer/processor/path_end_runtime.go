@@ -12,7 +12,6 @@ import (
 	conntypes "github.com/cosmos/ibc-go/v8/modules/core/03-connection/types"
 	chantypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
 	ibcexported "github.com/cosmos/ibc-go/v8/modules/core/exported"
-	"github.com/cosmos/relayer/v2/relayer"
 	"github.com/cosmos/relayer/v2/relayer/provider"
 	"go.uber.org/zap"
 )
@@ -312,15 +311,16 @@ func SendGenesisTransfer(
 }
 
 // DYMENSION
-func (pathEnd *pathEndRuntime) handleDymensionCallbacks(ctx context.Context, c IBCMessagesCache) {
-	_, ok := c.ChannelHandshake[chantypes.EventTypeChannelOpenConfirm]
-	if !ok {
-		return
-	}
-	var hub *relayer.Chain
-	err := SendGenesisTransfer(ctx, hub, pathEnd.chainProvider)
-	if err != nil {
-		pathEnd.log.Error("Send rollapp genesis transfer to hub. Operator should retry using CLI.", zap.Error(err))
+func (pathEnd *pathEndRuntime) handleDymensionCallbacks(ctx context.Context, counterParty *pathEndRuntime, c IBCMessagesCache) {
+	if pathEnd.chainProvider.IsDymensionRollapp() {
+		_, ok := c.ChannelHandshake[chantypes.EventTypeChannelOpenConfirm]
+		if !ok {
+			return
+		}
+		err := SendGenesisTransfer(ctx, counterParty.chainProvider, pathEnd.chainProvider)
+		if err != nil {
+			pathEnd.log.Error("Send rollapp genesis transfer to hub. Operator should retry using CLI.", zap.Error(err))
+		}
 	}
 }
 
@@ -513,6 +513,7 @@ func (pathEnd *pathEndRuntime) mergeCacheData(
 	messageLifecycle MessageLifecycle,
 	counterParty *pathEndRuntime,
 	memoLimit, maxReceiverSize int,
+	counterparty *pathEndRuntime,
 ) {
 	pathEnd.lastClientUpdateHeightMu.Lock()
 	var zeroType provider.LatestBlock
@@ -546,9 +547,7 @@ func (pathEnd *pathEndRuntime) mergeCacheData(
 
 	pathEnd.handleCallbacks(d.IBCMessagesCache)
 
-	if pathEnd.chainProvider.IsDymensionRollapp() {
-		pathEnd.handleDymensionCallbacks(ctx, d.IBCMessagesCache)
-	}
+	pathEnd.handleDymensionCallbacks(ctx, counterparty, d.IBCMessagesCache)
 
 	if pathEnd.shouldTerminate(d.IBCMessagesCache, messageLifecycle) || terminate {
 		cancel()

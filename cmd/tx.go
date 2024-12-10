@@ -622,10 +622,10 @@ func sendGenesisTransfer(a *appState) *cobra.Command {
 			}
 
 			// create channel if it isn't already created
-			return relayer.SendGenesisTransfer(
+			return processor.SendGenesisTransfer(
 				cmd.Context(),
-				c[src], // must be hub
-				c[dst], // must be rollapp
+				c[src].ChainProvider, // must be hub
+				c[dst].ChainProvider, // must be rollapp
 			)
 		},
 	}
