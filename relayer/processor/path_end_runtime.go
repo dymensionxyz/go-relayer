@@ -11,6 +11,7 @@ import (
 	conntypes "github.com/cosmos/ibc-go/v8/modules/core/03-connection/types"
 	chantypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
 	ibcexported "github.com/cosmos/ibc-go/v8/modules/core/exported"
+	"github.com/cosmos/relayer/v2/relayer"
 	"github.com/cosmos/relayer/v2/relayer/provider"
 	"go.uber.org/zap"
 )
@@ -287,6 +288,18 @@ func (pathEnd *pathEndRuntime) handleCallbacks(c IBCMessagesCache) {
 	}
 }
 
+type DymRollappChan
+
+// DYMENSION
+func (pathEnd *pathEndRuntime) handleDymensionCallbacks(ctx context.Context, c IBCMessagesCache) {
+	cache, ok := c.ChannelHandshake[chantypes.EventTypeChannelOpenConfirm]
+	if !ok {
+		return
+	}
+	var hub *relayer.Chain
+	err := relayer.SendGenesisTransfer(ctx, hub, pathEnd.chainProvider)
+}
+
 func (pathEnd *pathEndRuntime) shouldTerminate(ibcMessagesCache IBCMessagesCache, messageLifecycle MessageLifecycle) bool {
 	if messageLifecycle == nil {
 		return false
@@ -508,6 +521,8 @@ func (pathEnd *pathEndRuntime) mergeCacheData(
 	}
 
 	pathEnd.handleCallbacks(d.IBCMessagesCache)
+
+	pathEnd.handleDymensionCallbacks(ctx, d.IBCMessagesCache)
 
 	if pathEnd.shouldTerminate(d.IBCMessagesCache, messageLifecycle) || terminate {
 		cancel()
