@@ -293,7 +293,6 @@ func SendGenesisTransfer(
 	hubC provider.ChainProvider,
 	raC provider.ChainProvider,
 ) error {
-
 	hub, ok := hubC.(provider.DymensionHubProvider)
 	if !ok {
 		return errors.New("not dymension hub provider")
