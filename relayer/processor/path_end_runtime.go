@@ -297,16 +297,20 @@ func SendGenesisTransfer(
 	if !ok {
 		return errors.New("not dymension hub provider")
 	}
+	ra, ok := raC.(provider.RollappProvider)
+	if !ok {
+		return errors.New("not rollapp provider")
+	}
+
+	if err := ra.ShouldSendGenesisTransfer(ctx); err != nil {
+		return fmt.Errorf("should send genesis transfer: %w", err)
+	}
 
 	channelID, err := hub.GetCanonicalChan(ctx, raC.ChainId())
 	if err != nil {
 		return fmt.Errorf("get canonical chan: %w", err)
 	}
 
-	ra, ok := raC.(provider.RollappProvider)
-	if !ok {
-		return errors.New("not rollapp provider")
-	}
 	return ra.TrySendGenesisTransfer(ctx, channelID)
 }
 
@@ -317,10 +321,12 @@ func (pathEnd *pathEndRuntime) handleDymensionCallbacks(ctx context.Context, cou
 		if !ok {
 			return
 		}
-		pathEnd.log.Debug("Handling dymension callbacks: open confirm.")
+		pathEnd.log.Debug("Handling dymension callbacks: open confirm. Sending genesis transfer to hub.")
 		err := SendGenesisTransfer(ctx, counterParty.chainProvider, pathEnd.chainProvider)
 		if err != nil {
-			pathEnd.log.Error("Send rollapp genesis transfer to hub. Operator should retry using CLI.", zap.Error(err))
+			pathEnd.log.Error("Send rollapp genesis transfer to hub. Operator can retry using CLI.", zap.Error(err))
+		} else {
+			pathEnd.log.Info("Successfully sent rollapp genesis transfer to hub.")
 		}
 	}
 }
