@@ -314,23 +314,6 @@ func SendGenesisTransfer(
 	return ra.TrySendGenesisTransfer(ctx, channelID)
 }
 
-// DYMENSION
-func (pathEnd *pathEndRuntime) handleDymensionCallbacks(ctx context.Context, counterParty *pathEndRuntime, c IBCMessagesCache) {
-	if pathEnd.chainProvider.IsDymensionRollapp() {
-		_, ok := c.ChannelHandshake[chantypes.EventTypeChannelOpenConfirm]
-		if !ok {
-			return
-		}
-		pathEnd.log.Debug("Handling dymension callbacks: open confirm. Sending genesis transfer to hub.")
-		err := SendGenesisTransfer(ctx, counterParty.chainProvider, pathEnd.chainProvider)
-		if err != nil {
-			pathEnd.log.Error("Send rollapp genesis transfer to hub. Operator can retry using CLI.", zap.Error(err))
-		} else {
-			pathEnd.log.Info("Successfully sent rollapp genesis transfer to hub.")
-		}
-	}
-}
-
 func (pathEnd *pathEndRuntime) shouldTerminate(ibcMessagesCache IBCMessagesCache, messageLifecycle MessageLifecycle) bool {
 	if messageLifecycle == nil {
 		return false
@@ -553,8 +536,6 @@ func (pathEnd *pathEndRuntime) mergeCacheData(
 	}
 
 	pathEnd.handleCallbacks(d.IBCMessagesCache)
-
-	pathEnd.handleDymensionCallbacks(ctx, counterparty, d.IBCMessagesCache)
 
 	if pathEnd.shouldTerminate(d.IBCMessagesCache, messageLifecycle) || terminate {
 		cancel()
