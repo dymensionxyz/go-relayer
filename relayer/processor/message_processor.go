@@ -476,8 +476,10 @@ func (mp *messageProcessor) sendBatchMessages(
 		if errors.Is(err, chantypes.ErrRedundantTx) {
 			return
 		}
+
 		mp.pp.NotifyTrustError(err)
 		mp.log.Error("Sending messages from batch to mempool.", errFields...)
+
 		return
 	}
 	dst.log.Debug("Message broadcast completed", fields...)

@@ -3,6 +3,7 @@ package cosmos
 import (
 	"errors"
 	"reflect"
+	"strings"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -43,8 +44,17 @@ func getChannelsIfPresent(events []provider.RelayerEvent) []zapcore.Field {
 	return fields
 }
 
+var ErrIncorrectSequence = errors.New("incorrect account sequence")
+
+func errIncorrectSeq(e error) error {
+	if e != nil && strings.Contains(e.Error(), ErrIncorrectSequence.Error()) {
+		return ErrIncorrectSequence
+	}
+	return nil
+}
+
 // LogFailedTx takes the transaction and the messages to create it and logs the appropriate data
-func (cc *CosmosProvider) LogFailedTx(res *provider.RelayerTxResponse, err error, msgs []provider.RelayerMessage) {
+func (cc *CosmosProvider) LogFailedTx(res *provider.RelayerTxResponse, err error, msgs []provider.RelayerMessage) error {
 	// Include the chain_id
 	fields := []zapcore.Field{zap.String("chain_id", cc.ChainId())}
 
@@ -59,7 +69,7 @@ func (cc *CosmosProvider) LogFailedTx(res *provider.RelayerTxResponse, err error
 
 		if errors.Is(err, chantypes.ErrRedundantTx) {
 			cc.log.Debug("Redundant message(s)", fields...)
-			return
+			return nil
 		}
 
 		// Make a copy since we may continue to the warning
@@ -69,13 +79,20 @@ func (cc *CosmosProvider) LogFailedTx(res *provider.RelayerTxResponse, err error
 			errorFields...,
 		)
 
+		// TODO: add a sequence check here
+
+		if err := errIncorrectSeq(err); err != nil {
+			return err
+		}
+
 		if res == nil {
-			return
+			return nil
 		}
 	}
 
 	if res.Code != 0 {
-		if sdkErr := cc.sdkError(res.Codespace, res.Code); err != nil {
+		sdkErr := cc.sdkError(res.Codespace, res.Code)
+		if err != nil { // TODO: pretty sure this err should be sdkErr
 			fields = append(fields, zap.NamedError("sdk_error", sdkErr))
 		}
 		fields = append(fields, zap.Object("response", res))
@@ -83,7 +100,12 @@ func (cc *CosmosProvider) LogFailedTx(res *provider.RelayerTxResponse, err error
 			"Sent transaction but got non success code.",
 			fields...,
 		)
+		// TODO: add a sequence check here
+		if err := errIncorrectSeq(sdkErr); err != nil {
+			return err
+		}
 	}
+	return nil
 }
 
 // LogSuccessTx take the transaction and the messages to create it and logs the appropriate data

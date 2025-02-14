@@ -395,7 +395,11 @@ func (cc *CosmosProvider) broadcastTx(
 				err = fmt.Errorf("broadcast tx sync faiure code: execute: codespace: %s, code: %d, log: %s", res.Codespace, res.Code, res.Log)
 			}
 		}
-		cc.LogFailedTx(rlyResp, err, msgs)
+		if err := cc.LogFailedTx(rlyResp, err, msgs); err != nil {
+			if errors.Is(err, ErrIncorrectSequence) {
+				// TODO: deal with it
+			}
+		}
 		return err
 	}
 	address, err := cc.Address()
@@ -462,7 +466,11 @@ func (cc *CosmosProvider) waitForTx(
 				cb(nil, err)
 			}
 		}
-		cc.LogFailedTx(rlyResp, nil, msgs)
+		if err := cc.LogFailedTx(rlyResp, nil, msgs); err != nil {
+			if errors.Is(err, ErrIncorrectSequence) {
+				// TODO: deal with it
+			}
+		}
 		return
 	}
 
