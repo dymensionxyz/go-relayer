@@ -3,6 +3,7 @@ package cosmos
 import (
 	"fmt"
 	"math"
+	"strings"
 	"testing"
 
 	sdkmath "cosmossdk.io/math"
@@ -11,11 +12,22 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/codec/testutil"
 	"github.com/cosmos/cosmos-sdk/codec/types"
+	legacyerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	authTx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 	"github.com/cosmos/relayer/v2/relayer/ethermint"
 	"github.com/cosmos/relayer/v2/relayer/provider"
 	"github.com/stretchr/testify/require"
 )
+
+func TestAccountSeqErrorHandlingSanity(t *testing.T) {
+	needle := legacyerrors.ErrWrongSequence.Error()
+	for _, haystack := range []string{
+		"broadcast tx: incorrect account sequence",
+		"incorrect account sequence",
+	} {
+		require.True(t, strings.Contains(haystack, needle))
+	}
+}
 
 func TestCosmosProvider_AdjustEstimatedGas(t *testing.T) {
 	testCases := []struct {
