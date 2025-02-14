@@ -79,8 +79,6 @@ func (cc *CosmosProvider) LogFailedTx(res *provider.RelayerTxResponse, err error
 			errorFields...,
 		)
 
-		// TODO: add a sequence check here
-
 		if err := errIncorrectSeq(err); err != nil {
 			return err
 		}
@@ -100,7 +98,6 @@ func (cc *CosmosProvider) LogFailedTx(res *provider.RelayerTxResponse, err error
 			"Sent transaction but got non success code.",
 			fields...,
 		)
-		// TODO: add a sequence check here
 		if err := errIncorrectSeq(sdkErr); err != nil {
 			return err
 		}

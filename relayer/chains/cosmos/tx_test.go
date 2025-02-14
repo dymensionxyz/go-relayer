@@ -20,13 +20,17 @@ import (
 )
 
 func TestAccountSeqErrorHandlingSanity(t *testing.T) {
-	needle := legacyerrors.ErrWrongSequence.Error()
-	for _, haystack := range []string{
-		"broadcast tx: incorrect account sequence",
-		"incorrect account sequence",
-	} {
-		require.True(t, strings.Contains(haystack, needle))
-	}
+	t.Run("basic", func(t *testing.T) {
+
+		needle := legacyerrors.ErrWrongSequence.Error()
+		for _, haystack := range []string{
+			"broadcast tx: incorrect account sequence",
+			"incorrect account sequence",
+			ErrIncorrectSequence.Error(),
+		} {
+			require.True(t, strings.Contains(haystack, needle))
+		}
+	})
 }
 
 func TestCosmosProvider_AdjustEstimatedGas(t *testing.T) {
