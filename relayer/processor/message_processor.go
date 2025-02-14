@@ -1,7 +1,6 @@
 package processor
 
 import (
-	"bytes"
 	"context"
 	"errors"
 	"fmt"
@@ -105,7 +104,7 @@ func (mp *messageProcessor) processMessages(
 	var needsClientUpdate bool
 
 	// Localhost IBC does not permit client updates
-	if !isLocalhostClient(src.clientState.ClientID, dst.clientState.ClientID) {
+	if !isLocalhostClient(src.lastObservedClientState.ClientID, dst.lastObservedClientState.ClientID) {
 		var err error
 
 		// need to update dst with a more recent view of src first?
@@ -143,15 +142,15 @@ func isLocalhostClient(srcClientID, dstClientID string) bool {
 func (mp *messageProcessor) shouldUpdateClientNow(ctx context.Context, src, dst *pathEndRuntime) (bool, error) {
 	var consensusHeightTime time.Time
 
-	if dst.clientState.ConsensusTime.IsZero() {
-		height := int64(dst.clientState.LatestHeight.RevisionHeight)
+	if dst.lastObservedClientState.ConsensusTime.IsZero() {
+		height := int64(dst.lastObservedClientState.LatestHeight.RevisionHeight)
 		h, err := src.chainProvider.QueryIBCHeader(ctx, height)
 		if err != nil {
 			return false, fmt.Errorf("query ibc header: chain id: %s: height: %d: %w", src.chainProvider.ChainId(), height, err)
 		}
 		consensusHeightTime = time.Unix(0, int64(h.ConsensusState().GetTimestamp()))
 	} else {
-		consensusHeightTime = dst.clientState.ConsensusTime
+		consensusHeightTime = dst.lastObservedClientState.ConsensusTime
 	}
 
 	clientUpdateThresholdMs := mp.clientUpdateThresholdTime.Milliseconds()
@@ -160,10 +159,10 @@ func (mp *messageProcessor) shouldUpdateClientNow(ctx context.Context, src, dst 
 	enoughBlocksPassed := (dst.latestBlock.Height - blocksToRetrySendAfter) > dst.lastClientUpdateHeight
 	dst.lastClientUpdateHeightMu.Unlock()
 
-	twoThirdsTrustingPeriodMs := float64(dst.clientState.TrustingPeriod.Milliseconds()) * 2 / 3
+	twoThirdsTrustingPeriodMs := float64(dst.lastObservedClientState.TrustingPeriod.Milliseconds()) * 2 / 3
 	timeSinceLastClientUpdateMs := float64(time.Since(consensusHeightTime).Milliseconds())
 
-	pastTwoThirdsTrustingPeriod := dst.clientState.TrustingPeriod > 0 &&
+	pastTwoThirdsTrustingPeriod := dst.lastObservedClientState.TrustingPeriod > 0 &&
 		timeSinceLastClientUpdateMs > twoThirdsTrustingPeriodMs
 
 	pastConfiguredClientUpdateThreshold := clientUpdateThresholdMs > 0 &&
@@ -172,9 +171,9 @@ func (mp *messageProcessor) shouldUpdateClientNow(ctx context.Context, src, dst 
 	shouldUpdateClientNow := enoughBlocksPassed && (pastTwoThirdsTrustingPeriod || pastConfiguredClientUpdateThreshold)
 
 	if mp.metrics != nil {
-		timeToExpiration := dst.clientState.TrustingPeriod - time.Since(consensusHeightTime)
-		mp.metrics.SetClientExpiration(src.info.PathName, dst.info.ChainID, dst.clientState.ClientID, fmt.Sprint(dst.clientState.TrustingPeriod.String()), timeToExpiration)
-		mp.metrics.SetClientTrustingPeriod(src.info.PathName, dst.info.ChainID, dst.info.ClientID, time.Duration(dst.clientState.TrustingPeriod))
+		timeToExpiration := dst.lastObservedClientState.TrustingPeriod - time.Since(consensusHeightTime)
+		mp.metrics.SetClientExpiration(src.info.PathName, dst.info.ChainID, dst.lastObservedClientState.ClientID, fmt.Sprint(dst.lastObservedClientState.TrustingPeriod.String()), timeToExpiration)
+		mp.metrics.SetClientTrustingPeriod(src.info.PathName, dst.info.ChainID, dst.info.ClientID, time.Duration(dst.lastObservedClientState.TrustingPeriod))
 	}
 
 	return shouldUpdateClientNow, nil
@@ -250,72 +249,50 @@ func (mp *messageProcessor) assembleMessage(
 }
 
 // assembleMsgUpdateClient uses the ChainProvider from both pathEnds to assemble the client update header
-// from the source and then assemble the update client message in the correct format for the destination.
-func (mp *messageProcessor) assembleMsgUpdateClient(ctx context.Context, src, dst *pathEndRuntime) error {
-	clientID := dst.info.ClientID
-	clientLatestHeight := dst.clientState.LatestHeight
-	trustedHeight := dst.clientTrustedState.ClientState.LatestHeight
+// from the counterparty and then assemble the update client message in the correct format for the updatee.
+func (mp *messageProcessor) assembleMsgUpdateClient(ctx context.Context, counterparty, updatee *pathEndRuntime) error {
+	/*
+		Reminder how IBC update works:
+			Update contains:
+				- signed header
+				- validator set that signed the header (at least 2/3)
+				- trusted height
+				- trusted header
+					Must have a trusted validator set exactly corresponding to trustedHeight.nextValidatorsHash
 
-	var trustedNextValHash []byte
-	if dst.clientTrustedState.IBCHeader != nil {
-		trustedNextValHash = dst.clientTrustedState.IBCHeader.NextValidatorsHash()
+			Checks (among other things), that:
+				- validators that signed trusted header correspond to trustedHeight.nextValidatorsHash
+	*/
+
+	clientID := updatee.info.ClientID
+	latestH := updatee.lastObservedClientState.LatestHeight
+
+	nextHeader, err := counterparty.chainProvider.QueryIBCHeader(ctx, int64(latestH.RevisionHeight+1))
+	if err != nil {
+		return fmt.Errorf("query IBC nextHeader at height: %d: chain_id: %s, %w",
+			latestH.RevisionHeight+1, counterparty.info.ChainID, err)
 	}
 
-	// If the client state height is not equal to the client trusted state height and the client state height is
-	// the latest block, we cannot send a MsgUpdateClient until another block is observed on the counterparty.
-	// If the client state height is in the past, beyond ibcHeadersToCache, then we need to query for it.
-	if !trustedHeight.EQ(clientLatestHeight) {
-		// TODO: looks like dupe code with updateClientTrustedState
-
-		deltaConsensusHeight := int64(clientLatestHeight.RevisionHeight) - int64(trustedHeight.RevisionHeight)
-		if trustedHeight.RevisionHeight != 0 && deltaConsensusHeight <= clientConsensusHeightUpdateThresholdBlocks {
-			return fmt.Errorf("observed client trusted height does not equal latest client state height: trusted: %d: latest %d",
-				trustedHeight.RevisionHeight, clientLatestHeight.RevisionHeight)
-		}
-
-		header, err := src.chainProvider.QueryIBCHeader(ctx, int64(clientLatestHeight.RevisionHeight+1))
-		if err != nil {
-			return fmt.Errorf("query IBC header at height: %d: chain_id: %s, %w",
-				clientLatestHeight.RevisionHeight+1, src.info.ChainID, err)
-		}
-
-		mp.log.Debug("Queried for client trusted IBC header",
-			zap.String("path_name", src.info.PathName),
-			zap.String("chain_id", src.info.ChainID),
-			zap.String("counterparty_chain_id", dst.info.ChainID),
-			zap.String("counterparty_client_id", clientID),
-			zap.Uint64("height", clientLatestHeight.RevisionHeight+1),
-			zap.Uint64("latest_height", src.latestBlock.Height),
-		)
-
-		dst.clientTrustedState = provider.ClientTrustedState{
-			ClientState: dst.clientState,
-			IBCHeader:   header,
-		}
-
-		trustedHeight = clientLatestHeight
-		trustedNextValHash = header.NextValidatorsHash()
-	}
-
-	if src.latestHeader.Height() == trustedHeight.RevisionHeight &&
-		// TODO: wth?
-		!bytes.Equal(src.latestHeader.NextValidatorsHash(), trustedNextValHash) {
-		return fmt.Errorf("latest header height is equal to the client trusted height: %d, "+
-			"need to wait for next block's header before we can assemble and send a new MsgUpdateClient",
-			trustedHeight.RevisionHeight)
-	}
+	mp.log.Debug("Queried for client trusted IBC nextHeader",
+		zap.String("path_name", counterparty.info.PathName),
+		zap.String("chain_id", counterparty.info.ChainID),
+		zap.String("counterparty_chain_id", updatee.info.ChainID),
+		zap.String("counterparty_client_id", clientID),
+		zap.Uint64("height", latestH.RevisionHeight+1),
+		zap.Uint64("latest_height", counterparty.latestBlock.Height),
+	)
 
 	// get the header to update with a new trusted, base on what we have for trusted
-	msgUpdateClientHeader, err := src.chainProvider.MsgUpdateClientHeader(
-		src.latestHeader,
-		trustedHeight,
-		dst.clientTrustedState.IBCHeader,
+	msgUpdateClientHeader, err := counterparty.chainProvider.MsgUpdateClientHeader(
+		counterparty.latestHeader,
+		latestH,
+		nextHeader,
 	)
 	if err != nil {
 		return fmt.Errorf("msg update client header: %w", err)
 	}
 
-	msgUpdateClient, err := dst.chainProvider.MsgUpdateClient(clientID, msgUpdateClientHeader)
+	msgUpdateClient, err := updatee.chainProvider.MsgUpdateClient(clientID, msgUpdateClientHeader)
 	if err != nil {
 		return fmt.Errorf("msg update client: %w", err)
 	}

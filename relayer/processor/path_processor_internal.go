@@ -692,43 +692,6 @@ ClientICQLoop:
 	return res
 }
 
-func (pp *PathProcessor) updateClientTrustedState(src *pathEndRuntime, dst *pathEndRuntime) {
-	if src.clientTrustedState.ClientState.LatestHeight.GTE(src.clientState.LatestHeight) {
-		return
-	}
-	// need to assemble new trusted state
-	// We see if header for H+1 exists because the client trusts H and has the nextValidatorsHash of it (+1)
-	ibcHeader, ok := dst.ibcHeaderCache[src.clientState.LatestHeight.RevisionHeight+1]
-	if !ok {
-
-		// We dont have H+1
-		// Maybe we can use H?
-
-		// DYMENSION: changed from upstream. Think there was a bug there. Now looking at src.clientTrustedState
-
-		if ibcHeaderCurrent, ok := dst.ibcHeaderCache[src.clientState.LatestHeight.RevisionHeight]; ok {
-			if src.clientTrustedState.IBCHeader != nil && bytes.Equal(src.clientTrustedState.IBCHeader.NextValidatorsHash(), ibcHeaderCurrent.NextValidatorsHash()) {
-				src.clientTrustedState = provider.ClientTrustedState{
-					ClientState: src.clientState,
-					IBCHeader:   ibcHeaderCurrent,
-				}
-				return
-			}
-		}
-		pp.log.Debug("No cached IBC header for client trusted height",
-			zap.String("chain_id", src.info.ChainID),
-			zap.String("client_id", src.info.ClientID),
-			zap.Uint64("height", src.clientState.LatestHeight.RevisionHeight+1),
-		)
-		return
-
-	}
-	src.clientTrustedState = provider.ClientTrustedState{
-		ClientState: src.clientState,
-		IBCHeader:   ibcHeader,
-	}
-}
-
 var observedEventTypeForDesiredMessage = map[string]string{
 	conntypes.EventTypeConnectionOpenConfirm: conntypes.EventTypeConnectionOpenAck,
 	conntypes.EventTypeConnectionOpenAck:     conntypes.EventTypeConnectionOpenTry,
@@ -921,9 +884,6 @@ func (pp *PathProcessor) queuePreInitMessages(cancel func()) {
 
 // messages from both pathEnds are needed in order to determine what needs to be relayed for a single pathEnd
 func (pp *PathProcessor) processLatestMessages(ctx context.Context, cancel func()) error {
-	// Update trusted client state for both pathends
-	pp.updateClientTrustedState(pp.pathEnd1, pp.pathEnd2)
-	pp.updateClientTrustedState(pp.pathEnd2, pp.pathEnd1)
 
 	channelPairs := pp.channelPairs()
 

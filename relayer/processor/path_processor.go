@@ -169,8 +169,8 @@ type channelPair struct {
 	pathEnd2ChannelKey ChannelKey
 }
 
-// RelevantClientID returns the relevant client ID or panics
-func (pp *PathProcessor) RelevantClientID(chainID string) string {
+// returns client id for the client of the counterparty chain on the chain specified with chainID
+func (pp *PathProcessor) ClientIDForClientForCounterparty(chainID string) string {
 	if pp.pathEnd1.info.ChainID == chainID {
 		return pp.pathEnd1.info.ClientID
 	}
