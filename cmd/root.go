@@ -122,6 +122,7 @@ func NewRootCmd(log *zap.Logger) *cobra.Command {
 		transactionCmd(a),
 		queryCmd(a),
 		startCmd(a),
+		rescueCmd(a),
 		lineBreakCommand(),
 		getVersionCmd(a),
 		addressCmd(a),

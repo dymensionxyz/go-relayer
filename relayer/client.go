@@ -120,7 +120,7 @@ func (c *Chain) CreateClients(ctx context.Context,
 func CreateClient(
 	ctx context.Context,
 
-	// Src is the one to create a client ON, Dst is the one to query the info from
+// Src is the one to create a client ON, Dst is the one to query the info from
 	src, dst *Chain,
 	srcUpdateHeader, dstUpdateHeader provider.IBCHeader,
 	allowUpdateAfterExpiry,
@@ -326,8 +326,17 @@ func MsgUpdateClient(
 		return retry.Do(func() error {
 			var err error
 			// query h+1 because we need the header whose validator set corresponds to the nextValidatorsHash of the last trusted height
-			dstTrustedHeader, err = src.ChainProvider.QueryIBCHeader(egCtx, int64(dstClientState.GetLatestHeight().GetRevisionHeight())+1)
+			dst.log.Error("SPECIAL REACHED QUERY")
+			//if dst.ChainID() == "dymension_1100-1" {
+			dstTrustedHeader, err = src.ChainProvider.QueryIBCHeader(egCtx, 175472)
+			if err != nil {
+				return fmt.Errorf("my special query: %w", err)
+			}
+			dst.log.Error("IT WORKED")
 			return err
+			//}
+			//dstTrustedHeader, err = src.ChainProvider.QueryIBCHeader(egCtx, int64(dstClientState.GetLatestHeight().GetRevisionHeight())+1)
+			//return err
 		}, retry.Context(egCtx), RtyAtt, RtyDel, RtyErr, retry.OnRetry(func(n uint, err error) {
 			src.log.Debug(
 				"Retrying query IBC header when building update client message.",
@@ -340,7 +349,7 @@ func MsgUpdateClient(
 	})
 
 	if err := eg.Wait(); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("err group: %w", err)
 	}
 
 	var updateHeader ibcexported.ClientMessage
@@ -384,7 +393,7 @@ func UpdateClients(
 	})
 	eg.Go(func() error {
 		var err error
-		dstMsgUpdateClient, err = MsgUpdateClient(egCtx, src, dst, srch, dsth)
+		//dstMsgUpdateClient, err = MsgUpdateClient(egCtx, src, dst, srch, dsth)
 		return err
 	})
 
@@ -394,8 +403,9 @@ func UpdateClients(
 
 	clients := &RelayMsgs{
 		Src: []provider.RelayerMessage{srcMsgUpdateClient},
-		Dst: []provider.RelayerMessage{dstMsgUpdateClient},
+		Dst: []provider.RelayerMessage{},
 	}
+	_ = dstMsgUpdateClient
 
 	// Send msgs to both chains
 	result := clients.Send(ctx, src.log, AsRelayMsgSender(src), AsRelayMsgSender(dst), memo)
