@@ -418,12 +418,18 @@ func (pp *PathProcessor) Run(ctx context.Context, cancel func()) {
 	if pp.pathEnd2.chainProvider.IsDymensionRollapp() {
 		isStartCmd := pp.messageLifecycle == nil // other cmds have lifecycles, we only want to do it on normal start
 		if isStartCmd {
-			pp.log.Debug("Handling dymension callbacks: open confirm. Sending genesis transfer to hub.")
-			// This should trigger a packet send, which will get caught by the monitoring thread, and trigger the relaying
-			err := SendGenesisTransfer(ctx, pp.pathEnd1.chainProvider, pp.pathEnd2.chainProvider)
-			if err != nil {
-				pp.log.Error("Send rollapp genesis transfer to hub. Operator can retry using CLI.", zap.Error(err))
-			} else {
+			ra, _ := pp.pathEnd2.chainProvider.(provider.RollappProvider)
+
+			err := ra.ShouldSendGenesisTransfer(ctx)
+			if err == nil {
+				// If bridge is not open yet, we send genesis transfer and relay it.
+				// this call blocks until the transfer is sent, relayed and acknowledged
+				pp.log.Info("Bridge is not open. Sending genesis transfer to hub.")
+				err := SendGenesisTransfer(ctx, pp.pathEnd1.chainProvider, pp.pathEnd2.chainProvider)
+				if err != nil {
+					pp.log.Error("Send rollapp genesis transfer to hub. Operator can retry using CLI.", zap.Error(err))
+					return
+				}
 				pp.log.Info("Successfully sent rollapp genesis transfer to hub.")
 			}
 		}

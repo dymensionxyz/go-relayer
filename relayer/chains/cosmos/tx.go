@@ -762,19 +762,22 @@ func (cc *CosmosProvider) ShouldSendGenesisTransfer(ctx context.Context) error {
 }
 
 // tx to rollapp
-func (cc *CosmosProvider) TrySendGenesisTransfer(ctx context.Context, channelID string) error {
+func (cc *CosmosProvider) TrySendGenesisTransfer(ctx context.Context, channelID string) (*provider.RelayerTxResponse, error) {
 	signer, err := cc.Address()
 	if err != nil {
-		return fmt.Errorf("relayer bech32 wallet address: %w", err)
+		return nil, fmt.Errorf("relayer bech32 wallet address: %w", err)
 	}
 	msg := &rdktypes.MsgSendTransfer{
 		ChannelId: channelID,
 		Signer:    signer,
 	}
 
-	return cc.simpleSend(ctx, msg, func(signer string) {
-		msg.Signer = signer
-	})
+	res, ok, err := cc.SendMessage(ctx, NewCosmosMessage(msg, nil), "")
+	if !ok || err != nil || res == nil {
+		return nil, gerrc.ErrUnknown
+	}
+
+	return res, nil
 }
 
 func (cc *CosmosProvider) simpleSend(ctx context.Context, msg sdk.Msg, f func(string)) error {

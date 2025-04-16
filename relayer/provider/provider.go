@@ -421,7 +421,7 @@ type DymensionHubProvider interface {
 }
 
 type RollappProvider interface {
-	TrySendGenesisTransfer(ctx context.Context, channelID string) error
+	TrySendGenesisTransfer(ctx context.Context, channelID string) (*RelayerTxResponse, error)
 	ShouldSendGenesisTransfer(ctx context.Context) error
 }
 

@@ -602,7 +602,7 @@ func sendGenesisTransfer(a *appState) *cobra.Command {
 		Use:     "rollapp-send-genesis-transfer <path>",
 		Aliases: []string{},
 		Short:   "Send a genesis transfer from the rollapp to the hub.",
-		Long:    "Send a genesis transfer from the rollapp to the hub - intended for recovery/retry. Relayer will try automatically the first time during channel creation.",
+		Long:    "Send a genesis transfer from the rollapp to the hub - intended for recovery/retry. Relayer will try automatically attempt it when started.",
 		Args:    withUsage(cobra.ExactArgs(1)),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			pathName := args[0]
@@ -621,7 +621,15 @@ func sendGenesisTransfer(a *appState) *cobra.Command {
 				return fmt.Errorf("key %s not found on dst chain %s", c[dst].ChainProvider.Key(), c[dst].ChainID())
 			}
 
-			// create channel if it isn't already created
+			ra, ok := c[dst].ChainProvider.(provider.RollappProvider)
+			if !ok {
+				return errors.New("not rollapp provider")
+			}
+
+			if err := ra.ShouldSendGenesisTransfer(cmd.Context()); err != nil {
+				return err
+			}
+
 			return processor.SendGenesisTransfer(
 				cmd.Context(),
 				c[src].ChainProvider, // must be hub

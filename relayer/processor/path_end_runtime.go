@@ -302,10 +302,6 @@ func SendGenesisTransfer(
 		return errors.New("not rollapp provider")
 	}
 
-	if err := ra.ShouldSendGenesisTransfer(ctx); err != nil {
-		return fmt.Errorf("should send genesis transfer: %w", err)
-	}
-
 	channelID, err := hub.GetCanonicalChan(ctx, raC.ChainId())
 	if err != nil {
 		return fmt.Errorf("get canonical chan: %w", err)
