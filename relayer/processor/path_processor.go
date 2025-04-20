@@ -412,26 +412,6 @@ func (pp *PathProcessor) Run(ctx context.Context, cancel func()) {
 	relayerSyncedToChain1 := false // path end 1
 	relayerSyncedToChain2 := false // path end 2
 
-	/*
-		DYMENSION:
-		We need to send a genesis transfer when the rollapp hub channel is open.
-		We want to do it when we start normal relayer processing, because otherwise it won't get flushed.
-	*/
-	if pp.pathEnd2.chainProvider.IsDymensionRollapp() {
-		isStartCmd := pp.messageLifecycle == nil // other cmds have lifecycles, we only want to do it on normal start
-		if isStartCmd {
-			// FIXME: change to chains
-			ra, _ := pp.pathEnd2.chainProvider.(provider.RollappProvider)
-			err := ra.ShouldSendGenesisTransfer(ctx)
-			if err == nil {
-				// If bridge is not open yet, we send genesis transfer and relay it.
-				// this call blocks until the transfer is sent, relayed and acknowledged
-				pp.log.Info("Bridge is not open. Need to send genesis transfer.")
-				return
-			}
-		}
-	}
-
 	for {
 		// block until we have any signals to process
 		if pp.processAvailableSignals(ctx, cancel) {
