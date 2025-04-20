@@ -5,7 +5,8 @@ import (
 	"fmt"
 
 	"github.com/avast/retry-go/v4"
-	dymtypes "github.com/cosmos/relayer/v2/relayer/chains/cosmos/dym/lightclient/types"
+	dymlightclienttypes "github.com/cosmos/relayer/v2/relayer/chains/cosmos/dym/lightclient/types"
+	dymrollapptypes "github.com/cosmos/relayer/v2/relayer/chains/cosmos/dym/rollapp/types"
 	rdktypes "github.com/cosmos/relayer/v2/relayer/chains/cosmos/rollapp/rdk/hub-genesis/types"
 	"github.com/cosmos/relayer/v2/relayer/provider"
 	"github.com/dymensionxyz/gerr-cosmos/gerrc"
@@ -13,16 +14,24 @@ import (
 
 // GetLatestRollappStateHeight implements provider.DymensionHubProvider.
 func (cc *CosmosProvider) GetLatestRollappStateHeight(ctx context.Context, rollappID string) (int64, error) {
-	panic("unimplemented")
+	c := dymrollapptypes.NewQueryClient(cc)
+	var res *dymrollapptypes.QueryGetLatestHeightResponse
+	var err error
+	if err = retry.Do(func() error {
+		res, err = c.LatestHeight(ctx, &dymrollapptypes.QueryGetLatestHeightRequest{RollappId: rollappID})
+		return err
+	}, rtyAtt, rtyDel, rtyErr); err != nil {
+		return 0, fmt.Errorf("query latest height: %w", err)
+	}
+	return int64(res.Height), nil
 }
 
 func (cc *CosmosProvider) TrySetCanonicalClient(ctx context.Context, clientID string) error {
-	// old http query canonical client code is here https://github.com/dymensionxyz/go-relayer/blob/7405c3f4331e7c62683368b5ed89419c9bceedf8/relayer/chains/cosmos/query.go#L345-L378
 	signer, err := cc.Address()
 	if err != nil {
 		return fmt.Errorf("relayer bech32 wallet address: %w", err)
 	}
-	msg := &dymtypes.MsgSetCanonicalClient{
+	msg := &dymlightclienttypes.MsgSetCanonicalClient{
 		ClientId: clientID,
 		Signer:   signer,
 	}
