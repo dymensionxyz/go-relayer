@@ -418,6 +418,7 @@ type ChainProvider interface {
 type DymensionHubProvider interface {
 	TrySetCanonicalClient(ctx context.Context, clientID string) error
 	GetCanonicalChan(ctx context.Context, rollappID string) (string, error)
+	GetLatestRollappStateHeight(ctx context.Context, rollappID string) (int64, error)
 }
 
 type RollappProvider interface {
