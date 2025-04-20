@@ -2,7 +2,6 @@ package processor
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"sync"
 	"time"
@@ -286,28 +285,6 @@ func (pathEnd *pathEndRuntime) handleCallbacks(c IBCMessagesCache) {
 			}
 		}
 	}
-}
-
-func SendGenesisTransfer(
-	ctx context.Context,
-	hubC provider.ChainProvider,
-	raC provider.ChainProvider,
-) error {
-	hub, ok := hubC.(provider.DymensionHubProvider)
-	if !ok {
-		return errors.New("not dymension hub provider")
-	}
-	ra, ok := raC.(provider.RollappProvider)
-	if !ok {
-		return errors.New("not rollapp provider")
-	}
-
-	channelID, err := hub.GetCanonicalChan(ctx, raC.ChainId())
-	if err != nil {
-		return fmt.Errorf("get canonical chan: %w", err)
-	}
-
-	return ra.TrySendGenesisTransfer(ctx, channelID)
 }
 
 func (pathEnd *pathEndRuntime) shouldTerminate(ibcMessagesCache IBCMessagesCache, messageLifecycle MessageLifecycle) bool {

@@ -630,10 +630,10 @@ func sendGenesisTransfer(a *appState) *cobra.Command {
 				return err
 			}
 
-			return processor.SendGenesisTransfer(
+			return relayer.SendGenesisTransfer(
 				cmd.Context(),
-				c[src].ChainProvider, // must be hub
-				c[dst].ChainProvider, // must be rollapp
+				c[src], // must be hub
+				c[dst], // must be rollapp
 			)
 		},
 	}
