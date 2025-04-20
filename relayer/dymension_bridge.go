@@ -7,24 +7,15 @@ import (
 	"github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
 	chantypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
 	"github.com/cosmos/relayer/v2/relayer/provider"
-	"github.com/rs/zerolog/log"
 	"go.uber.org/zap"
 )
 
+// SendGenesisTransfer sends a genesis transfer from a rollapp to a hub chain
 func SendGenesisTransfer(
 	ctx context.Context,
 	hubC *Chain,
 	raC *Chain,
 ) error {
-	hub, ok := hubC.ChainProvider.(provider.DymensionHubProvider)
-	if !ok {
-		return errors.New("not dymension hub provider")
-	}
-
-	ra, ok := raC.ChainProvider.(provider.RollappProvider)
-	if !ok {
-		return errors.New("not rollapp provider")
-	}
 
 	// get active channel
 	channel, err := getActiveChannelForGenesisBridge(ctx, raC)
@@ -32,41 +23,43 @@ func SendGenesisTransfer(
 		return err
 	}
 
-	// func (pp *PathProcessor) IsRelevantChannel(chainID string, channelID string) bool {
-
+	ra, ok := raC.ChainProvider.(provider.RollappProvider)
+	if !ok {
+		return errors.New("not rollapp provider")
+	}
 	res, err := ra.TrySendGenesisTransfer(ctx, channel.ChannelId)
 	if err != nil {
 		return err
 	}
-	// now we have txhash and height
 
-	// Fetch any unrelayed sequences depending on the channel order
-	// sp := relayer.UnrelayedSequences(ctx, hubC., dst, srcChannel)
-	// FIXME: get seq number (either from the events, or using some query)
-	seq := uint64(0)
-
-	// for rollapp chain, we use height+1 for proof height
+	// For rollapp chain, we use height+1 for proof height
 	srch := uint64(res.Height + 1)
 
-	// FIXME: wait until state committed
+	// FIXME: wait  for state committed
 
 	dsth, err := hubC.ChainProvider.QueryLatestHeight(ctx)
 	if err != nil {
 		return err
 	}
 
-	var msgsSrc []provider.RelayerMessage
-	recvMsg, _, err := raC.ChainProvider.RelayPacketFromSequence(
+	var srcMsgs, dstMsgs []provider.RelayerMessage
+	// Use sequence 0 for genesis transfer
+	// FIXME: get correct sequence (from query or from tx's events)
+	seq := uint64(0)
+
+	err = AddMessagesForSequences(
 		ctx,
-		raC.ChainProvider,
-		uint64(srch), uint64(dsth),
-		seq,
+		[]uint64{seq},
+		raC, hubC,
+		int64(srch), int64(dsth),
+		&srcMsgs, &dstMsgs,
 		channel.ChannelId, channel.PortId,
+		channel.Counterparty.ChannelId, channel.Counterparty.PortId,
 		channel.Ordering,
 	)
-	if err != nil || recvMsg == nil {
+	if err != nil {
 		raC.log.Error(
-			"Failed to relay genesis transfer",
+			"Failed to construct messages for genesis transfer",
 			zap.String("src_chain_id", raC.ChainID()),
 			zap.String("src_channel_id", channel.ChannelId),
 			zap.String("src_port_id", channel.PortId),
@@ -79,9 +72,9 @@ func SendGenesisTransfer(
 		return err
 	}
 
-	// set the maximum relay transaction constraints
+	// Set the maximum relay transaction constraints
 	msgs := &RelayMsgs{
-		Src:          append(msgsSrc),
+		Dst:          dstMsgs,
 		MaxTxSize:    TwoMB,
 		MaxMsgLength: DefaultMaxMsgLength,
 	}
@@ -97,20 +90,20 @@ func SendGenesisTransfer(
 		return nil
 	}
 
-	if err := msgs.PrependMsgUpdateClient(ctx, src, dst, srch, dsth); err != nil {
+	if err := msgs.PrependMsgUpdateClient(ctx, raC, hubC, int64(srch), dsth); err != nil {
 		return err
 	}
 
-	// send messages to their respective chains
-	result := msgs.Send(ctx, log, AsRelayMsgSender(src), AsRelayMsgSender(dst), memo)
+	// Send messages to their respective chains
+	result := msgs.Send(ctx, raC.log, AsRelayMsgSender(raC), AsRelayMsgSender(hubC), "")
 	if err := result.Error(); err != nil {
 		if result.PartiallySent() {
-			log.Info(
+			raC.log.Info(
 				"Partial success when relaying packets.",
-				zap.String("src_chain_id", src.ChainID()),
-				zap.String("src_port_id", srcChannel.PortId),
-				zap.String("dst_chain_id", dst.ChainID()),
-				zap.String("dst_port_id", srcChannel.Counterparty.PortId),
+				zap.String("src_chain_id", raC.ChainID()),
+				zap.String("src_port_id", channel.PortId),
+				zap.String("dst_chain_id", hubC.ChainID()),
+				zap.String("dst_port_id", channel.Counterparty.PortId),
 				zap.Error(err),
 			)
 		}
@@ -118,10 +111,10 @@ func SendGenesisTransfer(
 	}
 
 	if result.SuccessfulSrcBatches > 0 {
-		src.logPacketsRelayed(dst, result.SuccessfulSrcBatches, srcChannel)
+		raC.logPacketsRelayed(hubC, result.SuccessfulSrcBatches, channel)
 	}
 	if result.SuccessfulDstBatches > 0 {
-		dst.logPacketsRelayed(src, result.SuccessfulDstBatches, srcChannel)
+		hubC.logPacketsRelayed(raC, result.SuccessfulDstBatches, channel)
 	}
 
 	return nil

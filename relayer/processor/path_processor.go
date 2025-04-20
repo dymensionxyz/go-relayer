@@ -8,6 +8,8 @@ import (
 
 	chantypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
 	ibcexported "github.com/cosmos/ibc-go/v8/modules/core/exported"
+
+	// "github.com/cosmos/relayer/v2/relayer"
 	"github.com/cosmos/relayer/v2/relayer/provider"
 	"github.com/danwt/gerr/gerr"
 	"go.uber.org/zap"
@@ -418,19 +420,14 @@ func (pp *PathProcessor) Run(ctx context.Context, cancel func()) {
 	if pp.pathEnd2.chainProvider.IsDymensionRollapp() {
 		isStartCmd := pp.messageLifecycle == nil // other cmds have lifecycles, we only want to do it on normal start
 		if isStartCmd {
+			// FIXME: change to chains
 			ra, _ := pp.pathEnd2.chainProvider.(provider.RollappProvider)
-
 			err := ra.ShouldSendGenesisTransfer(ctx)
 			if err == nil {
 				// If bridge is not open yet, we send genesis transfer and relay it.
 				// this call blocks until the transfer is sent, relayed and acknowledged
-				pp.log.Info("Bridge is not open. Sending genesis transfer to hub.")
-				err := SendGenesisTransfer(ctx, pp.pathEnd1.chainProvider, pp.pathEnd2.chainProvider)
-				if err != nil {
-					pp.log.Error("Send rollapp genesis transfer to hub. Operator can retry using CLI.", zap.Error(err))
-					return
-				}
-				pp.log.Info("Successfully sent rollapp genesis transfer to hub.")
+				pp.log.Info("Bridge is not open. Need to send genesis transfer.")
+				return
 			}
 		}
 	}
