@@ -59,7 +59,6 @@ func (c *Chain) CreateOpenChannels(
 	override bool,
 	memo string,
 	pathName string,
-	blockUntilClientIsCanonical bool,
 ) error {
 	// client and connection identifiers must be filled in
 	if err := ValidateConnectionPaths(c, dst); err != nil {
@@ -81,17 +80,6 @@ func (c *Chain) CreateOpenChannels(
 		if err == nil && channel != nil {
 			return fmt.Errorf("channel {%s} with port {%s} already exists on chain {%s}", channel.ChannelId, channel.PortId, dst.ChainID())
 		}
-	}
-
-	if blockUntilClientIsCanonical {
-		c.log.Info("Blocking until client is canonical.")
-		err := c.blockUntilClientIsCanonical(ctx)
-		if err != nil {
-			return fmt.Errorf("blockUntilClientIsCanonical: %w", err)
-		}
-		c.log.Info("Client is canonical. Continuing.")
-	} else {
-		c.log.Info("Continuing without querying for canonical status of client.")
 	}
 
 	// Timeout is per message. Four channel handshake messages, allowing maxRetries for each.
