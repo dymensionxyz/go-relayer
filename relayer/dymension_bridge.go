@@ -180,9 +180,16 @@ func BlockUntilClientIsCanonical(ctx context.Context, c *Chain, rollappID string
 		return errors.New("not dymension hub provider")
 	}
 
+	// check if rollapp already has a canonical client
+	canonicalClient, err := hub.GetCanonicalClient(ctx, rollappID)
+	if err == nil {
+		c.log.Info("Rollapp already has a canonical client", zap.String("chain_id", rollappID), zap.String("client_id", canonicalClient))
+		return nil
+	}
+
 	// wait for state committed
 	c.log.Info("Waiting for state committed", zap.Int64("height", int64(dsth)), zap.String("chain_id", rollappID))
-	err := retry.Do(func() error {
+	err = retry.Do(func() error {
 		committedH, err := hub.GetLatestRollappStateHeight(ctx, rollappID)
 		if err != nil {
 			return fmt.Errorf("get latest rollapp state height: %w", err)

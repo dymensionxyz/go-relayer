@@ -40,6 +40,15 @@ func (cc *CosmosProvider) TrySetCanonicalClient(ctx context.Context, clientID st
 	})
 }
 
+func (cc *CosmosProvider) GetCanonicalClient(ctx context.Context, rollappID string) (string, error) {
+	c := dymlightclienttypes.NewQueryClient(cc)
+	res, err := c.LightClient(ctx, &dymlightclienttypes.QueryGetLightClientRequest{RollappId: rollappID})
+	if err != nil {
+		return "", fmt.Errorf("query: %w", err)
+	}
+	return res.ClientId, nil
+}
+
 // query to rollapp
 func (cc *CosmosProvider) GetBridgeState(ctx context.Context) (bool, error) {
 	c := rdktypes.NewQueryClient(cc)
