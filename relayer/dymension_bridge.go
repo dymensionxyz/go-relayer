@@ -72,18 +72,29 @@ func SendAndRelayGenesisTransfer(
 	}
 
 	// wait for state committed
-	// FIXME: refactor the retrty mechanism
 	raC.log.Info("Waiting for state committed", zap.Int64("height", int64(proofH)), zap.String("chain_id", raC.ChainID()))
-	for {
+
+	err = retry.Do(func() error {
 		committedH, err := hub.GetLatestRollappStateHeight(ctx, raC.ChainID())
 		if err != nil {
 			return fmt.Errorf("get latest rollapp state height: %w", err)
 		}
-		if committedH >= int64(proofH) {
-			break
+		if committedH < int64(proofH) {
+			raC.log.Info("Waiting for state committed", zap.Int64("height", int64(proofH)), zap.Int64("committed_height", committedH))
+			return fmt.Errorf("rollapp state not yet committed at height %d (current: %d)", proofH, committedH)
 		}
-		raC.log.Info("Waiting for state committed", zap.Int64("height", int64(proofH)), zap.Int64("committed_height", committedH))
-		time.Sleep(2 * time.Second)
+		return nil
+	},
+		retry.Attempts(0), // forever
+		retry.Delay(2*time.Second),
+		retry.MaxDelay(10*time.Second),
+		retry.Context(ctx),
+		retry.OnRetry(func(n uint, err error) {
+			raC.log.Info("Retrying to check rollapp state commitment", zap.Uint("attempt", n), zap.Error(err))
+		}),
+	)
+	if err != nil {
+		return err
 	}
 
 	var srcMsgs, dstMsgs []provider.RelayerMessage
