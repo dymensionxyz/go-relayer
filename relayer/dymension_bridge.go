@@ -177,9 +177,15 @@ func SendAndRelayGenesisTransfer(
 // Blocks the thread
 func BlockUntilClientIsCanonical(ctx context.Context, c *Chain) error {
 	expClient := c.PathEnd.ClientID
+
+	hub, ok := c.ChainProvider.(provider.DymensionHubProvider)
+	if !ok {
+		return errors.New("not dymension hub provider")
+	}
+
 	c.log.Info("BlockUntilClientIsCanonical ", zap.Any("client id", expClient))
 	return retry.Do(func() error {
-		err := TrySetCanonicalClient(ctx, c, expClient)
+		err := hub.TrySetCanonicalClient(ctx, expClient)
 		if err != nil {
 			acceptable := []string{
 				"latest rollapp height: not found",

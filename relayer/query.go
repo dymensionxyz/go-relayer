@@ -3,7 +3,6 @@ package relayer
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"strconv"
 	"strings"
@@ -34,16 +33,6 @@ func QueryLatestHeights(ctx context.Context, src, dst *Chain) (srch, dsth int64,
 	})
 	err = eg.Wait()
 	return
-}
-
-// Returns the canonical client for the rollapp. Empty if none set.
-// Passed chain must be Dymension hub.
-func TrySetCanonicalClient(ctx context.Context, c *Chain, clientID string) error {
-	hub, ok := c.ChainProvider.(provider.DymensionHubProvider)
-	if !ok {
-		return errors.New("not hub provider")
-	}
-	return hub.TrySetCanonicalClient(ctx, clientID)
 }
 
 // QueryClientStates queries the client state of multiple chains at once
