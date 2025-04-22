@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"strings"
 	"time"
 
 	"github.com/avast/retry-go/v4"
@@ -72,15 +71,14 @@ func SendAndRelayGenesisTransfer(
 	}
 
 	// wait for state committed
-	raC.log.Info("Waiting for state committed", zap.Int64("height", int64(proofH)), zap.String("chain_id", raC.ChainID()))
-
+	hubC.log.Info("Waiting for state committed", zap.Int64("height", int64(proofH)), zap.String("chain_id", raC.ChainID()))
 	err = retry.Do(func() error {
 		committedH, err := hub.GetLatestRollappStateHeight(ctx, raC.ChainID())
 		if err != nil {
 			return fmt.Errorf("get latest rollapp state height: %w", err)
 		}
 		if committedH < int64(proofH) {
-			raC.log.Info("Waiting for state committed", zap.Int64("height", int64(proofH)), zap.Int64("committed_height", committedH))
+			hubC.log.Info("Waiting for state committed", zap.Int64("height", int64(proofH)), zap.Int64("committed_height", committedH))
 			return fmt.Errorf("rollapp state not yet committed at height %d (current: %d)", proofH, committedH)
 		}
 		return nil
@@ -90,7 +88,7 @@ func SendAndRelayGenesisTransfer(
 		retry.MaxDelay(10*time.Second),
 		retry.Context(ctx),
 		retry.OnRetry(func(n uint, err error) {
-			raC.log.Info("Retrying to check rollapp state commitment", zap.Uint("attempt", n), zap.Error(err))
+			hubC.log.Info("Retrying to check rollapp state commitment", zap.Uint("attempt", n), zap.Error(err))
 		}),
 	)
 	if err != nil {
@@ -171,11 +169,12 @@ func SendAndRelayGenesisTransfer(
 	return nil
 }
 
-// Adhering to the dymension canonical light client protocol, we wait
-// until the client has been designated canonical on the Hub.
+// Adhering to the dymension canonical light client protocol,
+// 1. we wait until the rollapp state of the light client height is committed
+// 2. we succesfully set the light client as canonical for the rollapp
 // Assumes c is the Hub.
 // Blocks the thread
-func BlockUntilClientIsCanonical(ctx context.Context, c *Chain) error {
+func BlockUntilClientIsCanonical(ctx context.Context, c *Chain, dsth int64) error {
 	expClient := c.PathEnd.ClientID
 
 	hub, ok := c.ChainProvider.(provider.DymensionHubProvider)
@@ -183,23 +182,16 @@ func BlockUntilClientIsCanonical(ctx context.Context, c *Chain) error {
 		return errors.New("not dymension hub provider")
 	}
 
-	c.log.Info("BlockUntilClientIsCanonical ", zap.Any("client id", expClient))
-	return retry.Do(func() error {
-		err := hub.TrySetCanonicalClient(ctx, expClient)
+	// wait for state committed
+	c.log.Info("Waiting for state committed", zap.Int64("height", int64(dsth)), zap.String("chain_id", expClient))
+	err := retry.Do(func() error {
+		committedH, err := hub.GetLatestRollappStateHeight(ctx, expClient)
 		if err != nil {
-			acceptable := []string{
-				"latest rollapp height: not found",
-				"not at least one cons state matches the rollapp state",
-			}
-			for _, needle := range acceptable {
-				if strings.Contains(err.Error(), needle) {
-					// just need to wait for sequencer to catch up
-					return err
-				}
-			}
-			// something really wrong
-			c.log.Info("BlockUntilClientIsCanonical try set canonical client.", zap.Error(err))
-			return retry.Unrecoverable(err)
+			return fmt.Errorf("get latest rollapp state height: %w", err)
+		}
+		if committedH < int64(dsth) {
+			c.log.Info("Waiting for state committed", zap.Int64("height", int64(dsth)), zap.Int64("committed_height", committedH))
+			return fmt.Errorf("rollapp state not yet committed at height %d (current: %d)", dsth, committedH)
 		}
 		return nil
 	},
@@ -208,9 +200,17 @@ func BlockUntilClientIsCanonical(ctx context.Context, c *Chain) error {
 		retry.MaxDelay(time.Minute),
 		retry.Context(ctx),
 		retry.OnRetry(func(n uint, err error) {
-			c.log.Info("Try set canonical client.", zap.Any("attempt", n), zap.Error(err))
+			c.log.Info("Retrying to check rollapp state commitment", zap.Uint("attempt", n), zap.Error(err))
 		}),
 	)
+	if err != nil {
+		return err
+	}
+
+	err = hub.TrySetCanonicalClient(ctx, expClient)
+	if err != nil {
+		return fmt.Errorf("set canonical client: %w", err)
+	}
 }
 
 func getActiveChannelForGenesisBridge(ctx context.Context, src *Chain) (*chantypes.IdentifiedChannel, error) {
