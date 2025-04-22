@@ -174,18 +174,16 @@ func SendAndRelayGenesisTransfer(
 // 2. we succesfully set the light client as canonical for the rollapp
 // Assumes c is the Hub.
 // Blocks the thread
-func BlockUntilClientIsCanonical(ctx context.Context, c *Chain, dsth int64) error {
-	expClient := c.PathEnd.ClientID
-
+func BlockUntilClientIsCanonical(ctx context.Context, c *Chain, rollappID string, dsth int64) error {
 	hub, ok := c.ChainProvider.(provider.DymensionHubProvider)
 	if !ok {
 		return errors.New("not dymension hub provider")
 	}
 
 	// wait for state committed
-	c.log.Info("Waiting for state committed", zap.Int64("height", int64(dsth)), zap.String("chain_id", expClient))
+	c.log.Info("Waiting for state committed", zap.Int64("height", int64(dsth)), zap.String("chain_id", rollappID))
 	err := retry.Do(func() error {
-		committedH, err := hub.GetLatestRollappStateHeight(ctx, expClient)
+		committedH, err := hub.GetLatestRollappStateHeight(ctx, rollappID)
 		if err != nil {
 			return fmt.Errorf("get latest rollapp state height: %w", err)
 		}
@@ -207,10 +205,12 @@ func BlockUntilClientIsCanonical(ctx context.Context, c *Chain, dsth int64) erro
 		return err
 	}
 
-	err = hub.TrySetCanonicalClient(ctx, expClient)
+	err = hub.TrySetCanonicalClient(ctx, c.PathEnd.ClientID)
 	if err != nil {
 		return fmt.Errorf("set canonical client: %w", err)
 	}
+
+	return nil
 }
 
 func getActiveChannelForGenesisBridge(ctx context.Context, src *Chain) (*chantypes.IdentifiedChannel, error) {
