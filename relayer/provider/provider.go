@@ -423,7 +423,7 @@ type DymensionHubProvider interface {
 
 type RollappProvider interface {
 	TrySendGenesisTransfer(ctx context.Context, channelID string) (*RelayerTxResponse, error)
-	ShouldSendGenesisTransfer(ctx context.Context) error
+	GetBridgeState(ctx context.Context) (bool, error)
 }
 
 // Do we need intermediate types? i.e. can we use the SDK types for both substrate and cosmos?

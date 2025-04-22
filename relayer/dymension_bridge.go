@@ -3,20 +3,23 @@ package relayer
 import (
 	"context"
 	"errors"
+	"fmt"
+	"strings"
+	"time"
 
+	"github.com/avast/retry-go/v4"
 	"github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
 	chantypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
 	"github.com/cosmos/relayer/v2/relayer/provider"
 	"go.uber.org/zap"
 )
 
-// SendGenesisTransfer sends a genesis transfer from a rollapp to a hub chain
-func SendGenesisTransfer(
+// SendAndRelayGenesisTransfer sends a genesis transfer from a rollapp to a hub chain
+func SendAndRelayGenesisTransfer(
 	ctx context.Context,
 	hubC *Chain,
 	raC *Chain,
 ) error {
-
 	// get active channel
 	channel, err := getActiveChannelForGenesisBridge(ctx, raC)
 	if err != nil {
@@ -27,31 +30,68 @@ func SendGenesisTransfer(
 	if !ok {
 		return errors.New("not rollapp provider")
 	}
-	res, err := ra.TrySendGenesisTransfer(ctx, channel.ChannelId)
-	if err != nil {
-		return err
+	hub, ok := hubC.ChainProvider.(provider.DymensionHubProvider)
+	if !ok {
+		return errors.New("not dymension hub provider")
 	}
 
-	// For rollapp chain, we use height+1 for proof height
-	srch := uint64(res.Height + 1)
-
-	// FIXME: wait  for state committed
-
-	dsth, err := hubC.ChainProvider.QueryLatestHeight(ctx)
+	hubH, raH, err := QueryLatestHeights(ctx, hubC, raC)
 	if err != nil {
-		return err
+		return fmt.Errorf("querying latest heights: %w", err)
+	}
+
+	// For rollapp chain, we use proofH = transfer_height+1 for proof height
+	var proofH, seq uint64
+	commitments, err := raC.ChainProvider.QueryPacketCommitments(ctx, uint64(raH), channel.ChannelId, channel.PortId)
+	if err != nil || len(commitments.Commitments) > 1 {
+		return fmt.Errorf("query packet commitments: %w", err)
+	}
+
+	// Unanswered transfer can happen if genesis bridge already committed but not relayed
+	if len(commitments.Commitments) == 1 {
+		seq = commitments.Commitments[0].Sequence
+		msgTransfer, err := raC.ChainProvider.QuerySendPacket(ctx, channel.ChannelId, channel.PortId, seq)
+		if err != nil {
+			return err
+		}
+		raC.log.Info("genesis packet is in-flight.", zap.Any("msgTransfer", msgTransfer))
+		// proofH = msgTransfer.Height + 1 // doesn't work
+		proofH = uint64(raH)
+	} else {
+		res, err := ra.TrySendGenesisTransfer(ctx, channel.ChannelId)
+		if err != nil {
+			return err
+		}
+		proofH = uint64(res.Height + 1)
+
+		commitments, err := raC.ChainProvider.QueryPacketCommitments(ctx, uint64(res.Height), channel.ChannelId, channel.PortId)
+		if err != nil || len(commitments.Commitments) != 1 {
+			return fmt.Errorf("query packet commitments: %w", err)
+		}
+		seq = commitments.Commitments[0].Sequence
+	}
+
+	// wait for state committed
+	// FIXME: refactor the retrty mechanism
+	raC.log.Info("Waiting for state committed", zap.Int64("height", int64(proofH)), zap.String("chain_id", raC.ChainID()))
+	for {
+		committedH, err := hub.GetLatestRollappStateHeight(ctx, raC.ChainID())
+		if err != nil {
+			return fmt.Errorf("get latest rollapp state height: %w", err)
+		}
+		if committedH >= int64(proofH) {
+			break
+		}
+		raC.log.Info("Waiting for state committed", zap.Int64("height", int64(proofH)), zap.Int64("committed_height", committedH))
+		time.Sleep(2 * time.Second)
 	}
 
 	var srcMsgs, dstMsgs []provider.RelayerMessage
-	// Use sequence 0 for genesis transfer
-	// FIXME: get correct sequence (from query or from tx's events)
-	seq := uint64(0)
-
 	err = AddMessagesForSequences(
 		ctx,
 		[]uint64{seq},
 		raC, hubC,
-		int64(srch), int64(dsth),
+		int64(proofH), int64(hubH),
 		&srcMsgs, &dstMsgs,
 		channel.ChannelId, channel.PortId,
 		channel.Counterparty.ChannelId, channel.Counterparty.PortId,
@@ -90,7 +130,7 @@ func SendGenesisTransfer(
 		return nil
 	}
 
-	if err := msgs.PrependMsgUpdateClient(ctx, raC, hubC, int64(srch), dsth); err != nil {
+	if err := msgs.PrependMsgUpdateClient(ctx, raC, hubC, int64(proofH), hubH); err != nil {
 		return err
 	}
 
@@ -118,6 +158,42 @@ func SendGenesisTransfer(
 	}
 
 	return nil
+}
+
+// Adhering to the dymension canonical light client protocol, we wait
+// until the client has been designated canonical on the Hub.
+// Assumes c is the Hub.
+// Blocks the thread
+func BlockUntilClientIsCanonical(ctx context.Context, c *Chain) error {
+	expClient := c.PathEnd.ClientID
+	c.log.Info("BlockUntilClientIsCanonical ", zap.Any("client id", expClient))
+	return retry.Do(func() error {
+		err := TrySetCanonicalClient(ctx, c, expClient)
+		if err != nil {
+			acceptable := []string{
+				"latest rollapp height: not found",
+				"not at least one cons state matches the rollapp state",
+			}
+			for _, needle := range acceptable {
+				if strings.Contains(err.Error(), needle) {
+					// just need to wait for sequencer to catch up
+					return err
+				}
+			}
+			// something really wrong
+			c.log.Info("BlockUntilClientIsCanonical try set canonical client.", zap.Error(err))
+			return retry.Unrecoverable(err)
+		}
+		return nil
+	},
+		retry.Attempts(0), // forever
+		retry.Delay(20*time.Second),
+		retry.MaxDelay(time.Minute),
+		retry.Context(ctx),
+		retry.OnRetry(func(n uint, err error) {
+			c.log.Info("Try set canonical client.", zap.Any("attempt", n), zap.Error(err))
+		}),
+	)
 }
 
 func getActiveChannelForGenesisBridge(ctx context.Context, src *Chain) (*chantypes.IdentifiedChannel, error) {

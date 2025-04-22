@@ -3,51 +3,14 @@ package relayer
 import (
 	"context"
 	"fmt"
-	"strings"
 	"time"
 
-	"github.com/avast/retry-go/v4"
 	chantypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
 	host "github.com/cosmos/ibc-go/v8/modules/core/24-host"
 	"github.com/cosmos/relayer/v2/relayer/processor"
 	"github.com/cosmos/relayer/v2/relayer/provider"
 	"go.uber.org/zap"
 )
-
-// Adhering to the dymension canonical light client protocol, we wait
-// until the client has been designated canonical on the Hub.
-// Assumes c is the Hub.
-// Blocks the thread
-func (c *Chain) blockUntilClientIsCanonical(ctx context.Context) error {
-	expClient := c.PathEnd.ClientID
-	c.log.Info("blockUntilClientIsCanonical ", zap.Any("client id", expClient))
-	return retry.Do(func() error {
-		err := TrySetCanonicalClient(ctx, c, expClient) // TODO: check if ctx has deadline
-		if err != nil {
-			acceptable := []string{
-				"latest rollapp height: not found",
-				"not at least one cons state matches the rollapp state",
-			}
-			for _, needle := range acceptable {
-				if strings.Contains(err.Error(), needle) {
-					// just need to wait for sequencer to catch up
-					return err
-				}
-			}
-			// something really wrong
-			c.log.Info("BlockUntilClientIsCanonical try set canonical client.", zap.Error(err))
-			return retry.Unrecoverable(err)
-		}
-		return nil
-	},
-		retry.Attempts(0), // forever
-		retry.Delay(20*time.Second),
-		retry.MaxDelay(time.Minute),
-		retry.OnRetry(func(n uint, err error) {
-			c.log.Info("Try set canonical client.", zap.Any("attempt", n), zap.Error(err))
-		}),
-	)
-}
 
 // CreateOpenChannels runs the channel creation messages on timeout until they pass.
 func (c *Chain) CreateOpenChannels(

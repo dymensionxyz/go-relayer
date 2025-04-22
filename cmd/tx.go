@@ -619,16 +619,26 @@ func sendGenesisTransfer(a *appState) *cobra.Command {
 				return fmt.Errorf("key %s not found on dst chain %s", c[dst].ChainProvider.Key(), c[dst].ChainID())
 			}
 
+			_, ok := c[dst].ChainProvider.(provider.RollappProvider)
+			if !ok {
+				return errors.New("not rollapp provider")
+			}
+
 			ra, ok := c[dst].ChainProvider.(provider.RollappProvider)
 			if !ok {
 				return errors.New("not rollapp provider")
 			}
 
-			if err := ra.ShouldSendGenesisTransfer(cmd.Context()); err != nil {
+			open, err := ra.GetBridgeState(cmd.Context())
+			if err != nil {
 				return err
 			}
 
-			return relayer.SendGenesisTransfer(
+			if open {
+				return fmt.Errorf("bridge is already open, cannot send genesis transfer")
+			}
+
+			return relayer.SendAndRelayGenesisTransfer(
 				cmd.Context(),
 				c[src], // must be hub
 				c[dst], // must be rollapp
