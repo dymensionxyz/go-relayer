@@ -600,7 +600,7 @@ func sendGenesisTransfer(a *appState) *cobra.Command {
 		Use:     "rollapp-send-genesis-transfer <path>",
 		Aliases: []string{},
 		Short:   "Send a genesis transfer from the rollapp to the hub.",
-		Long:    "Send a genesis transfer from the rollapp to the hub - intended for recovery/retry. Relayer will try automatically attempt it when started.",
+		Long:    "Send a genesis transfer from the rollapp to the hub - required step to open the bridge. should be called after channel established",
 		Args:    withUsage(cobra.ExactArgs(1)),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			pathName := args[0]
