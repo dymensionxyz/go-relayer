@@ -619,21 +619,30 @@ func sendGenesisTransfer(a *appState) *cobra.Command {
 				return fmt.Errorf("key %s not found on dst chain %s", c[dst].ChainProvider.Key(), c[dst].ChainID())
 			}
 
-			_, ok := c[dst].ChainProvider.(provider.RollappProvider)
-			if !ok {
-				return errors.New("not rollapp provider")
-			}
-
 			ra, ok := c[dst].ChainProvider.(provider.RollappProvider)
 			if !ok {
 				return errors.New("not rollapp provider")
 			}
 
+			hub, ok := c[src].ChainProvider.(provider.DymensionHubProvider)
+			if !ok {
+				return errors.New("not dymension hub provider")
+			}
+
+			// validate canonical client is set for this rollapp
+			canonicalClient, err := hub.GetCanonicalClient(cmd.Context(), c[dst].ChainID())
+			if err != nil {
+				return fmt.Errorf("query canonical client: %w", err)
+			}
+			if canonicalClient == "" {
+				return fmt.Errorf("rollapp %s does not have a canonical client set", c[dst].ChainID())
+			}
+
+			// validate the bridge is not already opened on the rollapp
 			open, err := ra.GetBridgeState(cmd.Context())
 			if err != nil {
 				return err
 			}
-
 			if open {
 				return fmt.Errorf("bridge is already open, cannot send genesis transfer")
 			}
