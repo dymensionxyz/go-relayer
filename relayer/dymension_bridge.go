@@ -182,7 +182,10 @@ func BlockUntilClientIsCanonical(ctx context.Context, c *Chain, rollappID string
 
 	// check if rollapp already has a canonical client
 	canonicalClient, err := hub.GetCanonicalClient(ctx, rollappID)
-	if err == nil {
+	if err != nil {
+		return fmt.Errorf("get canonical client: %w", err)
+	}
+	if canonicalClient != "" {
 		c.log.Info("Rollapp already has a canonical client", zap.String("chain_id", rollappID), zap.String("client_id", canonicalClient))
 		return nil
 	}
