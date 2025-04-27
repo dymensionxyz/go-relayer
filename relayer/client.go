@@ -113,6 +113,15 @@ func (c *Chain) CreateClients(ctx context.Context,
 		zap.String("dst_chain_id", dst.ChainID()),
 	)
 
+	if dst.ChainProvider.IsDymensionRollapp() {
+		c.log.Info("Trying to set client as canonical.", zap.String("client_id", c.PathEnd.ClientID))
+		err := BlockUntilClientIsCanonical(ctx, c, dst.ChainID(), dsth)
+		if err != nil {
+			return "", "", fmt.Errorf("blockUntilClientIsCanonical: %w", err)
+		}
+		c.log.Info("Client is canonical. Continuing.")
+	}
+
 	return clientSrc, clientDst, nil
 }
 

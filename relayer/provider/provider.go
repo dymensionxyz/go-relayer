@@ -417,12 +417,13 @@ type ChainProvider interface {
 
 type DymensionHubProvider interface {
 	TrySetCanonicalClient(ctx context.Context, clientID string) error
-	GetCanonicalChan(ctx context.Context, rollappID string) (string, error)
+	GetCanonicalClient(ctx context.Context, rollappID string) (string, error)
+	GetLatestRollappStateHeight(ctx context.Context, rollappID string) (int64, error)
 }
 
 type RollappProvider interface {
-	TrySendGenesisTransfer(ctx context.Context, channelID string) error
-	ShouldSendGenesisTransfer(ctx context.Context) error
+	TrySendGenesisTransfer(ctx context.Context, channelID string) (*RelayerTxResponse, error)
+	GetBridgeState(ctx context.Context) (bool, error)
 }
 
 // Do we need intermediate types? i.e. can we use the SDK types for both substrate and cosmos?

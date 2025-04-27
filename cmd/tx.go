@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/avast/retry-go/v4"
-	"github.com/cosmos/relayer/v2/relayer/chains/cosmos"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	chantypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
@@ -584,7 +583,6 @@ $ %s tx chan demo-path --timeout 5s --max-retries 10`,
 				override,
 				a.config.memo(cmd),
 				pathName,
-				isRollapp(c[src], c[dst]),
 			)
 		},
 	}
@@ -602,7 +600,7 @@ func sendGenesisTransfer(a *appState) *cobra.Command {
 		Use:     "rollapp-send-genesis-transfer <path>",
 		Aliases: []string{},
 		Short:   "Send a genesis transfer from the rollapp to the hub.",
-		Long:    "Send a genesis transfer from the rollapp to the hub - intended for recovery/retry. Relayer will try automatically the first time during channel creation.",
+		Long:    "Send a genesis transfer from the rollapp to the hub - required step to open the bridge. should be called after channel established",
 		Args:    withUsage(cobra.ExactArgs(1)),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			pathName := args[0]
@@ -621,11 +619,38 @@ func sendGenesisTransfer(a *appState) *cobra.Command {
 				return fmt.Errorf("key %s not found on dst chain %s", c[dst].ChainProvider.Key(), c[dst].ChainID())
 			}
 
-			// create channel if it isn't already created
-			return processor.SendGenesisTransfer(
+			ra, ok := c[dst].ChainProvider.(provider.RollappProvider)
+			if !ok {
+				return errors.New("not rollapp provider")
+			}
+
+			hub, ok := c[src].ChainProvider.(provider.DymensionHubProvider)
+			if !ok {
+				return errors.New("not dymension hub provider")
+			}
+
+			// validate canonical client is set for this rollapp
+			canonicalClient, err := hub.GetCanonicalClient(cmd.Context(), c[dst].ChainID())
+			if err != nil {
+				return fmt.Errorf("query canonical client: %w", err)
+			}
+			if canonicalClient == "" {
+				return fmt.Errorf("rollapp %s does not have a canonical client set", c[dst].ChainID())
+			}
+
+			// validate the bridge is not already opened on the rollapp
+			open, err := ra.GetBridgeState(cmd.Context())
+			if err != nil {
+				return err
+			}
+			if open {
+				return fmt.Errorf("bridge is already open, cannot send genesis transfer")
+			}
+
+			return relayer.SendAndRelayGenesisTransfer(
 				cmd.Context(),
-				c[src].ChainProvider, // must be hub
-				c[dst].ChainProvider, // must be rollapp
+				c[src], // must be hub
+				c[dst], // must be rollapp
 			)
 		},
 	}
@@ -636,18 +661,6 @@ func sendGenesisTransfer(a *appState) *cobra.Command {
 	cmd = channelParameterFlags(a.viper, cmd)
 	cmd = memoFlag(a.viper, cmd)
 	return cmd
-}
-
-func isRollapp(src, dst *relayer.Chain) bool {
-	srcP, ok := src.ChainProvider.ProviderConfig().(cosmos.CosmosProviderConfig)
-	if !ok {
-		return false
-	}
-	dstP, ok := dst.ChainProvider.ProviderConfig().(cosmos.CosmosProviderConfig)
-	if !ok {
-		return false
-	}
-	return srcP.DymRollapp || dstP.DymRollapp
 }
 
 func closeChannelCmd(a *appState) *cobra.Command {
@@ -874,7 +887,6 @@ $ %s tx connect demo-path --src-port transfer --dst-port transfer --order unorde
 				override,
 				memo,
 				pathName,
-				isRollapp(c[src], c[dst]),
 			)
 		},
 	}
